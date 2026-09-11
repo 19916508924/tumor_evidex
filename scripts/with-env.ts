@@ -13,7 +13,7 @@
  *   ENV_FILE - specify env file (e.g., .env.production)
  *   NODE_ENV - auto-select .env.{NODE_ENV}
  *
- * Priority: --env argument > ENV_FILE env var > .env.{NODE_ENV} > .env.development (default)
+ * Priority: --env argument > ENV_FILE env var > .env.{NODE_ENV} > .env.local (default)
  */
 import { execSync } from 'child_process';
 
@@ -53,12 +53,10 @@ if (envIndex !== -1) {
   // Determine env file with priority:
   // 1. ENV_FILE environment variable
   // 2. .env.{NODE_ENV} based on NODE_ENV
-  // 3. .env.development (default)
+  // 3. .env.local (default, matching Next.js local development)
   envFile =
     process.env.ENV_FILE ||
-    (process.env.NODE_ENV
-      ? `.env.${process.env.NODE_ENV}`
-      : '.env.development');
+    (process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env.local');
 }
 
 // Get command and arguments (after removing --env)

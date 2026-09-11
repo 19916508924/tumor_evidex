@@ -44,6 +44,11 @@ prettier.config.*
 
 # Other
 coverage
+playwright-report
+test-results
+.source
+.open-next
+.wrangler
 .DS_Store
 
 src/shared/components

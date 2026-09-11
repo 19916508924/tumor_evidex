@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "ShipAny 模板二",
-    "description": "ShipAny 是用于构建 AI SaaS 创业项目的 NextJS 脚手架。提供丰富模板和组件，助您快速上线产品。",
-    "keywords": "shipany, shipany-boilerplate, shipany-template-two-demo"
+    "title": "Evidex | 精准肿瘤循证知识平台",
+    "description": "面向肿瘤基因检测与临床解读团队的可追溯治疗证据检索与决策支持产品。",
+    "keywords": "Evidex, 精准肿瘤学, 肿瘤基因检测, 循证知识库, 临床解读"
   },
   "sign": {
     "sign_in_title": "登录",

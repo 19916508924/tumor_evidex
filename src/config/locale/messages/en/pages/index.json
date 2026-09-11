@@ -1,423 +1,347 @@
 {
+  "metadata": {
+    "title": "Evidex | AI Drug and Clinical Trial Matching for Precision Oncology",
+    "description": "Evidex combines multidimensional patient context with multisource medical evidence to help genomic testing and clinical interpretation teams match drugs and clinical trials with traceable rationale.",
+    "keywords": "precision oncology, genomic testing, clinical interpretation, evidence intelligence, drug matching, clinical trial matching",
+    "open_graph_title": "See more of the patient. Match treatment opportunities with comprehensive evidence.",
+    "open_graph_description": "AI-structured patient context and multisource evidence for traceable drug and clinical trial matching."
+  },
   "page": {
-    "show_sections": [
-      "hero",
-      "logos",
-      "introduce",
-      "benefits",
-      "usage",
-      "features",
-      "stats",
-      "testimonials",
-      "faq",
-      "cta"
-    ],
+    "accessibility": {
+      "skip_to_content": "Skip to content"
+    },
+    "status_labels": {
+      "available": "Available now",
+      "direction": "Product direction",
+      "planned": "Planned",
+      "pilot": "Pilot discussion"
+    },
+    "live_demo": {
+      "eyebrow": "Live evidence workflow",
+      "title": "Query the current knowledge release",
+      "description": "Select a supported cancer type and variant. The result comes from the same Evidex API used by the workspace.",
+      "disease_label": "Cancer type",
+      "variant_label": "Genomic variant",
+      "submit": "Run evidence query",
+      "submitting": "Retrieving reviewed evidence",
+      "idle_title": "Ready for a structured query",
+      "idle_body": "No patient identity or narrative medical record is sent.",
+      "result_title": "Traceable evidence retrieved",
+      "summary_unavailable": "The narrative summary is unavailable. Structured evidence remains available.",
+      "no_evidence": "This knowledge release has no curated evidence for the selected query.",
+      "out_of_scope": "The selected query is outside the current demonstration scope.",
+      "error": "The evidence service is temporarily unavailable. Please try again.",
+      "therapy_count": "Therapy matches",
+      "claim_count": "Evidence claims",
+      "source_count": "Source records",
+      "release_label": "Knowledge release",
+      "open_workspace": "Open Chinese workspace",
+      "language_note": "The current narrative workspace is available in Chinese. Structured labels are localized here.",
+      "result_region": "Evidence query result"
+    },
+    "copy": {
+      "idle": "Copy API request",
+      "success": "Copied",
+      "error": "Copy failed"
+    },
     "sections": {
       "hero": {
         "id": "hero",
-        "title": "Ship AI Startups in hours, not days",
-        "highlight_text": "in hours",
-        "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups.<br/>Ship Fast with a variety of templates and components.",
-        "announcement": {
-          "badge": "New",
-          "title": "🎉 ShipAny Template Two",
-          "url": "/pricing"
+        "title": "See more of the patient. Match drugs and clinical trials with comprehensive evidence.",
+        "description": "Evidex uses AI to structure clinical signals across disease, stage, subtype, line of therapy, prior treatments, and genomic variants. It unifies publications, guidelines, regulatory approvals, public databases, and conference abstracts into one evidence base, so every match can be traced to its source.",
+        "access_line": "Search in the workspace or integrate the same capabilities through an API.",
+        "primary_action": {
+          "label": "Try the current demo",
+          "href": "/zh/evidence"
         },
-        "tip": "🎁 Special offer for the first 1000 users",
-        "buttons": [
+        "secondary_action": {
+          "label": "View a sample result",
+          "href": "/#evidence"
+        },
+        "barrier": "No full medical record or patient identity data is required. Start with an available cancer type and variant.",
+        "status": "Treatment evidence search is available now. Multidimensional matching, clinical trials, and additional sources are product directions."
+      },
+      "pain": {
+        "id": "pain",
+        "title": "One variant cannot capture the patient. One source cannot support the full interpretation.",
+        "description": "Simple rules and manual search struggle to deliver precision, evidence coverage, and speed at the same time.",
+        "scenarios": [
           {
-            "title": "Get Started",
-            "icon": "Zap",
-            "url": "/pricing",
-            "target": "_self",
-            "variant": "default"
+            "title": "Patient context is reduced to a few fields",
+            "body": "The same variant can carry different evidence and limitations across cancer type, stage, subtype, line of therapy, and treatment history.",
+            "costs": [
+              "Matches lack clinical context",
+              "Reviewers repeat secondary filtering",
+              "Interpretation criteria drift between people"
+            ]
           },
           {
-            "title": "Read Document",
-            "icon": "BookOpenText",
-            "url": "/docs",
-            "target": "_blank",
-            "variant": "outline"
+            "title": "Evidence is fragmented across sources",
+            "body": "Publications, labels, guidelines, databases, trial registries, and conference abstracts live in separate systems with different structures.",
+            "costs": [
+              "Teams repeat searches across sites",
+              "Evidence language and citations vary",
+              "Quality review must rebuild the source trail"
+            ]
+          },
+          {
+            "title": "Reporting deadlines expose every workflow gap",
+            "body": "Search, synthesis, citation, and review compete for the same limited medical resources as sample volume grows.",
+            "costs": [
+              "Report turnaround is affected",
+              "Repetitive work grows with volume",
+              "Senior reviewers remain a bottleneck"
+            ]
           }
-        ],
-        "show_avatars": true,
-        "avatars_tip": "999+ users are using ShipAny",
-        "show_award": false,
-        "image": {
-          "src": "/imgs/features/admin.png",
-          "alt": "hero",
-          "width": 1200,
-          "height": 800
+        ]
+      },
+      "value": {
+        "id": "value",
+        "title": "Deeper patient context. Broader evidence.",
+        "patient": {
+          "title": "AI-structured patient signals",
+          "description": "Evidex is designed to turn authorized clinical inputs into structured signals that can inform matching.",
+          "points": [
+            "Move beyond a single variant to multidimensional context",
+            "Make factors affecting evidence applicability explicit",
+            "Review study populations beside patient signals"
+          ],
+          "outcome": "More specific candidate matches and limitations, not a context-free drug list.",
+          "status": "Product direction",
+          "image_alt": "Conceptual flow from structured patient context through reviewed evidence to treatment opportunities"
         },
-        "image_invert": {
-          "src": "/imgs/features/admin-dark.png",
-          "alt": "hero",
-          "width": 1200,
-          "height": 800
+        "evidence": {
+          "title": "Multisource evidence knowledge base",
+          "description": "Medical knowledge becomes searchable, comparable, and citable evidence while preserving sources, populations, conclusions, and limitations.",
+          "points": [
+            "Keep regulatory status separate from treatment evidence",
+            "Connect every conclusion to a source and knowledge release",
+            "Preserve evidence level, population, and study limitations"
+          ],
+          "outcome": "One reviewable result for reporting, quality control, and historical traceability.",
+          "status": "PubMed and FDA available now. Additional sources are planned."
         },
-        "background_image": {
-          "src": "/imgs/bg/tree.jpg",
-          "alt": "hero"
+        "illustration_label": "Product direction illustration"
+      },
+      "results": {
+        "id": "results",
+        "title": "From treatment evidence to clinical opportunities still under investigation",
+        "drugs": {
+          "title": "Drug matching",
+          "description": "Organize drugs and regimens with evidence direction, regulatory status, study populations, clinical context, and rationale.",
+          "questions": [
+            "Why was the therapy matched?",
+            "Which patient factors support or limit it?",
+            "Which studies and regulatory records support it?",
+            "Does the evidence apply to the exact variant?"
+          ],
+          "status": "Limited treatment evidence matching is available now."
+        },
+        "trials": {
+          "title": "Clinical trial matching",
+          "description": "Match studies using disease, stage, subtype, line of therapy, prior treatments, biomarkers, and key eligibility criteria.",
+          "questions": [
+            "What treatment strategy is being studied?",
+            "Which signals align with eligibility criteria?",
+            "Which conditions may limit the match?",
+            "Which registry and version supplied the record?"
+          ],
+          "status": "Planned",
+          "boundary": "Candidate matches would not confirm eligibility. Final eligibility remains with the study team."
         }
       },
-      "logos": {
-        "id": "logos",
-        "title": "ShipAny is built on the shoulders of giants",
-        "items": [
+      "workflow": {
+        "id": "workflow",
+        "title": "From patient signals to evidence-backed matches",
+        "steps": [
           {
-            "title": "Next.js",
-            "image": {
-              "src": "/imgs/logos/nextjs.svg",
-              "alt": "Next.js"
-            }
+            "title": "Organize patient context",
+            "description": "Start with structured fields. Authorized clinical documents remain a future direction after privacy and security requirements are met."
           },
           {
-            "title": "React",
-            "image": {
-              "src": "/imgs/logos/react.svg",
-              "alt": "React"
-            }
+            "title": "Structure key signals",
+            "description": "Identify disease, stage, subtype, line of therapy, prior treatments, and biomarkers while preserving source context."
           },
           {
-            "title": "TailwindCSS",
-            "image": {
-              "src": "/imgs/logos/tailwindcss.svg",
-              "alt": "TailwindCSS"
-            }
+            "title": "Match reviewed evidence",
+            "description": "Search approved knowledge releases. The model cannot add sources outside the retrieved evidence."
           },
           {
-            "title": "Shadcn/UI",
-            "image": {
-              "src": "/imgs/logos/shadcn.svg",
-              "alt": "Shadcn/UI"
-            }
-          },
-          {
-            "title": "Vercel",
-            "image": {
-              "src": "/imgs/logos/vercel.svg",
-              "alt": "Vercel"
-            }
+            "title": "Return reviewable results",
+            "description": "Organize rationale, populations, evidence strength, limitations, and sources for professional review."
           }
         ]
       },
-      "introduce": {
-        "block": "features-list",
-        "id": "introduce",
-        "title": "What is ShipAny",
-        "label": "Introduce",
-        "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups, including templates, components, and documentation.",
-        "image": {
-          "src": "/imgs/features/landing-page.png",
-          "alt": "introduce"
+      "integration": {
+        "id": "integration",
+        "title": "One evidence engine, two ways to work",
+        "workspace": {
+          "title": "Online workspace",
+          "description": "Select case criteria, then review treatment matches, study limitations, and original sources.",
+          "use_cases": [
+            "One-off evidence review",
+            "Review before report delivery",
+            "Internal case discussion and training",
+            "Output validation before integration"
+          ],
+          "action": { "label": "Try the current demo", "href": "/zh/evidence" }
         },
-        "items": [
-          {
-            "title": "Ready-to-use Templates",
-            "description": "Choose from dozens of production-ready AI SaaS templates to quickly start your project.",
-            "icon": "RiNextjsFill",
-            "image": {
-              "src": "/imgs/features/1.png",
-              "alt": "introduce"
-            }
+        "api": {
+          "title": "API integration",
+          "description": "Submit structured requests and receive evidence fields, citation relationships, and knowledge versions for internal workflows.",
+          "use_cases": [
+            "Reporting workflow calls",
+            "Shared evidence capability across products",
+            "Standardized output and citations",
+            "Traceable evidence IDs and releases"
+          ],
+          "action": "View the API example",
+          "status": "Pilot discussion only. Production authentication, quotas, SDKs, and service commitments are not yet available.",
+          "request": {
+            "disease": "NSCLC",
+            "biomarkers": [
+              { "gene": "EGFR", "alterationType": "SNV", "hgvsp": "p.L858R" }
+            ],
+            "jurisdiction": "US",
+            "locale": "zh-CN"
           },
-          {
-            "title": "Infrastructure Setup",
-            "description": "Get instant access to scalable infrastructure with best practices built-in.",
-            "icon": "RiDatabase2Line",
-            "image": {
-              "src": "/imgs/features/2.png",
-              "alt": "introduce"
-            }
-          },
-          {
-            "title": "Quick Deployment",
-            "description": "Deploy your AI SaaS application to production in hours, not days.",
-            "icon": "RiCloudyFill",
-            "image": {
-              "src": "/imgs/features/3.png",
-              "alt": "introduce"
-            }
-          },
-          {
-            "title": "AI Integration",
-            "description": "Integrate AI into your project with ease using our built-in AI SDK.",
-            "icon": "RiRobot2Line",
-            "image": {
-              "src": "/imgs/features/4.png",
-              "alt": "introduce"
-            }
+          "response": {
+            "status": "ANSWERED",
+            "knowledge": { "release": "v0.2.0" },
+            "resultGroups": "PublicEvidenceResultGroup[]",
+            "answer": "EvidenceAnswerDraft",
+            "disclaimer": "string"
           }
-        ],
-        "className": "bg-muted"
+        }
       },
-      "benefits": {
-        "block": "features-accordion",
-        "id": "benefits",
-        "title": "Why Choose ShipAny",
-        "label": "Benefits",
-        "description": "Get everything you need to launch your AI startup - from ready-to-use templates to technical support.",
-        "items": [
-          {
-            "title": "Complete Framework",
-            "description": "Built on Next.js with authentication, payments, and AI integration - everything works out of the box.",
-            "icon": "RiNextjsFill",
-            "image": {
-              "src": "/imgs/features/user-billing.png",
-              "alt": "benefits"
-            }
-          },
-          {
-            "title": "Rich Templates Library",
-            "description": "Choose from various AI SaaS templates to kickstart your project - chatbots, image generation, and more.",
-            "icon": "RiClapperboardAiLine",
-            "image": {
-              "src": "/imgs/features/admin-settings.png",
-              "alt": "benefits"
-            }
-          },
-          {
-            "title": "Technical Guidance",
-            "description": "Get dedicated support and join our developer community to ensure your successful launch.",
-            "icon": "RiCodeFill",
-            "image": {
-              "src": "/imgs/features/landing-page.png",
-              "alt": "benefits"
-            }
-          }
+      "evidence": {
+        "id": "evidence",
+        "title": "A match is the starting point. The evidence chain is the product.",
+        "description": "Each candidate explains why it was matched, which population the evidence applies to, its strength, its limitations, and its source.",
+        "sample_label": "Current real example",
+        "sample_input": "Non-small cell lung cancer + EGFR p.L858R",
+        "features": [
+          "Treatment evidence organized by therapy",
+          "Same-disease and exact-variant cross-indication evidence kept separate",
+          "Sensitivity, resistance, and exploratory directions",
+          "Study design, sample size, stage, line, and prior treatment",
+          "PMID, FDA records, permitted passages, and knowledge release",
+          "Narrative summary kept separate from structured evidence"
+        ],
+        "chain": [
+          "Structured query",
+          "Reviewed knowledge release",
+          "Deterministic evidence pack",
+          "Citation allowlist",
+          "Reviewable result"
         ]
       },
-      "usage": {
-        "block": "features-step",
-        "id": "usage",
-        "title": "How to Launch with ShipAny",
-        "description": "Get your AI SaaS startup running in three simple steps:",
-        "image": {
-          "src": "/imgs/features/1.png",
-          "alt": "usage"
+      "trust": {
+        "id": "trust",
+        "title": "Built to be reviewed, not blindly trusted",
+        "release": "v0.2.0",
+        "coverage_note": "These figures describe the current demonstration release, not the final product scope or all public medical evidence.",
+        "metrics": [
+          { "value": "2", "label": "Cancer types" },
+          { "value": "2", "label": "Genes" },
+          { "value": "5", "label": "Variants" },
+          { "value": "6", "label": "Direct query combinations" },
+          { "value": "20", "label": "Clinical evidence claims" },
+          { "value": "9", "label": "FDA approval records" },
+          { "value": "22", "label": "Source documents" }
+        ],
+        "controls": [
+          "Only reviewed and published evidence enters retrieval",
+          "The same input and release return a deterministic evidence set",
+          "The model summarizes the Evidence Pack and does not decide retrieval",
+          "Every treatment statement cites evidence from the current request",
+          "References outside the retrieved set are rejected",
+          "Structured evidence remains if the narrative summary fails",
+          "Missing and out-of-scope results are shown explicitly"
+        ]
+      },
+      "roadmap": {
+        "id": "roadmap",
+        "title": "Starting with a traceable evidence workflow, expanding toward complete treatment opportunity matching",
+        "available": {
+          "title": "Available now",
+          "items": [
+            "Structured cancer type and genomic variant selection",
+            "Reviewed PubMed and FDA evidence",
+            "Drug-centered treatment evidence",
+            "Evidence Pack constrained Chinese summaries",
+            "Evidence IDs, PMID, regulatory sources, and release traceability",
+            "Online demonstration and same-origin internal API"
+          ]
         },
-        "image_position": "left",
-        "text_align": "center",
-        "items": [
-          {
-            "title": "Get ShipAny",
-            "description": "Buy ShipAny with a one-time payment. Check your email for the code and documentation.",
-            "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "Start Your Project",
-            "description": "Read the documentation and clone the code of ShipAny. Start building your AI SaaS startup.",
-            "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "Customize Your Project",
-            "description": "Modify the template with your data and contents. Specific AI functionality needs.",
-            "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "Deploy to Production",
-            "description": "Deploy your project to production with a few steps and start serving customers immediately.",
-            "image": {
-              "src": "/imgs/features/8.png",
-              "alt": "usage"
-            }
-          }
-        ],
-        "className": "bg-muted"
-      },
-      "features": {
-        "id": "features",
-        "title": "Key Features of ShipAny",
-        "description": "Everything you need to launch your AI SaaS startup quickly and efficiently.",
-        "items": [
-          {
-            "title": "Next.js Boilerplate",
-            "description": "Production-ready Next.js templates with SEO-friendly structure and i18n support.",
-            "icon": "RiNextjsFill"
-          },
-          {
-            "title": "Authentication & Payments",
-            "description": "Integrated Google OAuth, one-tap login, and Stripe payment processing.",
-            "icon": "RiKey2Fill"
-          },
-          {
-            "title": "Data Infrastructure",
-            "description": "Built-in Supabase integration for reliable and scalable data storage.",
-            "icon": "RiDatabase2Line"
-          },
-          {
-            "title": "One-Click Deployment",
-            "description": "Seamless deployment to Vercel or Cloudflare with automated setup.",
-            "icon": "RiCloudy2Fill"
-          },
-          {
-            "title": "Business Analytics",
-            "description": "Integrated Google Analytics and Search Console for tracking growth.",
-            "icon": "RiBarChart2Line"
-          },
-          {
-            "title": "AI-Ready Infrastructure",
-            "description": "Pre-configured AI integration with built-in credits system and API sales.",
-            "icon": "RiRobot2Line"
-          }
-        ]
-      },
-      "stats": {
-        "id": "stats",
-        "title": "People Love ShipAny",
-        "description": "for it's easy to use and fast to ship.",
-        "items": [
-          {
-            "title": "999+",
-            "description": "Customers"
-          },
-          {
-            "title": "200+",
-            "description": "Blocks"
-          },
-          {
-            "title": "50+",
-            "description": "Templates"
-          }
-        ],
-        "className": "bg-muted"
-      },
-      "testimonials": {
-        "id": "testimonials",
-        "title": "What Users Say About ShipAny",
-        "description": "Hear from developers and founders who launched their AI startups with ShipAny.",
-        "items": [
-          {
-            "name": "David Chen",
-            "role": "Founder of AIWallpaper.shop",
-            "quote": "ShipAny saved us months of development time. We launched our AI wallpaper business in just 2 days and got our first paying customer within a week!",
-            "image": {
-              "src": "/imgs/avatars/1.png",
-              "alt": "david"
-            }
-          },
-          {
-            "name": "Rachel Kim",
-            "role": "CTO at HeyBeauty.ai",
-            "quote": "The pre-built AI infrastructure is a game-changer. We didn't have to worry about architecture - just focused on our AI beauty tech and went live fast.",
-            "image": {
-              "src": "/imgs/avatars/2.png",
-              "alt": "rachel"
-            }
-          },
-          {
-            "name": "Marcus Thompson",
-            "role": "Solo Developer",
-            "quote": "As a solo developer, ShipAny gave me everything I needed - auth, payments, AI integration, and beautiful UI. Launched my SaaS in a weekend!",
-            "image": {
-              "src": "/imgs/avatars/3.png",
-              "alt": "marcus"
-            }
-          },
-          {
-            "name": "Sofia Garcia",
-            "role": "CEO of Melodisco",
-            "quote": "The templates are production-ready and highly customizable. We built our AI music platform in hours instead of months. Incredible time-to-market!",
-            "image": {
-              "src": "/imgs/avatars/4.png",
-              "alt": "sofia"
-            }
-          },
-          {
-            "name": "James Wilson",
-            "role": "Tech Lead at GPTs.works",
-            "quote": "ShipAny's infrastructure is rock-solid. We scaled from 0 to 10k users without touching the backend. Best investment for our AI startup.",
-            "image": {
-              "src": "/imgs/avatars/5.png",
-              "alt": "james"
-            }
-          },
-          {
-            "name": "Anna Zhang",
-            "role": "Startup Founder",
-            "quote": "From idea to launch in 3 days! ShipAny's templates and deployment tools made it possible to test our AI business concept incredibly fast.",
-            "image": {
-              "src": "/imgs/avatars/6.png",
-              "alt": "anna"
-            }
-          }
-        ]
+        "direction": {
+          "title": "Product direction",
+          "items": [
+            "Broader cancer, gene, variant, and treatment coverage",
+            "Stage, subtype, line of therapy, and prior treatments in matching",
+            "AI structuring of authorized clinical inputs",
+            "Combined drug and clinical trial matching",
+            "Guidelines, databases, trial registries, and conference abstracts",
+            "Enterprise authentication, logs, quotas, SDKs, and service commitments"
+          ]
+        }
       },
       "faq": {
         "id": "faq",
-        "title": "Frequently Asked Questions About ShipAny",
-        "description": "Have another question? Contact us on Discord or by email.",
+        "title": "Frequently asked questions",
         "items": [
           {
-            "question": "What exactly is ShipAny and how does it work?",
-            "answer": "ShipAny is a comprehensive NextJS boilerplate designed specifically for building AI SaaS startups. It provides ready-to-use templates, infrastructure setup, and deployment tools that help you launch your AI business in hours instead of days."
+            "question": "Who is Evidex designed for?",
+            "answer": "Evidex is designed for genomic testing, clinical interpretation, and medical teams that need evidence search, matching, report support, and internal review."
           },
           {
-            "question": "Do I need advanced technical skills to use ShipAny?",
-            "answer": "While basic programming knowledge is helpful, ShipAny is designed to be developer-friendly. Our templates and documentation make it easy to get started, even if you're not an expert in AI or cloud infrastructure."
+            "question": "Does Evidex replace clinical interpretation professionals?",
+            "answer": "No. Evidex organizes patient signals, matches evidence, and explains sources. Final interpretation and medical review remain with qualified professionals."
           },
           {
-            "question": "What types of AI SaaS can I build with ShipAny?",
-            "answer": "ShipAny supports a wide range of AI applications, from content generation to data analysis tools. Our templates cover popular use cases like AI chatbots, content generators, image processing apps, and more."
+            "question": "Can Evidex match clinical trials today?",
+            "answer": "Not in the current demonstration release. Clinical trial matching is a product direction built around patient criteria, registry data, and eligibility requirements."
           },
           {
-            "question": "How long does it typically take to launch with ShipAny?",
-            "answer": "With ShipAny, you can have a working prototype in hours and a production-ready application in hours. Our one-click deployment and pre-configured infrastructure significantly reduce the traditional months-long development cycle."
+            "question": "Why is the current catalog limited?",
+            "answer": "The current release validates human review, deterministic retrieval, citation controls, and source traceability before expanding coverage."
           },
           {
-            "question": "What's included in the ShipAny infrastructure?",
-            "answer": "ShipAny provides a complete infrastructure stack including authentication, database setup, API integration, payment processing, and scalable cloud deployment. Everything is pre-configured following industry best practices."
+            "question": "Does no result mean no medical evidence exists?",
+            "answer": "No. It means the current Evidex release does not contain eligible evidence for that query, or the query is outside the current scope."
           },
           {
-            "question": "Can I customize the templates to match my brand?",
-            "answer": "Absolutely! All ShipAny templates are fully customizable. You can modify the design, features, and functionality to match your brand identity and specific business requirements while maintaining the robust underlying infrastructure."
+            "question": "Can Evidex integrate with an existing reporting system?",
+            "answer": "A structured request and response example is available. Production integration still requires authentication, quotas, logging, security, and service commitments."
+          },
+          {
+            "question": "How does Evidex control AI generation risk?",
+            "answer": "The model summarizes an Evidence Pack built from reviewed knowledge. It cannot decide retrieval, regulatory status, or evidence levels, and citations pass an allowlist check."
+          },
+          {
+            "question": "Do we need to upload patient medical records?",
+            "answer": "No. The current release does not accept narrative records or collect names, identity numbers, contact details, or medical record numbers."
+          },
+          {
+            "question": "Can the output be inserted directly into a final report?",
+            "answer": "Evidex supports professional interpretation and review. Each organization decides whether and how outputs enter reports under its own medical, quality, and compliance process."
           }
         ]
       },
-      "cta": {
-        "id": "cta",
-        "title": "Ship your first AI SaaS Startup",
-        "description": "Start from here, ship with ShipAny.",
-        "buttons": [
-          {
-            "title": "Get ShipAny",
-            "url": "https://shipany.ai",
-            "target": "_blank",
-            "icon": "Zap"
-          },
-          {
-            "title": "Read Document",
-            "url": "/docs",
-            "target": "_blank",
-            "variant": "outline",
-            "icon": "BookOpenText"
-          }
-        ],
-        "className": "bg-muted"
-      },
-      "subscribe": {
-        "id": "subscribe",
-        "title": "Subscribe to our newsletter",
-        "description": "Get the latest news and updates from ShipAny.",
-        "submit": {
-          "input": {
-            "placeholder": "Enter your email"
-          },
-          "button": {
-            "title": "Subscribe"
-          },
-          "action": "/api/subscribe"
+      "contact": {
+        "id": "contact",
+        "title": "Test Evidex with one real interpretation scenario",
+        "description": "Start with evidence search and source traceability, then evaluate how patient context, clinical trials, and integration could fit your reporting workflow.",
+        "demo_status": "The external demo request channel is being configured. No contact request is collected on this page yet.",
+        "primary_action": {
+          "label": "Try the current demo",
+          "href": "/zh/evidence"
         },
-        "className": "bg-muted"
+        "secondary_action": {
+          "label": "Review integration",
+          "href": "/#integration"
+        },
+        "barrier": "No system integration is required. Start with one supported cancer type and variant."
       }
     }
   }

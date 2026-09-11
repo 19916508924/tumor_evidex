@@ -1,422 +1,338 @@
 {
+  "metadata": {
+    "title": "Evidex | AI 肿瘤药物与临床试验匹配平台",
+    "description": "Evidex 综合多维患者线索与多来源循证知识，为肿瘤基因检测和临床解读团队匹配相关药物与临床试验，并提供可追溯的推荐依据。",
+    "keywords": "精准肿瘤学, 肿瘤基因检测, 临床解读, 循证知识库, 药物匹配, 临床试验匹配",
+    "open_graph_title": "看见更多患者细节，用全面证据匹配治疗机会",
+    "open_graph_description": "AI 精细理解患者线索，多来源循证知识支撑药物与临床试验匹配。"
+  },
   "page": {
-    "show_sections": [
-      "hero",
-      "logos",
-      "introduce",
-      "benefits",
-      "usage",
-      "features",
-      "stats",
-      "testimonials",
-      "faq",
-      "cta"
-    ],
+    "accessibility": {
+      "skip_to_content": "跳到主要内容"
+    },
+    "status_labels": {
+      "available": "已开放",
+      "direction": "产品方向",
+      "planned": "规划中",
+      "pilot": "试点沟通"
+    },
+    "live_demo": {
+      "eyebrow": "真实证据链路",
+      "title": "查询当前知识版本",
+      "description": "选择已支持的癌种与变异，结果来自工作台使用的同一套 Evidex 接口。",
+      "disease_label": "癌种",
+      "variant_label": "基因变异",
+      "submit": "运行证据查询",
+      "submitting": "正在检索已审核证据",
+      "idle_title": "等待结构化查询",
+      "idle_body": "不会发送患者身份信息或自然语言病历。",
+      "result_title": "已检索到可追溯证据",
+      "summary_unavailable": "自然语言综述暂不可用，结构化证据仍可查看。",
+      "no_evidence": "当前知识版本暂无该查询的已收录证据。",
+      "out_of_scope": "所选查询超出当前演示范围。",
+      "error": "证据服务暂时不可用，请稍后重试。",
+      "therapy_count": "治疗关联",
+      "claim_count": "证据结论",
+      "source_count": "来源记录",
+      "release_label": "知识版本",
+      "open_workspace": "查看完整工作台",
+      "language_note": "当前工作台提供中文循证综述。",
+      "result_region": "证据查询结果"
+    },
+    "copy": {
+      "idle": "复制 API 请求",
+      "success": "已复制",
+      "error": "复制失败"
+    },
     "sections": {
       "hero": {
         "id": "hero",
-        "title": "一小时快速上线你的 AI 创业项目",
-        "highlight_text": "一小时",
-        "description": "ShipAny 是用于构建 AI SaaS 创业项目的 NextJS 项目模板。<br/>集成常用功能，快速上线你的产品。",
-        "announcement": {
-          "badge": "全新",
-          "title": "🎉 ShipAny 模板二已发布",
-          "url": "/pricing"
-        },
-        "tip": "🎁 前 1000 名用户特价优惠",
-        "buttons": [
+        "title": "看见更多患者细节，用全面证据匹配药物与临床试验",
+        "description": "Evidex 利用 AI 拆解疾病、分期、亚型、治疗线次、既往治疗和基因变异等临床线索，并将论文、指南、监管批准、公共数据库与会议摘要整合为统一的循证知识库，让每项匹配都有据可查。",
+        "access_line": "支持在线查询，也可通过 API 接入现有报告解读流程。",
+        "primary_action": { "label": "体验当前版本", "href": "/zh/evidence" },
+        "secondary_action": { "label": "查看结果示例", "href": "/#evidence" },
+        "barrier": "无需上传完整病历或患者身份信息，可从已开放的癌种和变异开始。",
+        "status": "当前已开放治疗证据查询。多维患者匹配、临床试验和更多证据来源属于产品方向。"
+      },
+      "pain": {
+        "id": "pain",
+        "title": "只看一个变异，无法还原患者全貌；只查一种来源，也无法支撑完整解读",
+        "description": "简单规则和人工检索很难同时兼顾匹配精度、证据覆盖和交付效率。",
+        "scenarios": [
           {
-            "title": "立即开始",
-            "icon": "Zap",
-            "url": "/pricing",
-            "target": "_self",
-            "variant": "default"
+            "title": "患者信息被压缩成少量字段",
+            "body": "同一变异在不同癌种、分期、亚型、治疗线次和既往治疗背景下，可能对应不同证据与限制。",
+            "costs": [
+              "匹配结果缺少临床上下文",
+              "解读人员重复进行二次筛选",
+              "不同审核人员的口径可能漂移"
+            ]
           },
           {
-            "title": "阅读文档",
-            "icon": "BookOpenText",
-            "url": "/docs",
-            "target": "_blank",
-            "variant": "outline"
+            "title": "证据散落在不同来源",
+            "body": "论文、监管标签、指南、数据库、试验注册和会议摘要分散在结构与更新节奏不同的平台。",
+            "costs": [
+              "团队在多个网站重复检索",
+              "证据表述与引用格式难以统一",
+              "质控时需要重新还原来源链"
+            ]
+          },
+          {
+            "title": "报告截止时间放大流程问题",
+            "body": "样本量增加时，检索、整理、引用和复核会同时争夺有限的医学人力。",
+            "costs": [
+              "报告周转时间受到影响",
+              "重复劳动随样本量增长",
+              "资深复核人员持续成为瓶颈"
+            ]
           }
-        ],
-        "show_avatars": true,
-        "avatars_tip": "999+ 用户在使用 ShipAny 上站",
-        "show_award": false,
-        "image": {
-          "src": "/imgs/features/admin.png",
-          "alt": "hero",
-          "width": 1200,
-          "height": 800
+        ]
+      },
+      "value": {
+        "id": "value",
+        "title": "更细地理解患者，更全面地组织证据",
+        "patient": {
+          "title": "AI 拆解更多患者线索",
+          "description": "Evidex 计划将经过授权的临床输入转化为可用于匹配的结构化线索。",
+          "points": [
+            "从单一变异升级为多维病例上下文",
+            "明确影响证据适用性的患者特征",
+            "将研究人群条件与患者线索并列复核"
+          ],
+          "outcome": "得到更细粒度的候选结果和限制说明，而不是缺少上下文的药物清单。",
+          "status": "产品方向",
+          "image_alt": "患者结构化线索经过审核知识库形成治疗机会的概念流程"
         },
-        "image_invert": {
-          "src": "/imgs/features/admin-dark.png",
-          "alt": "hero",
-          "width": 1200,
-          "height": 800
+        "evidence": {
+          "title": "多来源循证知识库",
+          "description": "将不同医学资料拆解为可检索、可比较、可引用的证据，并保留来源、人群、结论与限制。",
+          "points": [
+            "监管状态与治疗证据分别建模",
+            "每项结论关联来源与知识版本",
+            "保留证据等级、研究人群和主要局限"
+          ],
+          "outcome": "在一个结果中完成报告复核、内部质控和历史追溯。",
+          "status": "当前已开放 PubMed 与 FDA 证据，其他来源规划中。"
         },
-        "background_image": {
-          "src": "/imgs/bg/tree.jpg",
-          "alt": "hero"
+        "illustration_label": "产品方向示意"
+      },
+      "results": {
+        "id": "results",
+        "title": "从治疗药物，到仍在研究中的临床机会",
+        "drugs": {
+          "title": "药物匹配",
+          "description": "按药物或方案组织证据方向、监管状态、研究人群、临床限制和匹配依据。",
+          "questions": [
+            "为什么匹配该药物或方案？",
+            "哪些患者特征支持或限制该结果？",
+            "哪些研究与监管记录提供依据？",
+            "证据针对精确变异还是合并人群？"
+          ],
+          "status": "当前已开放有限范围的治疗证据匹配。"
+        },
+        "trials": {
+          "title": "临床试验匹配",
+          "description": "计划结合疾病、分期、亚型、线次、既往治疗、生物标志物和关键入组条件匹配试验。",
+          "questions": [
+            "试验研究什么治疗方向？",
+            "哪些患者线索与入组条件相关？",
+            "哪些条件可能限制匹配？",
+            "记录来自哪个注册来源和版本？"
+          ],
+          "status": "规划中",
+          "boundary": "候选匹配不代表确认入组，最终资格需要由研究团队判断。"
         }
       },
-      "logos": {
-        "title": "ShipAny 使用以下技术栈构建",
-        "items": [
+      "workflow": {
+        "id": "workflow",
+        "title": "从患者线索，到有依据的匹配结果",
+        "steps": [
           {
-            "title": "Next.js",
-            "image": {
-              "src": "/imgs/logos/nextjs.svg",
-              "alt": "Next.js"
-            }
+            "title": "组织患者信息",
+            "description": "从结构化字段开始。授权临床资料需要在隐私与安全要求完成后再进入产品。"
           },
           {
-            "title": "React",
-            "image": {
-              "src": "/imgs/logos/react.svg",
-              "alt": "React"
-            }
+            "title": "提取关键线索",
+            "description": "识别疾病、分期、亚型、线次、既往治疗和生物标志物，同时保留原始上下文。"
           },
           {
-            "title": "TailwindCSS",
-            "image": {
-              "src": "/imgs/logos/tailwindcss.svg",
-              "alt": "TailwindCSS"
-            }
+            "title": "匹配审核证据",
+            "description": "从已审核、已发布的知识版本检索，模型不能补充检索范围外的来源。"
           },
           {
-            "title": "Shadcn/UI",
-            "image": {
-              "src": "/imgs/logos/shadcn.svg",
-              "alt": "Shadcn/UI"
-            }
-          },
-          {
-            "title": "Vercel",
-            "image": {
-              "src": "/imgs/logos/vercel.svg",
-              "alt": "Vercel"
-            }
+            "title": "生成可复核结果",
+            "description": "按依据、人群、证据强度、限制和来源组织结果，交给专业人员审核。"
           }
         ]
       },
-      "introduce": {
-        "block": "features-list",
-        "id": "introduce",
-        "title": "ShipAny 是什么？",
-        "label": "产品简介",
-        "description": "ShipAny 是专为 AI SaaS 创业项目打造的 NextJS 脚手架，包括丰富模板、组件及文档。",
-        "image": {
-          "src": "/imgs/features/landing-page.png",
-          "alt": "introduce"
+      "integration": {
+        "id": "integration",
+        "title": "单次查询和系统接入，使用同一套证据能力",
+        "workspace": {
+          "title": "在线工作台",
+          "description": "选择病例条件，查看治疗关联、研究限制和原始来源。",
+          "use_cases": [
+            "复杂病例的单次证据检索",
+            "报告出具前的证据复核",
+            "内部案例讨论与培训",
+            "接入前的结果质量验证"
+          ],
+          "action": { "label": "体验当前版本", "href": "/zh/evidence" }
         },
-        "items": [
-          {
-            "title": "开箱即用的模板",
-            "description": "从数十款生产级 AI SaaS 模板中选择，快速开启你的项目。",
-            "icon": "RiNextjsFill",
-            "image": {
-              "src": "/imgs/features/1.png",
-              "alt": "introduce"
-            }
+        "api": {
+          "title": "API 接入",
+          "description": "通过结构化请求获取证据字段、引用关系和知识版本，用于内部报告与产品流程。",
+          "use_cases": [
+            "报告解读流程调用",
+            "多产品复用同一证据能力",
+            "统一输出字段和引用格式",
+            "保存可追溯的证据 ID 与版本"
+          ],
+          "action": "查看 API 示例",
+          "status": "仅开放试点沟通。生产鉴权、配额、SDK 和服务保障尚未提供。",
+          "request": {
+            "disease": "NSCLC",
+            "biomarkers": [
+              { "gene": "EGFR", "alterationType": "SNV", "hgvsp": "p.L858R" }
+            ],
+            "jurisdiction": "US",
+            "locale": "zh-CN"
           },
-          {
-            "title": "基础设施搭建",
-            "description": "内置最佳实践，即刻拥有可扩展的基础设施。",
-            "icon": "RiDatabase2Line",
-            "image": {
-              "src": "/imgs/features/2.png",
-              "alt": "introduce"
-            }
-          },
-          {
-            "title": "极速部署",
-            "description": "AI SaaS 产品快速上线，助力小时级交付。",
-            "icon": "RiCloudyFill",
-            "image": {
-              "src": "/imgs/features/3.png",
-              "alt": "introduce"
-            }
-          },
-          {
-            "title": "AI 集成",
-            "description": "通过内置的 AI SDK，轻松为你的项目集成 AI 能力。",
-            "icon": "RiRobot2Line",
-            "image": {
-              "src": "/imgs/features/4.png",
-              "alt": "introduce"
-            }
+          "response": {
+            "status": "ANSWERED",
+            "knowledge": { "release": "v0.2.0" },
+            "resultGroups": "PublicEvidenceResultGroup[]",
+            "answer": "EvidenceAnswerDraft",
+            "disclaimer": "string"
           }
-        ],
-        "className": "bg-muted"
+        }
       },
-      "benefits": {
-        "block": "features-accordion",
-        "id": "benefits",
-        "title": "为何选择 ShipAny",
-        "label": "产品优势",
-        "description": "你获得一切 AI 创业所需——从开箱即用的模板到专业技术支持。",
-        "items": [
-          {
-            "title": "全栈解决方案",
-            "description": "基于 Next.js，集成认证、支付、AI，一站式开箱即用。",
-            "icon": "RiNextjsFill",
-            "image": {
-              "src": "/imgs/features/user-billing.png",
-              "alt": "benefits"
-            }
-          },
-          {
-            "title": "丰富模板库",
-            "description": "多样的 AI SaaS 模板，点击即用，涵盖聊天、图像生成等多场景。",
-            "icon": "RiClapperboardAiLine",
-            "image": {
-              "src": "/imgs/features/admin-settings.png",
-              "alt": "benefits"
-            }
-          },
-          {
-            "title": "专属技术指导",
-            "description": "享受专属技术支持与开发者社区，为你的成功保驾护航。",
-            "icon": "RiCodeFill",
-            "image": {
-              "src": "/imgs/features/landing-page.png",
-              "alt": "benefits"
-            }
-          }
+      "evidence": {
+        "id": "evidence",
+        "title": "推荐结果只是起点，证据链才是产品核心",
+        "description": "每项候选结果都说明匹配原因、适用人群、证据强度、主要限制和原始来源。",
+        "sample_label": "当前真实示例",
+        "sample_input": "非小细胞肺癌 + EGFR p.L858R",
+        "features": [
+          "按治疗方案组织结构化证据",
+          "同疾病与跨适应证精确变异证据分区",
+          "区分敏感、耐药与探索性方向",
+          "保留研究设计、样本量、分期、线次和既往治疗",
+          "提供 PMID、FDA 记录、允许展示的原文和知识版本",
+          "模型综述与结构化证据卡清楚分开"
+        ],
+        "chain": [
+          "结构化查询",
+          "已审核知识版本",
+          "确定性证据包",
+          "引用白名单",
+          "可复核结果"
         ]
       },
-      "usage": {
-        "block": "features-step",
-        "id": "usage",
-        "title": "三步使用 ShipAny 极速上线",
-        "description": "只需三步，快速开启你的 AI SaaS 创业之路：",
-        "image": {
-          "src": "/imgs/features/1.png",
-          "alt": "usage"
+      "trust": {
+        "id": "trust",
+        "title": "不要求团队相信一个黑箱，而是让每项结果经得起复核",
+        "release": "v0.2.0",
+        "coverage_note": "这些数字仅代表当前演示知识版本，不代表最终产品范围或全部公开医学证据。",
+        "metrics": [
+          { "value": "2", "label": "癌种" },
+          { "value": "2", "label": "基因" },
+          { "value": "5", "label": "变异" },
+          { "value": "6", "label": "直接查询组合" },
+          { "value": "20", "label": "临床证据结论" },
+          { "value": "9", "label": "FDA 批准记录" },
+          { "value": "22", "label": "来源文档" }
+        ],
+        "controls": [
+          "只有已审核、已发布的证据进入检索",
+          "相同输入和知识版本返回确定的证据集合",
+          "模型只归纳证据包，不决定检索结果",
+          "每个治疗结论必须引用本次检索证据",
+          "未检索到的引用会被拒绝",
+          "模型综述失败时仍返回结构化证据",
+          "未收录和超出范围会被明确显示"
+        ]
+      },
+      "roadmap": {
+        "id": "roadmap",
+        "title": "从核心证据链路开始，扩展到完整的治疗机会匹配",
+        "available": {
+          "title": "当前已开放",
+          "items": [
+            "结构化癌种与基因变异选择",
+            "已审核 PubMed 与 FDA 证据",
+            "按治疗方案组织的结构化结果",
+            "受证据包约束的中文综述",
+            "证据 ID、PMID、监管来源和知识版本追溯",
+            "在线演示与同源内部 API"
+          ]
         },
-        "image_position": "left",
-        "text_align": "center",
-        "items": [
-          {
-            "title": "获取 ShipAny",
-            "description": "一次性购买 ShipAny，查收邮件获取代码与文档。",
-            "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "启动你的项目",
-            "description": "阅读说明文档，克隆 ShipAny 代码，开始开发你的 AI SaaS 项目。",
-            "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "个性化定制",
-            "description": "根据需求修改模板内容和数据，配置专属 AI 能力。",
-            "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "部署上线",
-            "description": "简单几步将你的项目推向生产环境，立刻为客户提供服务。",
-            "image": {
-              "src": "/imgs/features/8.png",
-              "alt": "usage"
-            }
-          }
-        ],
-        "className": "bg-muted"
-      },
-      "features": {
-        "id": "features",
-        "title": "ShipAny 核心功能",
-        "description": "一切你需要的工具，助力 AI SaaS 项目高效上线。",
-        "items": [
-          {
-            "title": "Next.js 项目模板",
-            "description": "生产就绪、支持 SEO 与多语言的 Next.js 脚手架。",
-            "icon": "RiNextjsFill"
-          },
-          {
-            "title": "身份认证与支付",
-            "description": "集成谷歌 OAuth、一键登录，以及 Stripe 支付。",
-            "icon": "RiKey2Fill"
-          },
-          {
-            "title": "数据基础设施",
-            "description": "内置 Supabase，稳定可靠的数据存储。",
-            "icon": "RiDatabase2Line"
-          },
-          {
-            "title": "一键部署",
-            "description": "自动化部署到 Vercel 或 Cloudflare，极速上线。",
-            "icon": "RiCloudy2Fill"
-          },
-          {
-            "title": "商业分析",
-            "description": "集成 Google Analytics、Search Console，助力业务增长。",
-            "icon": "RiBarChart2Line"
-          },
-          {
-            "title": "AI 原生基础设施",
-            "description": "预置 AI 集成、积分系统和 API 售卖能力。",
-            "icon": "RiRobot2Line"
-          }
-        ]
-      },
-      "stats": {
-        "id": "stats",
-        "title": "用户喜爱 ShipAny",
-        "description": "因其易用且上线飞快。",
-        "items": [
-          {
-            "title": "999+",
-            "description": "位用户"
-          },
-          {
-            "title": "200+",
-            "description": "组件块"
-          },
-          {
-            "title": "50+",
-            "description": "专业模板"
-          }
-        ],
-        "className": "bg-muted"
-      },
-      "testimonials": {
-        "id": "testimonials",
-        "title": "用户对 ShipAny 的评价",
-        "description": "听听开发者与创始人用 ShipAny 快速上线 AI 创业项目的故事。",
-        "items": [
-          {
-            "name": "David Chen",
-            "role": "AIWallpaper.shop 创始人",
-            "quote": "ShipAny 为我们节省了数月开发时间。2 天上线 AI 壁纸业务，一周内就收到了第一笔付费订单！",
-            "image": {
-              "src": "/imgs/avatars/1.png",
-              "alt": "david"
-            }
-          },
-          {
-            "name": "Rachel Kim",
-            "role": "HeyBeauty.ai CTO",
-            "quote": "内置 AI 基础设施颠覆了开发体验，无需担心架构，只需专注核心功能，极快落地。",
-            "image": {
-              "src": "/imgs/avatars/2.png",
-              "alt": "rachel"
-            }
-          },
-          {
-            "name": "Marcus Thompson",
-            "role": "独立开发者",
-            "quote": "作为独立开发者，ShipAny 满足了全部需求——认证、支付、AI 集成、美观界面，一个周末上线 SaaS！",
-            "image": {
-              "src": "/imgs/avatars/3.png",
-              "alt": "marcus"
-            }
-          },
-          {
-            "name": "Sofia Garcia",
-            "role": "Melodisco CEO",
-            "quote": "模板高度可定制且生产级。我们几小时内搭建出了 AI 音乐平台，上市周期大大缩短！",
-            "image": {
-              "src": "/imgs/avatars/4.png",
-              "alt": "sofia"
-            }
-          },
-          {
-            "name": "James Wilson",
-            "role": "GPTs.works 技术负责人",
-            "quote": "ShipAny 基础设施极其稳定。我们从 0 到 1 万用户，无需关心后端维护，是最棒的 AI 创业投资。",
-            "image": {
-              "src": "/imgs/avatars/5.png",
-              "alt": "james"
-            }
-          },
-          {
-            "name": "Anna Zhang",
-            "role": "创业者",
-            "quote": "从想法到上线，仅用 3 天！ShipAny 模板和部署工具让我们极快验证 AI 商业创意。",
-            "image": {
-              "src": "/imgs/avatars/6.png",
-              "alt": "anna"
-            }
-          }
-        ]
+        "direction": {
+          "title": "产品方向",
+          "items": [
+            "扩展癌种、基因、变异与治疗方向",
+            "分期、亚型、线次和既往治疗参与匹配",
+            "合规患者资料的 AI 结构化",
+            "药物与临床试验联合匹配",
+            "指南、数据库、试验注册和会议摘要",
+            "企业鉴权、日志、配额、SDK 和服务保障"
+          ]
+        }
       },
       "faq": {
         "id": "faq",
-        "title": "关于 ShipAny 的常见问题",
-        "description": "还有其他问题？欢迎加入 Discord 或发邮件联系我们。",
+        "title": "常见问题",
         "items": [
           {
-            "question": "ShipAny 是什么？怎么帮到我？",
-            "answer": "ShipAny 是专为 AI SaaS 创业设计的 NextJS 全套脚手架，内含开箱即用的模板、基础设施搭建和部署工具，让你数小时内上线 AI 产品。"
+            "question": "Evidex 是给谁使用的？",
+            "answer": "Evidex 主要面向肿瘤基因检测、临床解读和相关医学团队，用于支持证据检索、结果匹配、报告解读与内部复核。"
           },
           {
-            "question": "使用 ShipAny 需要很高的技术水平吗？",
-            "answer": "有基础编程知识即可上手。ShipAny 面向开发者友好，详细文档和模板让初学者也能轻松起步，不需深厚 AI 或云计算背景。"
+            "question": "Evidex 会替代临床解读人员吗？",
+            "answer": "不会。Evidex 负责组织患者线索、匹配证据并解释来源，最终判断和医学复核仍由专业人员完成。"
           },
           {
-            "question": "ShipAny 支持哪些类型的 AI SaaS 项目？",
-            "answer": "ShipAny 支持内容生成、数据分析、AI 聊天机器人、图片/内容生成器等多种主流 AI 应用场景。"
+            "question": "当前可以匹配临床试验吗？",
+            "answer": "当前演示版本尚未开放临床试验匹配。该能力属于产品方向，将结合患者条件、试验注册信息和入组要求逐步建设。"
           },
           {
-            "question": "用 ShipAny 一般多久能上线？",
-            "answer": "借助 ShipAny，可在数小时内拿到产品原型并上线生产环境，预配置的一键部署大幅缩短开发周期。"
+            "question": "为什么当前只支持少量癌种和变异？",
+            "answer": "当前版本优先验证人工审核、确定性检索、模型引用约束和结果追溯链路，覆盖范围会随知识版本扩展。"
           },
           {
-            "question": "ShipAny 的基础设施包括哪些内容？",
-            "answer": "包含认证、数据库、API 集成、支付、云端部署等全栈解决方案，全部遵循业界最佳实践预配置。"
+            "question": "没有匹配结果是否代表没有医学证据？",
+            "answer": "不是。它只表示当前 Evidex 知识版本没有收录符合条件的证据，或该查询暂时超出范围。"
           },
           {
-            "question": "模板是否支持定制自己的品牌？",
-            "answer": "当然支持！所有模板均可自定义设计、功能和品牌，既保持基础架构稳定，又能满足个性扩展需求。"
+            "question": "可以接入现有报告系统吗？",
+            "answer": "当前可查看结构化请求和响应示例。生产接入仍需补充鉴权、配额、日志、安全和服务保障。"
+          },
+          {
+            "question": "系统如何控制 AI 生成风险？",
+            "answer": "模型只归纳从已审核知识构建的证据包，不能决定检索、监管状态或证据等级，引用还需要通过白名单校验。"
+          },
+          {
+            "question": "是否需要上传患者病历？",
+            "answer": "不需要。当前版本不接收自然语言病历，也不收集姓名、身份证号、联系方式或病历号。"
+          },
+          {
+            "question": "结果可以直接写入正式报告吗？",
+            "answer": "Evidex 用于支持专业解读与复核。是否进入正式报告以及如何表述，应由使用机构按照自身医学、质控和合规流程决定。"
           }
         ]
       },
-      "cta": {
-        "id": "cta",
-        "title": "发布你的第一个 AI SaaS 项目",
-        "description": "从这里出发，用 ShipAny 极速交付。",
-        "buttons": [
-          {
-            "title": "获取 ShipAny",
-            "url": "https://shipany.ai",
-            "target": "_blank",
-            "icon": "Zap"
-          },
-          {
-            "title": "阅读文档",
-            "url": "/docs",
-            "target": "_blank",
-            "variant": "outline",
-            "icon": "BookOpenText"
-          }
-        ],
-        "className": "bg-muted"
-      },
-      "subscribe": {
-        "id": "subscribe",
-        "title": "订阅我们的邮件通知",
-        "description": "获取 ShipAny 最新资讯与产品动态。",
-        "submit": {
-          "input": {
-            "placeholder": "输入邮箱"
-          },
-          "button": {
-            "title": "订阅"
-          },
-          "action": "/api/subscribe"
+      "contact": {
+        "id": "contact",
+        "title": "用一个真实案例，验证 Evidex 能为解读流程带来什么",
+        "description": "先体验证据查询与来源追溯，再评估多维患者信息、临床试验和系统接入如何进入报告流程。",
+        "demo_status": "外部演示申请渠道正在配置中，本页面暂不收集联系信息。",
+        "primary_action": { "label": "体验当前版本", "href": "/zh/evidence" },
+        "secondary_action": {
+          "label": "了解接入方式",
+          "href": "/#integration"
         },
-        "className": "bg-muted"
+        "barrier": "无需先改造现有系统，可从一个已支持的癌种和变异开始。"
       }
     }
   }

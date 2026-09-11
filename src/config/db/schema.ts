@@ -3,3 +3,4 @@
 // export * from './schema.mysql'; // mysql schema, used when DATABASE_PROVIDER=mysql
 // export * from './schema.postgres'; // postgres schema, used when DATABASE_PROVIDER=postgresql
 export * from './schema.postgres';
+export * from './schema.evidence.postgres';

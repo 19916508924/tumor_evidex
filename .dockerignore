@@ -3,8 +3,15 @@
 .vscode
 .wrangler
 data
+!data/evidex/v0/**
 debug
 node_modules
+coverage
+playwright-report
+test-results
+.env*
+!.env.example
+.dev.vars
 .cursorrules
 .git
 vercel.json

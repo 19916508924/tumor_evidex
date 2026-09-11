@@ -1,116 +1,77 @@
-import { Link } from '@/core/i18n/navigation';
-import {
-  BrandLogo,
-  BuiltWith,
-  Copyright,
-  LocaleSelector,
-  ThemeToggler,
-} from '@/shared/blocks/common';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
-import { NavItem } from '@/shared/types/blocks/common';
-import { Footer as FooterType } from '@/shared/types/blocks/landing';
+'use client';
+
+import { useLocale } from 'next-intl';
+
+import { localizedLandingHref } from '@/shared/lib/landing-href';
+import type { Footer as FooterType } from '@/shared/types/blocks/landing';
 
 export function Footer({ footer }: { footer: FooterType }) {
+  const locale = useLocale();
+
   return (
     <footer
       id={footer.id}
-      className={`py-8 sm:py-8 ${footer.className || ''} overflow-x-hidden`}
-      // overflow-x-hidden防止-footer-撑出水平滚动条
+      className="overflow-x-hidden border-t border-[#B4CAE6] bg-[#EAF2FF] px-4 py-10 text-[#0B1F3A] sm:px-6 lg:px-8"
     >
-      <div className="container space-y-8 overflow-x-hidden">
-        <div className="grid min-w-0 gap-12 md:grid-cols-5">
-          <div className="min-w-0 space-y-4 break-words md:col-span-2 md:space-y-6">
-            {footer.brand ? <BrandLogo brand={footer.brand} /> : null}
-
-            {footer.brand?.description ? (
-              <p
-                className="text-muted-foreground text-sm text-balance break-words"
-                dangerouslySetInnerHTML={{ __html: footer.brand.description }}
-              />
-            ) : null}
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-10 md:grid-cols-[1.3fr_1fr] lg:grid-cols-[1.5fr_1fr]">
+          <div className="max-w-xl">
+            <a
+              href={localizedLandingHref(footer.brand?.url || '/', locale)}
+              className="inline-flex items-center gap-3 rounded-[10px] font-semibold focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
+            >
+              <span
+                aria-hidden
+                className="flex size-8 items-center justify-center rounded-[10px] bg-[#175CD3] text-sm font-bold text-white"
+              >
+                E
+              </span>
+              <span className="text-lg">{footer.brand?.title}</span>
+            </a>
+            <p className="mt-4 text-sm leading-7 text-[#52637A]">
+              {footer.brand?.description}
+            </p>
           </div>
 
-          <div className="col-span-3 grid min-w-0 gap-6 sm:grid-cols-3">
-            {footer.nav?.items.map((item, idx) => (
-              <div key={idx} className="min-w-0 space-y-4 text-sm break-words">
-                <span className="block font-medium break-words">
-                  {item.title}
-                </span>
-
-                <div className="flex min-w-0 flex-wrap gap-4 sm:flex-col">
-                  {item.children?.map((subItem, iidx) => (
-                    <Link
-                      key={iidx}
-                      href={subItem.url || ''}
-                      target={subItem.target || ''}
-                      className="text-muted-foreground hover:text-primary block break-words duration-150"
+          <div className="grid grid-cols-2 gap-8">
+            {footer.nav?.items.map((item) => (
+              <nav key={item.title} aria-label={item.title}>
+                <p className="text-sm font-semibold">{item.title}</p>
+                <div className="mt-4 grid gap-3">
+                  {item.children?.map((subItem) => (
+                    <a
+                      key={subItem.title}
+                      href={localizedLandingHref(subItem.url || '/', locale)}
+                      className="text-sm text-[#52637A] underline-offset-4 hover:text-[#175CD3] hover:underline focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
                     >
-                      <span className="break-words">{subItem.title || ''}</span>
-                    </Link>
+                      {subItem.title}
+                    </a>
                   ))}
                 </div>
-              </div>
+              </nav>
             ))}
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-wrap items-center gap-4 sm:gap-8">
-          {footer.show_built_with !== false ? <BuiltWith /> : null}
-          <div className="min-w-0 flex-1" />
-          {footer.show_theme !== false ? <ThemeToggler type="toggle" /> : null}
-          {footer.show_locale !== false ? (
-            <LocaleSelector type="button" />
-          ) : null}
-        </div>
+        {footer.notice ? (
+          <p className="mt-10 max-w-5xl rounded-xl border border-[#B4CAE6] bg-[#F4F8FF] px-4 py-3 text-xs leading-6 text-[#52637A]">
+            {footer.notice as string}
+          </p>
+        ) : null}
 
-        <div
-          aria-hidden
-          className="h-px min-w-0 [background-image:linear-gradient(90deg,var(--color-foreground)_1px,transparent_1px)] bg-[length:6px_1px] bg-repeat-x opacity-25"
-        />
-        <div className="flex min-w-0 flex-wrap justify-between gap-8">
-          {footer.copyright ? (
-            <p
-              className="text-muted-foreground text-sm text-balance break-words"
-              dangerouslySetInnerHTML={{ __html: footer.copyright }}
-            />
-          ) : footer.brand ? (
-            <Copyright brand={footer.brand} />
-          ) : null}
-
-          <div className="min-w-0 flex-1"></div>
-
-          {footer.agreement ? (
-            <div className="flex min-w-0 flex-wrap items-center gap-4">
-              {footer.agreement?.items.map((item: NavItem, index: number) => (
-                <Link
-                  key={index}
-                  href={item.url || ''}
-                  target={item.target || ''}
-                  className="text-muted-foreground hover:text-primary block text-xs break-words underline duration-150"
-                >
-                  {item.title || ''}
-                </Link>
-              ))}
-            </div>
-          ) : null}
-
-          {footer.social ? (
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              {footer.social?.items.map((item: NavItem, index) => (
-                <Link
-                  key={index}
-                  href={item.url || ''}
-                  target={item.target || ''}
-                  className="text-muted-foreground hover:text-primary bg-background block cursor-pointer rounded-full p-2 duration-150"
-                  aria-label={item.title || 'Social media link'}
-                >
-                  {item.icon && (
-                    <SmartIcon name={item.icon as string} size={20} />
-                  )}
-                </Link>
-              ))}
-            </div>
-          ) : null}
+        <div className="mt-8 flex flex-col gap-4 border-t border-[#B4CAE6] pt-6 text-xs text-[#52637A] sm:flex-row sm:items-center sm:justify-between">
+          <p>{footer.copyright}</p>
+          <div className="flex flex-wrap gap-5">
+            {footer.agreement?.items.map((item) => (
+              <a
+                key={item.title}
+                href={localizedLandingHref(item.url || '/', locale)}
+                className="underline-offset-4 hover:text-[#175CD3] hover:underline focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
+              >
+                {item.title}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

@@ -1,0 +1,37 @@
+{
+  "id": "release_v0_2_0",
+  "version": "v0.2.0",
+  "status": "PUBLISHED",
+  "literatureCutoffAt": "2026-09-11T00:00:00.000Z",
+  "regulatoryCutoffAt": "2026-09-11T00:00:00.000Z",
+  "gradingRuleVersion": "evidex-therapeutic-v1",
+  "publishedAt": "2026-09-11T00:00:00.000Z",
+  "publishedBy": "product-owner-fast-track",
+  "notes": "Expanded MVP release covering NSCLC, colorectal cancer, two EGFR additions and two KRAS variants. The product owner explicitly authorized fast-track default approval. Evidence levels remain provisional for later specialist medical review. The withdrawn adagrasib-cetuximab colorectal indication was excluded from current active evidence.",
+  "associationIds": [
+    "assoc_nsclc_egfr_l858r_osimertinib",
+    "assoc_nsclc_egfr_l858r_afatinib",
+    "assoc_nsclc_egfr_l858r_gefitinib",
+    "assoc_nsclc_egfr_l858r_amivantamab_lazertinib",
+    "assoc_nsclc_egfr_e746_a750del_osimertinib",
+    "assoc_nsclc_egfr_e746_a750del_afatinib",
+    "assoc_nsclc_egfr_e746_a750del_gefitinib",
+    "assoc_nsclc_egfr_e746_a750del_amivantamab_lazertinib",
+    "assoc_nsclc_egfr_t790m_osimertinib",
+    "assoc_nsclc_kras_g12c_sotorasib",
+    "assoc_nsclc_kras_g12c_adagrasib",
+    "assoc_crc_kras_g12c_sotorasib_panitumumab",
+    "assoc_crc_kras_g12d_panitumumab_resistance"
+  ],
+  "regulatoryApprovalIds": [
+    "approval_fda_nda208065_orig1_osimertinib",
+    "approval_fda_nda201292_orig1_afatinib",
+    "approval_fda_nda206995_orig1_gefitinib",
+    "approval_fda_bla761210_s005_amivantamab_lazertinib",
+    "approval_fda_nda219008_orig1_lazertinib_amivantamab",
+    "approval_fda_nda214665_orig1_sotorasib_nsclc",
+    "approval_fda_nda216340_orig1_adagrasib_nsclc",
+    "approval_fda_nda214665_s009_sotorasib_panitumumab_crc",
+    "approval_fda_bla125147_s213_panitumumab_crc"
+  ]
+}

@@ -1,9 +1,15 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { getThemePage } from '@/core/theme';
-import { DynamicPage } from '@/shared/types/blocks/landing';
+import { EvidexLanding } from '@/shared/components/landing/evidex-landing';
+import { getMetadata } from '@/shared/lib/seo';
+import type { EvidexLandingContent } from '@/shared/types/evidex-landing';
 
 export const revalidate = 3600;
+
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.index.metadata',
+  canonicalUrl: '/',
+});
 
 export default async function LandingPage({
   params,
@@ -15,11 +21,7 @@ export default async function LandingPage({
 
   const t = await getTranslations('pages.index');
 
-  // get page data
-  const page: DynamicPage = t.raw('page');
+  const content = t.raw('page') as EvidexLandingContent;
 
-  // load page component
-  const Page = await getThemePage('dynamic-page');
-
-  return <Page locale={locale} page={page} />;
+  return <EvidexLanding locale={locale} content={content} />;
 }

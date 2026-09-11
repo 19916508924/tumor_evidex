@@ -1,34 +1,29 @@
 {
-  "name": "shipany-template-two",
+  "name": "evidex",
   "version": "1.8.2",
   "private": true,
-  "author": "ShipAny.ai",
-  "homepage": "https://shipany.ai",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/shipanyai/shipany-template-two"
-  },
+  "author": "Evidex",
   "keywords": [
-    "shipany",
-    "shipany-two",
-    "shipany-template-two",
-    "ai-saas-boilerplate",
-    "ai-saas-template",
-    "ai-saas-framework",
-    "ai-saas-development"
+    "evidex",
+    "precision-oncology",
+    "genomic-testing",
+    "evidence-intelligence",
+    "clinical-interpretation"
   ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "node scripts/check-lint.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:generate": "tsx scripts/with-env.ts npx drizzle-kit generate --config=src/core/db/config.ts",
-    "db:migrate": "tsx scripts/with-env.ts npx drizzle-kit migrate --config=src/core/db/config.ts",
-    "db:push": "tsx scripts/with-env.ts npx drizzle-kit push --config=src/core/db/config.ts",
-    "db:studio": "tsx scripts/with-env.ts npx drizzle-kit studio --config=src/core/db/config.ts",
+    "db:generate": "tsx scripts/with-env.ts drizzle-kit generate --config=src/core/db/config.ts",
+    "db:migrate": "tsx scripts/with-env.ts drizzle-kit migrate --config=src/core/db/config.ts",
+    "db:push": "tsx scripts/with-env.ts drizzle-kit push --config=src/core/db/config.ts",
+    "db:studio": "tsx scripts/with-env.ts drizzle-kit studio --config=src/core/db/config.ts",
+    "evidex:import": "tsx scripts/with-env.ts --env=.env.local tsx scripts/evidex-import.ts",
+    "evidex:smoke": "tsx scripts/with-env.ts --env=.env.local tsx scripts/evidex-smoke.ts",
     "auth:generate": "tsx scripts/with-env.ts npx @better-auth/cli generate --config=src/core/auth/index.ts",
     "rbac:init": "tsx scripts/with-env.ts npx tsx scripts/init-rbac.ts",
     "rbac:assign": "tsx scripts/with-env.ts npx tsx scripts/assign-role.ts",
@@ -36,9 +31,23 @@
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts"
+    "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
+    "typecheck": "next typegen && tsc --noEmit",
+    "format:changed": "node scripts/check-format.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:database": "tsx scripts/with-env.ts --env=.env.local vitest run --config vitest.database.config.ts",
+    "test:policy": "node scripts/check-test-policy.mjs",
+    "build:test": "node scripts/test-app.mjs build",
+    "test:e2e": "pnpm build:test && pnpm test:e2e:run",
+    "test:e2e:run": "playwright test",
+    "verify": "pnpm typecheck && pnpm lint && pnpm format:changed && pnpm test:policy && pnpm test:coverage",
+    "verify:full": "pnpm verify && pnpm test:e2e",
+    "lint:strict": "eslint . --max-warnings 0"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "1.0.18",
     "@ai-sdk/react": "^2.0.89",
     "@ai-sdk/replicate": "^1.0.8",
     "@better-fetch/fetch": "^1.1.18",
@@ -142,7 +151,12 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^20",
     "@types/pg": "^8.15.5",
@@ -150,12 +164,15 @@
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "19.2.2",
     "@types/react-lazy-load-image-component": "^1.6.4",
+    "@vitest/coverage-v8": "4.0.18",
     "autoprefixer": "^10.4.21",
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9.37.0",
     "eslint-config-next": "16.0.7",
+    "jsdom": "26.1.0",
+    "msw": "^2.15.0",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
@@ -163,12 +180,28 @@
     "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5",
+    "vitest": "4.0.18",
     "wrangler": "^4.34.0"
   },
   "pnpm": {
     "overrides": {
       "@types/react": "19.2.2",
       "@types/react-dom": "19.2.2"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild",
+      "sharp",
+      "unrs-resolver",
+      "workerd"
+    ],
+    "ignoredBuiltDependencies": [
+      "msw"
+    ]
+  },
+  "packageManager": "pnpm@10.30.3",
+  "engines": {
+    "node": ">=22.12.0 <25",
+    "pnpm": "10.x"
   }
 }

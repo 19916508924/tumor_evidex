@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
 
 # next.js
 /.next/
@@ -45,7 +47,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-data*
+/data*
+# Version the reviewed Evidex release packages while keeping other runtime data ignored.
+!/data/
+/data/*
+!/data/evidex/
+/data/evidex/*
+!/data/evidex/v0/
+!/data/evidex/v0/**
 *debug*
 
 *.db
@@ -55,7 +64,7 @@ wrangler.toml
 .wrangler
 src/shared/types/cloudflare.d.ts
 
-src/config/db/migrations*
+# Drizzle migrations are deployable source and must remain versioned.
 
 .debug 
 .test

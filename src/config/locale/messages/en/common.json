@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "ShipAny Template Two",
-    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups. Ship Fast with a variety of templates and components.",
-    "keywords": "shipany, shipany-boilerplate, shipany-template-two-demo"
+    "title": "Evidex | Evidence Intelligence for Precision Oncology",
+    "description": "Traceable treatment evidence retrieval and decision support for genomic testing and clinical interpretation teams.",
+    "keywords": "Evidex, precision oncology, genomic testing, evidence intelligence, clinical interpretation"
   },
   "sign": {
     "sign_in_title": "Sign In",

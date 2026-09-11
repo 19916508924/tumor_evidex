@@ -1,0 +1,444 @@
+{
+  "description": "Unmodified ShipAny template lint debt. Any edit to a file invalidates its allowance. Do not regenerate or expand to make CI pass.",
+  "files": {
+    "src/app/[locale]/(chat)/chat/[id]/page.tsx": {
+      "sourceHash": "21c1ad7bc33e4d4a0b869453d8f159523526bbb5c8ea86c28c3444a1d82605e7",
+      "diagnostics": [
+        "23c0a8ee814d02c562e07fe4e59f7c6c314e6ef3ade777f680ab99ca48184c62"
+      ],
+      "issues": ["warning L82: react-hooks/exhaustive-deps"]
+    },
+    "src/app/[locale]/(landing)/[...slug]/page.tsx": {
+      "sourceHash": "3186a886ffc3581ac39627642124fe92111f07fbb87883c4ad7b23ef547aa69c",
+      "diagnostics": [
+        "04fdf21a2db98e8bb913cf67a7386a32603e75e16a90f9aecb3f6d89abcf9928"
+      ],
+      "issues": ["error L143: react-hooks/error-boundaries"]
+    },
+    "src/core/theme/index.ts": {
+      "sourceHash": "80e483f28eef897b4a913d9d3fa7ab943d75aa0ebbbfda2f34cf58c1e701f12b",
+      "diagnostics": [
+        "6c79d88486f0673cb899838507e7c9aaca29c140ffd6c48e82a3a47e009c1e1f",
+        "eb4c4a760507550e78a685fd5634031da13820819bcc834fdd98667b05d544b0",
+        "134d6dfe1d75dc1f9368a0bd5fe0c4479ff6aa2e3e0cf624c2fd6501ada171b2"
+      ],
+      "issues": [
+        "error L25: @next/next/no-assign-module-variable",
+        "error L52: @next/next/no-assign-module-variable",
+        "error L90: @next/next/no-assign-module-variable"
+      ]
+    },
+    "src/mdx-components.tsx": {
+      "sourceHash": "7d26a2ee78b6a2fe663c3bfba040dcc63af23efa9c35ac64689374bd6ebf2d92",
+      "diagnostics": [
+        "514236ea53e386e03d6e052ebe295704516d810cc6a135a56844da9747f580fe",
+        "cecc21918f4d5fc23ac589f79fec0379341c005fa6d25964018b958fe3597a4b",
+        "fb4096f7d731a76ab31b793d0e6fc03a382bb97d131a9bde5f26ab896a7e57c8"
+      ],
+      "issues": [
+        "error L50: react/display-name",
+        "warning L95: @next/next/no-img-element",
+        "warning L95: jsx-a11y/alt-text"
+      ]
+    },
+    "src/shared/blocks/chat/box.tsx": {
+      "sourceHash": "a782d078791cd44b93dd4c1a06110ab4d5d8233c4cb18b75e7234e3f322ba8d1",
+      "diagnostics": [
+        "3011557a2d2f82043264a756b21a3901c3e3ae40b6a6789bf3eff1c44ae394b5"
+      ],
+      "issues": ["warning L47: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/chat/generator.tsx": {
+      "sourceHash": "3b70891e0a0a4dbb86c84b7df64db289820d44a95360385668f000b8aee9d52d",
+      "diagnostics": [
+        "b67b4f04563eba1a5eed339556345d5b1477ca20fc6fb09fc6144fd93d79902a"
+      ],
+      "issues": ["warning L99: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/chat/library.tsx": {
+      "sourceHash": "d5c4c0de2fccff6fe81ee84a3166dbeb6931e061fb0dd06e33a19acd24bb1207",
+      "diagnostics": [
+        "b428a084e0aeb444a256420c6611845fd3f30a79455fa7e0a92874937406e79d"
+      ],
+      "issues": ["warning L84: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/common/copyright.tsx": {
+      "sourceHash": "f2c0579e77bf1b279593b15a0b4f0ece2c11218dec947db7dc11b9f482e73683",
+      "diagnostics": [
+        "e3dbd836cf6324f56fa7a7219fb617fbd92f127f301217cf3b78d38014cc7139"
+      ],
+      "issues": ["error L12: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/blocks/common/image-uploader.tsx": {
+      "sourceHash": "1f1323ff1ad44d21280acc7cf976f9c3da2d330d0f0483b3099691c853122414",
+      "diagnostics": [
+        "f3d3da886069cf67122ad3a3cc2093bdc7666ed3529e17b502431fecfdf7665f",
+        "9ae1e7f9d919364606e3bddd3d77b31028e225e92c22dc0a8fcd3c1e6375e3ed"
+      ],
+      "issues": [
+        "error L122: react-hooks/set-state-in-effect",
+        "warning L504: @next/next/no-img-element"
+      ]
+    },
+    "src/shared/blocks/common/locale-detector.tsx": {
+      "sourceHash": "5c828aa37c2568416e0975a67b136f9a193553de05e3210a609aafbe510a7e7d",
+      "diagnostics": [
+        "1ae6ba5325b270920f72335fd8c9c3bcf94b1dedd65c1ddb6da1b72af125cb76",
+        "4a8413d08563bfd884d0ef2c309effe5a323ba6adca7005fbda28702265445d0",
+        "3557e270d10971a34b40dbe7b665c0a0f8c94dfcd4b21ed457843f84672744ed",
+        "b50851edcc1e6a7e2feb4f76df04356f1de29baed44cc68b11cde50959edd694",
+        "08c14f69b93de38cf87f8455ec920fd1891bd54d4d7e7bd959851a30ed8b0c69",
+        "7b3d94936b1fa5b08fc03987fb8909de5edf5d1131ea19f561262830ff962bc2",
+        "a488ea1402a24ba3914cce53e662a92011e8c4676c6c09dc2318f2408d842f9e",
+        "49fb4e67ded85a9e6d1e57a2e470ec06c1b9d5ccbc12edecda5644720005bf5f",
+        "30049efec96142ba43375ac3c38b7b35bfbe5047488dc4587f7e32495a9a325f",
+        "28f3a17d90f4f02809b4ea1d5c5e8048911603ce8d158a9b4cbab71bcd06dd20",
+        "49bb4edf0b7a4d8b5f3c4216fedc5f67acc59db4f8ae37d6c3499a868bc2252c",
+        "98f6e01ee1733a54e9a978c2eafc54c0cf913d2cbfd0b65325334680b7fbb2da",
+        "7df70a7575dc18d756b51b8e01e241af79ce9ea58b4cc0a1634be3708dcc91d7"
+      ],
+      "issues": [
+        "error L24: react-hooks/rules-of-hooks",
+        "error L25: react-hooks/rules-of-hooks",
+        "error L26: react-hooks/rules-of-hooks",
+        "error L27: react-hooks/rules-of-hooks",
+        "error L28: react-hooks/rules-of-hooks",
+        "error L29: react-hooks/rules-of-hooks",
+        "error L30: react-hooks/rules-of-hooks",
+        "error L31: react-hooks/rules-of-hooks",
+        "error L32: react-hooks/rules-of-hooks",
+        "error L60: react-hooks/rules-of-hooks",
+        "error L71: react-hooks/rules-of-hooks",
+        "error L113: react-hooks/rules-of-hooks",
+        "error L170: react-hooks/rules-of-hooks"
+      ]
+    },
+    "src/shared/blocks/common/locale-selector.tsx": {
+      "sourceHash": "bbb8d6e13f2e3c59e67afd79cac3a710738401c26df931ea42698f8c036ba0e5",
+      "diagnostics": [
+        "6e0110ef943bb24b5b463c5df549f826b26f2d5b4b363442181d9eeb7883d692"
+      ],
+      "issues": ["error L31: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/blocks/common/markdown-editor.tsx": {
+      "sourceHash": "a1975d96f88e41e4a8d8aaceb812af39bcf49863d07003eff2ac7fb8f4248f52",
+      "diagnostics": [
+        "174f79841b0c7a3b90ab49fcd17ed6ea98ab836b9c0ca9b72a4898aad43355a3"
+      ],
+      "issues": ["warning L34: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/common/smart-icon.tsx": {
+      "sourceHash": "382afa99c53dabfc60a9c91d8a3b84463a63e0c648ea99d98eb01af22690474a",
+      "diagnostics": [
+        "55ce9e7f157e9652a805511e0f11c97eb4e9b92f542f8ed4c0b25dc9ec8e181f",
+        "872a160af0b92fc08579acfcde34defa6b3e410970000886121966a42f96518a"
+      ],
+      "issues": [
+        "error L33: @next/next/no-assign-module-variable",
+        "error L55: @next/next/no-assign-module-variable"
+      ]
+    },
+    "src/shared/blocks/common/tabs.tsx": {
+      "sourceHash": "f12a1ca1ff350b776f18e47dd6bf41339fdbf5a499ae559e8682ddda56718cbf",
+      "diagnostics": [
+        "d82314473e2e52d7db22d7c9ee3005e3b4b57e6eacd9e1e94489ecf54611305d"
+      ],
+      "issues": ["warning L37: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/common/theme-toggler.tsx": {
+      "sourceHash": "200e97c52976e9461af028090a609878165c6c1e874fb2cc2b54cb60c0141a0f",
+      "diagnostics": [
+        "d12eb56c747dd90c46d359ae8c1256576d5f380e0098156458d9e22f0d5eb0be"
+      ],
+      "issues": ["error L25: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/blocks/dashboard/nav.tsx": {
+      "sourceHash": "90ccc0a0f6407412dcf073945208eb43d378693ce2e472414217742c6054b525",
+      "diagnostics": [
+        "2398327344cc200d1a5020bbc14a4c874519b1b564e7dd6726616ee3b70ef43a"
+      ],
+      "issues": ["error L32: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/blocks/dashboard/sidebar-header.tsx": {
+      "sourceHash": "3efae2e60eb6c7ffc7a9e4143ea9c1d1018a59ae26ae85d9d2c326338ad5833a",
+      "diagnostics": [
+        "ebb55dc8a7a3c84f6be7aa7122a4457b4eeed6741a26b3e57dbc9f7b90cc0189"
+      ],
+      "issues": ["warning L28: @next/next/no-img-element"]
+    },
+    "src/shared/blocks/dashboard/sidebar-user.tsx": {
+      "sourceHash": "4a9fbf6aae8472804707161c5a480d8b8c539538ae01be58a404a02d5b0dd495",
+      "diagnostics": [
+        "7623c2a6fcaff1c9c94762d5ef300d5163091de18b82141b3f1848e8f98b5a6a",
+        "0c70bf566f67acc058dbb94178970cdb578d8f4ac446442f026f1ae9db30917c",
+        "f657e511ac9a682d0514ed5a7e81765e7110e6752ba7a535d437deade46e454a"
+      ],
+      "issues": [
+        "error L52: react-hooks/set-state-in-effect",
+        "warning L75: react-hooks/exhaustive-deps",
+        "warning L121: react-hooks/exhaustive-deps"
+      ]
+    },
+    "src/shared/blocks/generator/image.tsx": {
+      "sourceHash": "898f2aafbdaf1dc9e4de7a5bcfb09b6dfa66f491f7224e3f34ef68d74b05e081",
+      "diagnostics": [
+        "3e8a0bf7105640f8f3488578f3c546d9155f0d29f7be7ba6e3d34a2e3154ecec"
+      ],
+      "issues": ["warning L436: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/generator/music.tsx": {
+      "sourceHash": "e27e582bb22c864b3ba92fc14fd5af7654a459b0ab59d14b6bb1326af59f00c9",
+      "diagnostics": [
+        "c3526bf46a626a2fc223ac4edc8a87d9a240a9706b75c54b98d5a07598c0e2d2"
+      ],
+      "issues": ["warning L245: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/generator/video.tsx": {
+      "sourceHash": "cd7d4a5134d45811fe039b469b744455e24a146a2f8bd99330e60ed289993868",
+      "diagnostics": [
+        "1d52f2766f95b235293fc7b9174f9cfa5b833031b5e14452cd7982c10958ced6"
+      ],
+      "issues": ["warning L439: react-hooks/exhaustive-deps"]
+    },
+    "src/shared/blocks/payment/payment-providers.tsx": {
+      "sourceHash": "e473b5c9022d474e5df77b6aead4f695df3db61b7a8ad98680e8bb9763c7ff4b",
+      "diagnostics": [
+        "7627f5ab8dc7140fa4fa6e2d21ac86efc2c4afedcee7ee42b4416c1c53d7b3ea"
+      ],
+      "issues": ["error L44: react-hooks/rules-of-hooks"]
+    },
+    "src/shared/blocks/sign/sign-user.tsx": {
+      "sourceHash": "10120baa772dc0a2b79c6922e27743a463fea2368b7ce68c485e8e4164f88699",
+      "diagnostics": [
+        "147570ad4c3b1de443473f8f163ae474506bf88637547ae70cb788a06b29ab5b",
+        "004355ffaf03ab4e059c567b57f5e7893c7a887fcf9632a5aa849816d0f6795c",
+        "7bd0d2f81d8abb649be035f71c1ff8502d5c244bd9b98de9318416a5c19d3177"
+      ],
+      "issues": [
+        "warning L79: react-hooks/exhaustive-deps",
+        "warning L84: react-hooks/exhaustive-deps",
+        "warning L99: react-hooks/exhaustive-deps"
+      ]
+    },
+    "src/shared/blocks/sign/social-providers.tsx": {
+      "sourceHash": "1d8a0e05e8320d4c586926c16261de0b63d6a90bcc7d744a0d44f16b1a2f482d",
+      "diagnostics": [
+        "0eb408c3cff9b4d261d66a89667f79843d91fb7587c31f92b3a13e37530ffcdd"
+      ],
+      "issues": ["error L32: react-hooks/rules-of-hooks"]
+    },
+    "src/shared/blocks/sign/verify-email.tsx": {
+      "sourceHash": "ad044f5d63bf924a2561fc61ef84113cbbc0fbb4b5c2c7aea7bc7890bf0a5dab",
+      "diagnostics": [
+        "93cc3725a0ae0f7feecfb1b2c9568f0d62226729edf8446a1a009c13465e4122",
+        "37d410ac9a0400793e9dda35553ef8eba5c5a00e18e777a4222b790ea22b06ad",
+        "3ff4405b495617c148e617039dc427da39aa13b0787047454dec8e86b2c15729",
+        "ce4f364dcb8bcbfce050bd41e109895845ced68e501135911f4ba2ce5257c4b0"
+      ],
+      "issues": [
+        "warning L97: react-hooks/exhaustive-deps",
+        "warning L147: react-hooks/exhaustive-deps",
+        "warning L175: react-hooks/exhaustive-deps",
+        "warning L199: react-hooks/exhaustive-deps"
+      ]
+    },
+    "src/shared/blocks/table/index.tsx": {
+      "sourceHash": "4c5f5cbbc4b52009d75619cb367e7cc5230e1c2a5493bae38eca98cde96d1c3d",
+      "diagnostics": [
+        "a1814f06ddf4189ec7c8e0d9964828a29da5f001bf3f6f5961d483b40a97df87"
+      ],
+      "issues": ["warning L68: jsx-a11y/alt-text"]
+    },
+    "src/shared/blocks/table/json-preview.tsx": {
+      "sourceHash": "b57083b6fdcc1bdc41759eb7541cdf9ea9249449cc7d6ddc466f374573f8fd09",
+      "diagnostics": [
+        "99dbefab91e0266d788b36b053372d0899e02db3d2d55d7c90287e257037bc76"
+      ],
+      "issues": ["error L26: react-hooks/error-boundaries"]
+    },
+    "src/shared/blocks/table/time.tsx": {
+      "sourceHash": "161c2f40d68dbfa9b6a6bb7914cb849c1b8fbebb6195b9ff9b2698b90e21ba23",
+      "diagnostics": [
+        "df715b7e8f897f2b46d5bd5367a64ec8f6e82c5812698f83a48a3b7a04392592"
+      ],
+      "issues": ["error L23: react-hooks/rules-of-hooks"]
+    },
+    "src/shared/components/ai-elements/message.tsx": {
+      "sourceHash": "9bcde74fea809c37b9d479b2a690d97729b11c81b7331bd5c9c37a31f44c4791",
+      "diagnostics": [
+        "18cb64d1212851c4d3c3787d6235a65c0316217dbb0fced6fa468981eac9dda8",
+        "b77c035d95ae406b845969d059af41e1db829369aebd56ede39fc418e24bef43"
+      ],
+      "issues": [
+        "warning L191: react-hooks/exhaustive-deps",
+        "warning L352: @next/next/no-img-element"
+      ]
+    },
+    "src/shared/components/ai-elements/model-selector.tsx": {
+      "sourceHash": "943abf118a700072781ad71daf08e8617ce5532f516b17917048ee31fbf279f8",
+      "diagnostics": [
+        "456ec50b851ad0f3e166aad543802dfcfbfdcd8fe64ce9ce3e4ab6424c6c7853"
+      ],
+      "issues": ["warning L168: @next/next/no-img-element"]
+    },
+    "src/shared/components/ai-elements/prompt-input.tsx": {
+      "sourceHash": "4b276814faec4631bad14e414c89a7f2aa863e66c01bfa6f1b759b9fc1390380",
+      "diagnostics": [
+        "aa5ac2600eabe3ab231a9aba04164308bc2860b2deb6b95dd2f32b959f0e7d80",
+        "30b31356b493ba0787523bff6b56ae449abb1304138ffb60207cc603ff47e15e",
+        "bda42fa883628c714aeab88bce446635c4f47d11a0b3c44b3480a6760abaa3f8",
+        "dd762128f1ce1ee08b6aa0809667409bf9b55d7551e1a347026a72de305f6885",
+        "4d3fbcdf891a18baf972c0f5fd2ad726edc52e903004d3dd4066e923b422a647",
+        "bbe524e97f388d877c2fc082f34d9e3b016dd89229b7b4034e514b9aab4816af",
+        "f89ebbd9f1c5a1db5e0c5827066f9169f0595d737a204091139ad6fdbbf4b8bd",
+        "1e51d92024d8159ad31f4bbd80773281c213a640a0f3e5b3cbc7ecfeabd4b5d4",
+        "1d5e2a4a139ccde7c8a7940754a7583083c93594589f245495a89e1d2cc048d4",
+        "7c4455a7da9165631fc4b26aba92f4a8551d444a6dfbff19776fa05fa5dc7089"
+      ],
+      "issues": [
+        "warning L297: @next/next/no-img-element",
+        "warning L332: @next/next/no-img-element",
+        "warning L545: react-hooks/exhaustive-deps",
+        "warning L545: react-hooks/exhaustive-deps",
+        "warning L545: react-hooks/exhaustive-deps",
+        "warning L549: react-hooks/exhaustive-deps",
+        "warning L560: react-hooks/exhaustive-deps",
+        "warning L572: react-hooks/exhaustive-deps",
+        "error L1143: react-hooks/set-state-in-effect",
+        "error L1187: react-hooks/set-state-in-effect"
+      ]
+    },
+    "src/shared/components/ai-elements/reasoning.tsx": {
+      "sourceHash": "c3529a0e52b19d22d8235d81bf263eeffc1a3aaa6dca0eaa848a73810da95e6a",
+      "diagnostics": [
+        "d5b82b91cea958a9b694c97c8b344eacc38b07eab8315cf992f7198eb39e7de7"
+      ],
+      "issues": ["error L72: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/components/ai-elements/shimmer.tsx": {
+      "sourceHash": "82ceb36912ee8f53eec0680497150badf7da792281ab6bc17321d821b319259c",
+      "diagnostics": [
+        "83fc0b210c795598c7b90b0e35570c8325368d6ce34b0680daf767850a34d410"
+      ],
+      "issues": ["error L38: react-hooks/static-components"]
+    },
+    "src/shared/components/magicui/animated-theme-toggler.tsx": {
+      "sourceHash": "1ad2a88c9ffae425b727e7454aa1dc98ceb6fb32de8cd5036b16a3b4b4b6d21e",
+      "diagnostics": [
+        "cd226f9fe874a6ed1e0cc85effcf1480df62ece5c4d12ae252661d114743cff6"
+      ],
+      "issues": ["error L19: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/components/magicui/avatar-circles.tsx": {
+      "sourceHash": "d3149fc85a6c6737dc64be5c3804ec8f4f0d704bc97f2bcde9533d233912bd8f",
+      "diagnostics": [
+        "8560a04386381f35f58879b0b04dbe9a244aff1844439a3585f861f58f11859d"
+      ],
+      "issues": ["warning L29: @next/next/no-img-element"]
+    },
+    "src/shared/components/magicui/meteors.tsx": {
+      "sourceHash": "4a92122b8c6020856af75d10297150bfb7848bf4e01707755740d1aa51c3bc85",
+      "diagnostics": [
+        "7f0a6d9148d2594e70105e3bf438025425cdaf6d1611a78b21e60044b067c9cf"
+      ],
+      "issues": ["error L39: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/components/magicui/particles.tsx": {
+      "sourceHash": "86c3efb69736af1614978a974e59dd9fd873558222ea14868a315975b127ffce",
+      "diagnostics": [
+        "8cb377f788128ab1be23924a133dc67fd3d667416d0e79dcff5fd46365d76cb3",
+        "403bffeec0f9eaddcabaa32a9f11d2ab1ee5b16a2e60a328a82f7d302db74ced",
+        "a5139cbed78b2472534eaae031421624fb48bedafddff3be29ae4262cad42920"
+      ],
+      "issues": [
+        "warning L129: react-hooks/exhaustive-deps",
+        "warning L133: react-hooks/exhaustive-deps",
+        "warning L137: react-hooks/exhaustive-deps"
+      ]
+    },
+    "src/shared/components/ui/animated-grid-pattern.tsx": {
+      "sourceHash": "f5f7220d02ce179c4f6ec4680cb07af3d878a02c7f4bd69c12da3666be00e7d9",
+      "diagnostics": [
+        "76e289db5cf2664e69db9bfd6607b6346794644d5d620cd176b1efb33071ffc1",
+        "257651e607f994e095f1f95a25a9eab4b440267c3857fc358090043c3deea4b7",
+        "d554399f8397de2212728c5069d9a8566b9bba71cf5b5092fb51c4af4484e497"
+      ],
+      "issues": [
+        "error L43: react-hooks/immutability",
+        "warning L79: react-hooks/exhaustive-deps",
+        "warning L98: react-hooks/exhaustive-deps"
+      ]
+    },
+    "src/shared/components/ui/animated-group.tsx": {
+      "sourceHash": "c6fda2419d5993e6e452ef4235bc60e7d29adf9a8b23a8ce864d4aa171b58817",
+      "diagnostics": [
+        "408075b3671a0b1d2b2db86860df319e518bcb7dcae962da3a34c232c2887177"
+      ],
+      "issues": ["error L122: react-hooks/static-components"]
+    },
+    "src/shared/components/ui/sidebar.tsx": {
+      "sourceHash": "f0d4f0233dd8da28692002b73a4170d84ffaedc8ff758767f75c1934a0df5122",
+      "diagnostics": [
+        "5f67d89733d744356b2c018f5c67a35032d5dec20bf0bd46d67fc0f788198739"
+      ],
+      "issues": ["error L611: react-hooks/purity"]
+    },
+    "src/shared/components/ui/sonner.tsx": {
+      "sourceHash": "0430744bebfd09a4dcae8a14379a2655f5d6bc731e996113fdb009187ee6ede6",
+      "diagnostics": [
+        "44afb1b68b20bdd5d05fb328bc342f94778eb3d7c07d11a6c4a9a2f6e4113c0b"
+      ],
+      "issues": ["error L12: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/hooks/use-media-query.ts": {
+      "sourceHash": "4a4777b9662084f5a0ee2f87618c14b1cb5fee9b9b394431f6fa1a1a997f048f",
+      "diagnostics": [
+        "205deae94137e634fbd846120464114698c3436228508834022a6e7a8ab5196a"
+      ],
+      "issues": ["error L10: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/hooks/use-media.ts": {
+      "sourceHash": "93e86ac6c3d74f73ca7a7fc82f442c4ca6240135b8b37ca8190205c34b9d4fc9",
+      "diagnostics": [
+        "6e9ed2c6d0dfaaf5c9ae7c2a0b292f16777cca2bcd8c7e0ac941d52e8b6ebd53"
+      ],
+      "issues": ["error L10: react-hooks/set-state-in-effect"]
+    },
+    "src/shared/lib/rate-limit.ts": {
+      "sourceHash": "eaeb5a405f990fe233dca351f8a276ecad93825d7f6fe6f9e0d6b757e8f440c2",
+      "diagnostics": [
+        "865d7c3d62c439d7c33b50856102a6ac845d5d2b0231e79701c531fd75ec8894"
+      ],
+      "issues": ["warning L21: unused-disable"]
+    },
+    "src/shared/types/blocks/landing.d.ts": {
+      "sourceHash": "758b17b5a2a67b6a3ef0826cd8c5ad4c3d713eb3584418b3446d8bec1f9efe8a",
+      "diagnostics": [
+        "4370a4d5257c7abee0090347211dc84b1797bf008f426990c4ae9214c12278e1",
+        "501a6c12725455959fcafa92e75dc86630f630186ddb295e6c60c3664a374746"
+      ],
+      "issues": ["warning L15: unused-disable", "warning L35: unused-disable"]
+    },
+    "src/themes/default/blocks/blog-detail.tsx": {
+      "sourceHash": "a5b8c096ec7539d6ae15c71f4932fc0d751b2010b85149ecd1acd42ebbf68ec3",
+      "diagnostics": [
+        "02d2e29f1e0a2b44dea1f5bb9f7e19b640591e6dabce31bd9b142792b4103009"
+      ],
+      "issues": ["warning L106: @next/next/no-img-element"]
+    },
+    "src/themes/default/blocks/blog.tsx": {
+      "sourceHash": "23deee26ab875930b181c5814edf4231b0261c9d278719784a5767cdb038aaf3",
+      "diagnostics": [
+        "bb184f39723f44e8f1025a7acf53c7cdb841a1ad5a63ae65c5858df0d4ac6855"
+      ],
+      "issues": ["warning L78: @next/next/no-img-element"]
+    },
+    "src/themes/default/blocks/header.tsx": {
+      "sourceHash": "2fcdae5f571d12feb12ba1ec7f264deaf7f1988fec6d83803a77b91f8dab891d",
+      "diagnostics": [
+        "5b2cfc8e50291ce227c3df4fa04f74e72e2cb97ba716d4729a000bab98dd9a09"
+      ],
+      "issues": ["error L39: react-hooks/set-state-in-effect"]
+    }
+  }
+}

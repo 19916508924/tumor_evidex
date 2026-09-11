@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
-import { defaultLocale } from '@/config/locale';
+import { defaultLocale, locales } from '@/config/locale';
 
 // get metadata for page component
 export function getMetadata(
@@ -51,6 +51,14 @@ export function getMetadata(
       options.canonicalUrl || '',
       locale || ''
     );
+    const languageAlternates = Object.fromEntries(
+      await Promise.all(
+        locales.map(async (supportedLocale) => [
+          supportedLocale,
+          await getCanonicalUrl(options.canonicalUrl || '', supportedLocale),
+        ])
+      )
+    );
 
     const title =
       passedMetadata.title || translatedMetadata.title || defaultMetadata.title;
@@ -88,14 +96,15 @@ export function getMetadata(
         defaultMetadata.keywords,
       alternates: {
         canonical: canonicalUrl,
+        languages: languageAlternates,
       },
 
       openGraph: {
         type: 'website',
         locale: locale,
         url: canonicalUrl,
-        title,
-        description,
+        title: translatedMetadata.openGraphTitle || title,
+        description: translatedMetadata.openGraphDescription || description,
         siteName: appName,
         images: [imageUrl.toString()],
       },
@@ -126,6 +135,10 @@ async function getTranslatedMetadata(metadataKey: string, locale: string) {
     title: t.has('title') ? t('title') : '',
     description: t.has('description') ? t('description') : '',
     keywords: t.has('keywords') ? t('keywords') : '',
+    openGraphTitle: t.has('open_graph_title') ? t('open_graph_title') : '',
+    openGraphDescription: t.has('open_graph_description')
+      ? t('open_graph_description')
+      : '',
   };
 }
 

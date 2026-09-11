@@ -1,329 +1,188 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { IconMenu2, IconX } from '@tabler/icons-react';
+import { useLocale } from 'next-intl';
 
-import { Link, usePathname } from '@/core/i18n/navigation';
-import {
-  BrandLogo,
-  LocaleSelector,
-  SignUser,
-  SmartIcon,
-  ThemeToggler,
-} from '@/shared/blocks/common';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/shared/components/ui/accordion';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger as RawNavigationMenuTrigger,
-} from '@/shared/components/ui/navigation-menu';
-import { useMedia } from '@/shared/hooks/use-media';
-import { cn } from '@/shared/lib/utils';
-import { NavItem } from '@/shared/types/blocks/common';
-import { Header as HeaderType } from '@/shared/types/blocks/landing';
-
-// For Next.js hydration mismatch warning, conditionally render NavigationMenuTrigger only after mount to avoid inconsistency between server/client render
-function NavigationMenuTrigger(
-  props: React.ComponentProps<typeof RawNavigationMenuTrigger>
-) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  // Only render after client has mounted, to avoid SSR/client render id mismatch
-  if (!mounted) return null;
-  return <RawNavigationMenuTrigger {...props} />;
-}
+import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { cacheSet } from '@/shared/lib/cache';
+import { localizedLandingHref } from '@/shared/lib/landing-href';
+import type { Header as HeaderType } from '@/shared/types/blocks/landing';
 
 export function Header({ header }: { header: HeaderType }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const isScrolledRef = useRef(false);
-  const scrollRafRef = useRef<number | null>(null);
-  const isLarge = useMedia('(min-width: 64rem)');
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const locale = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
+
+  const openLabel = header.menu_open_label as string;
+  const closeLabel = header.menu_close_label as string;
+  const mobileNavLabel = header.mobile_nav_label as string;
+  const desktopNavLabel = header.desktop_nav_label as string;
+  const languageLabel = header.language_label as string;
 
   useEffect(() => {
-    // Listen to scroll event to enable header styles on scroll
-    const handleScroll = () => {
-      // Coalesce high-frequency scroll events & only update state when value changes.
-      if (scrollRafRef.current != null) return;
-      scrollRafRef.current = window.requestAnimationFrame(() => {
-        scrollRafRef.current = null;
-        const next = window.scrollY > 50;
-        if (next === isScrolledRef.current) return;
-        isScrolledRef.current = next;
-        setIsScrolled(next);
-      });
-    };
+    if (!open) return;
 
-    // Initialize once on mount.
-    handleScroll();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusable = menuRef.current?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled])'
+    );
+    focusable?.[0]?.focus();
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollRafRef.current != null) {
-        window.cancelAnimationFrame(scrollRafRef.current);
-        scrollRafRef.current = null;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+        return;
+      }
+      if (event.key !== 'Tab' || !focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
-  }, []);
 
-  // Navigation menu for large screens
-  const NavMenu = () => {
-    return (
-      <NavigationMenu
-        viewport={false}
-        className="**:data-[slot=navigation-menu-content]:top-10 max-lg:hidden"
-      >
-        <NavigationMenuList className="gap-2">
-          {header.nav?.items?.map((item, idx) => {
-            if (!item.children || item.children.length === 0) {
-              return (
-                <NavigationMenuLink key={idx} asChild>
-                  <Link
-                    href={item.url || ''}
-                    target={item.target || '_self'}
-                    className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm ${
-                      item.is_active || pathname.endsWith(item.url as string)
-                        ? 'bg-muted/40 text-muted-foreground'
-                        : ''
-                    }`}
-                  >
-                    {item.icon && <SmartIcon name={item.icon as string} />}
-                    {item.title}
-                  </Link>
-                </NavigationMenuLink>
-              );
-            }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
-            return (
-              <NavigationMenuItem key={idx}>
-                <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm">
-                  {item.icon && (
-                    <SmartIcon name={item.icon as string} className="h-4 w-4" />
-                  )}
-                  {item.title}
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="min-w-2xs origin-top p-0.5">
-                  <div className="border-foreground/5 bg-card ring-foreground/5 rounded-[calc(var(--radius)-2px)] border border-transparent p-2 shadow ring-1">
-                    <ul className="mt-1 space-y-2">
-                      {item.children?.map((subItem: NavItem, index: number) => (
-                        <ListItem
-                          key={index}
-                          href={subItem.url || ''}
-                          target={subItem.target || '_self'}
-                          title={subItem.title || ''}
-                          description={subItem.description || ''}
-                        >
-                          {subItem.icon && (
-                            <SmartIcon name={subItem.icon as string} />
-                          )}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            );
-          })}
-        </NavigationMenuList>
-      </NavigationMenu>
-    );
+  const switchLanguage = () => {
+    const nextLocale = locale === 'zh' ? 'en' : 'zh';
+    setOpen(false);
+    cacheSet('locale', nextLocale);
+    const hash = typeof window === 'undefined' ? '' : window.location.hash;
+    router.push(`${pathname}${hash}`, { locale: nextLocale });
   };
-
-  // Mobile menu using Accordion, shown on small screens
-  const MobileMenu = ({ closeMenu }: { closeMenu: () => void }) => {
-    return (
-      <nav
-        role="navigation"
-        className="w-full [--color-border:--alpha(var(--color-foreground)/5%)] [--color-muted:--alpha(var(--color-foreground)/5%)]"
-      >
-        <Accordion
-          type="single"
-          collapsible
-          className="-mx-4 mt-0.5 space-y-0.5 **:hover:no-underline"
-        >
-          {header.nav?.items?.map((item, idx) => {
-            return (
-              <AccordionItem
-                key={idx}
-                value={item.title || ''}
-                className="group relative border-b-0 before:pointer-events-none before:absolute before:inset-x-4 before:bottom-0 before:border-b"
-              >
-                {item.children && item.children.length > 0 ? (
-                  <>
-                    <AccordionTrigger className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-lg **:!font-normal">
-                      {item.title}
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-5">
-                      <ul>
-                        {item.children?.map((subItem: NavItem, iidx) => (
-                          <li key={iidx}>
-                            <Link
-                              href={subItem.url || ''}
-                              onClick={closeMenu}
-                              className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2"
-                            >
-                              <div
-                                aria-hidden
-                                className="flex items-center justify-center *:size-4"
-                              >
-                                {subItem.icon && (
-                                  <SmartIcon name={subItem.icon as string} />
-                                )}
-                              </div>
-                              <div className="text-base">{subItem.title}</div>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionContent>
-                  </>
-                ) : (
-                  <Link
-                    href={item.url || ''}
-                    onClick={closeMenu}
-                    className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-lg **:!font-normal"
-                  >
-                    {item.title}
-                  </Link>
-                )}
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
-      </nav>
-    );
-  };
-
-  // List item for submenus in NavigationMenu
-  function ListItem({
-    title,
-    description,
-    children,
-    href,
-    target,
-    ...props
-  }: React.ComponentPropsWithoutRef<'li'> & {
-    href: string;
-    title: string;
-    description?: string;
-    target?: string;
-  }) {
-    return (
-      <li {...props}>
-        <NavigationMenuLink asChild>
-          <Link
-            href={href}
-            target={target || '_self'}
-            className="grid grid-cols-[auto_1fr] gap-3.5"
-          >
-            <div className="bg-background ring-foreground/10 relative flex size-9 items-center justify-center rounded border border-transparent shadow-sm ring-1">
-              {children}
-            </div>
-            <div className="space-y-0.5">
-              <div className="text-foreground text-sm font-medium">{title}</div>
-              <p className="text-muted-foreground line-clamp-1 text-xs">
-                {description}
-              </p>
-            </div>
-          </Link>
-        </NavigationMenuLink>
-      </li>
-    );
-  }
 
   return (
-    <>
-      <header
-        data-state={isMobileMenuOpen ? 'active' : 'inactive'}
-        {...(isScrolled && { 'data-scrolled': true })}
-        className="has-data-[state=open]:bg-background/50 fixed inset-x-0 top-0 z-50 has-data-[state=open]:h-screen has-data-[state=open]:backdrop-blur"
-      >
-        <div
-          className={cn(
-            'absolute inset-x-0 top-0 z-50 h-18 border-transparent ring-1 ring-transparent transition-all duration-300',
-            'in-data-scrolled:border-foreground/5 in-data-scrolled:bg-background/75 in-data-scrolled:border-b in-data-scrolled:backdrop-blur',
-            'has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card/75 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10 has-data-[state=open]:backdrop-blur',
-            'max-lg:in-data-[state=active]:bg-background/75 max-lg:h-14 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen max-lg:in-data-[state=active]:backdrop-blur'
-          )}
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-[#8DB6EA]/45 bg-white/72 shadow-[0_8px_32px_rgba(20,70,140,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-xl supports-[not_(backdrop-filter:blur(1px))]:bg-[#F8FBFF]">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-5 px-4 sm:px-6 lg:px-8">
+        <a
+          href={localizedLandingHref(header.brand?.url || '/', locale)}
+          className="flex shrink-0 items-center gap-3 rounded-[10px] font-semibold text-[#0B1F3A] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
         >
-          <div className="container">
-            <div className="relative flex flex-wrap items-center justify-between lg:py-5">
-              <div className="flex justify-between gap-8 max-lg:h-14 max-lg:w-full max-lg:border-b">
-                {/* Brand Logo */}
-                {header.brand && <BrandLogo brand={header.brand} />}
+          <span
+            aria-hidden
+            className="flex size-8 items-center justify-center rounded-[10px] bg-[#175CD3] text-sm font-bold text-white shadow-[0_7px_18px_rgba(23,92,211,0.2)]"
+          >
+            E
+          </span>
+          <span className="text-lg tracking-[-0.02em]">
+            {header.brand?.title}
+          </span>
+        </a>
 
-                {/* Desktop Navigation Menu */}
-                {isLarge && <NavMenu />}
-                {/* Hamburger menu button for mobile navigation */}
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label={
-                    isMobileMenuOpen == true ? 'Close Menu' : 'Open Menu'
-                  }
-                  className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden"
-                >
-                  <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
-                  <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
-                </button>
-              </div>
+        <nav
+          aria-label={desktopNavLabel}
+          className="ml-auto hidden min-w-0 items-center gap-0.5 lg:flex"
+        >
+          {header.nav?.items.map((item) => (
+            <a
+              key={item.title}
+              href={localizedLandingHref(item.url || '/', locale)}
+              className="rounded-[10px] px-2.5 py-2 text-sm font-medium whitespace-nowrap text-[#334A67] transition duration-200 hover:bg-[#EAF2FF] hover:text-[#0B3975] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none xl:px-3.5"
+            >
+              {item.title}
+            </a>
+          ))}
+        </nav>
 
-              {/* Show mobile menu if needed */}
-              {!isLarge && isMobileMenuOpen && (
-                <MobileMenu closeMenu={() => setIsMobileMenuOpen(false)} />
-              )}
-
-              {/* Header right section: theme toggler, locale selector, sign, buttons */}
-              <div className="mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 in-data-[state=active]:flex max-lg:in-data-[state=active]:mt-6 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
-                <div className="flex w-full flex-row items-center gap-4 sm:flex-row sm:gap-6 sm:space-y-0 md:w-fit">
-                  {header.buttons &&
-                    header.buttons.map((button, idx) => (
-                      <Link
-                        key={idx}
-                        href={button.url || ''}
-                        target={button.target || '_self'}
-                        className={cn(
-                          'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-                          'h-7 px-3 ring-0',
-                          button.variant === 'outline'
-                            ? 'bg-background border-primary ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200'
-                            : 'bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md ring-1 shadow-black/20 ring-(--ring-color) [--ring-color:color-mix(in_oklab,var(--color-foreground)15%,var(--color-primary))]'
-                        )}
-                      >
-                        {button.icon && (
-                          <SmartIcon
-                            name={button.icon as string}
-                            className="size-4"
-                          />
-                        )}
-                        <span>{button.title}</span>
-                      </Link>
-                    ))}
-
-                  {header.show_theme ? <ThemeToggler /> : null}
-                  {header.show_locale ? <LocaleSelector /> : null}
-                  <div className="flex-1 md:hidden"></div>
-                  {header.show_sign ? (
-                    <SignUser userNav={header.user_nav} />
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="ml-auto hidden shrink-0 items-center gap-2 lg:flex">
+          {header.show_locale ? (
+            <button
+              type="button"
+              aria-label={languageLabel}
+              onClick={switchLanguage}
+              className="min-h-10 rounded-[10px] border border-[#B4CAE6] bg-white px-3 text-xs font-semibold text-[#0B3975] transition hover:border-[#175CD3] hover:bg-[#F4F8FF] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
+            >
+              {locale === 'zh' ? 'EN' : '中文'}
+            </button>
+          ) : null}
+          {header.buttons?.map((button) => (
+            <a
+              key={button.title}
+              href={localizedLandingHref(button.url || '/', locale)}
+              className="inline-flex min-h-10 items-center justify-center rounded-[10px] bg-[#175CD3] px-4 text-sm font-semibold whitespace-nowrap text-white transition duration-200 hover:bg-[#134EAE] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:ring-offset-2 focus-visible:outline-none active:translate-y-px"
+            >
+              {button.title}
+            </a>
+          ))}
         </div>
-      </header>
-    </>
+
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-label={open ? closeLabel : openLabel}
+          aria-expanded={open}
+          aria-controls="landing-mobile-navigation"
+          onClick={() => setOpen((value) => !value)}
+          className="ml-auto flex size-11 items-center justify-center rounded-[10px] border border-[#B4CAE6] bg-white text-[#0B3975] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none lg:hidden"
+        >
+          {open ? (
+            <IconX aria-hidden size={22} stroke={1.8} />
+          ) : (
+            <IconMenu2 aria-hidden size={22} stroke={1.8} />
+          )}
+        </button>
+      </div>
+
+      {open ? (
+        <div
+          ref={menuRef}
+          id="landing-mobile-navigation"
+          className="fixed inset-x-0 top-[72px] h-[calc(100dvh-72px)] border-t border-[#B4CAE6] bg-[#F4F8FF] px-4 py-6 lg:hidden"
+        >
+          <nav
+            aria-label={mobileNavLabel}
+            className="mx-auto grid max-w-7xl gap-1"
+          >
+            {header.nav?.items.map((item) => (
+              <a
+                key={item.title}
+                href={localizedLandingHref(item.url || '/', locale)}
+                onClick={() => setOpen(false)}
+                className="flex min-h-12 items-center rounded-[10px] px-4 text-lg font-semibold text-[#0B1F3A] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
+              >
+                {item.title}
+              </a>
+            ))}
+            <div className="mt-5 grid gap-3 border-t border-[#B4CAE6] pt-5">
+              {header.buttons?.map((button) => (
+                <a
+                  key={button.title}
+                  href={localizedLandingHref(button.url || '/', locale)}
+                  onClick={() => setOpen(false)}
+                  className="inline-flex min-h-12 items-center justify-center rounded-[10px] bg-[#175CD3] px-5 text-sm font-semibold whitespace-nowrap text-white focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  {button.title}
+                </a>
+              ))}
+              {header.show_locale ? (
+                <button
+                  type="button"
+                  aria-label={languageLabel}
+                  onClick={switchLanguage}
+                  className="min-h-12 rounded-[10px] border border-[#9CB9DF] bg-white px-4 text-sm font-semibold text-[#0B3975] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
+                >
+                  {locale === 'zh' ? 'English' : '中文'}
+                </button>
+              ) : null}
+            </div>
+          </nav>
+        </div>
+      ) : null}
+    </header>
   );
 }

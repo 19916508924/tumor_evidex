@@ -1,0 +1,317 @@
+[
+  {
+    "id": "assoc_nsclc_egfr_l858r_osimertinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_l858r",
+    "therapyKey": "drug_osimertinib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "FDA indication explicitly covers metastatic NSCLC with exon 21 L858R; FLAURA provides mature randomized first-line evidence in the combined exon 19 deletion/L858R population.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugs": [
+      { "drugId": "drug_osimertinib", "role": "PRIMARY", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "assoc_nsclc_egfr_l858r_afatinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_l858r",
+    "therapyKey": "drug_afatinib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "The active FDA indication covers non-resistant EGFR-mutated metastatic NSCLC, including L858R, and LUX-Lung 3 supplies mature randomized evidence. A separate approved claim preserves the L858R-specific absence of overall-survival benefit versus chemotherapy.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugs": [{ "drugId": "drug_afatinib", "role": "PRIMARY", "sortOrder": 0 }]
+  },
+  {
+    "id": "assoc_nsclc_egfr_l858r_gefitinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_l858r",
+    "therapyKey": "drug_gefitinib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "FDA labeling explicitly covers first-line metastatic NSCLC with exon 21 L858R; IFUM provides prospective phase IV evidence in a sensitizing-EGFR population that included L858R without reporting an independent L858R efficacy estimate.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugs": [{ "drugId": "drug_gefitinib", "role": "PRIMARY", "sortOrder": 0 }]
+  },
+  {
+    "id": "assoc_nsclc_egfr_l858r_amivantamab_lazertinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_l858r",
+    "therapyKey": "drug_amivantamab:PRIMARY|drug_lazertinib:COMBINATION_COMPONENT",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "Both active FDA applications cover the amivantamab-lazertinib first-line combination for locally advanced or metastatic NSCLC with exon 21 L858R; MARIPOSA provides mature randomized PFS and final OS evidence in the combined exon 19 deletion/L858R population.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugs": [
+      { "drugId": "drug_amivantamab", "role": "PRIMARY", "sortOrder": 0 },
+      {
+        "drugId": "drug_lazertinib",
+        "role": "COMBINATION_COMPONENT",
+        "sortOrder": 1
+      }
+    ]
+  },
+  {
+    "id": "assoc_nsclc_egfr_e746_a750del_osimertinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_e746_a750del",
+    "therapyKey": "drug_osimertinib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "The FDA indication covers EGFR exon 19 deletions in metastatic NSCLC; FLAURA supplies mature randomized first-line evidence for the combined exon 19 deletion/L858R population.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [
+      { "drugId": "drug_osimertinib", "role": "PRIMARY", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "assoc_nsclc_egfr_e746_a750del_afatinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_e746_a750del",
+    "therapyKey": "drug_afatinib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "The active FDA indication covers non-resistant EGFR-mutated metastatic NSCLC, including exon 19 deletions; randomized LUX-Lung evidence includes a del19-specific overall-survival analysis.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [{ "drugId": "drug_afatinib", "role": "PRIMARY", "sortOrder": 0 }]
+  },
+  {
+    "id": "assoc_nsclc_egfr_e746_a750del_gefitinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_e746_a750del",
+    "therapyKey": "drug_gefitinib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "FDA labeling explicitly covers first-line metastatic NSCLC with EGFR exon 19 deletions; IFUM provides prospective phase 4 evidence in the pooled sensitizing-EGFR population.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [{ "drugId": "drug_gefitinib", "role": "PRIMARY", "sortOrder": 0 }]
+  },
+  {
+    "id": "assoc_nsclc_egfr_e746_a750del_amivantamab_lazertinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_e746_a750del",
+    "therapyKey": "drug_amivantamab:PRIMARY|drug_lazertinib:COMBINATION_COMPONENT",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "Both active FDA applications cover first-line amivantamab-lazertinib for locally advanced or metastatic NSCLC with EGFR exon 19 deletions; MARIPOSA supplies randomized PFS and final OS evidence.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [
+      { "drugId": "drug_amivantamab", "role": "PRIMARY", "sortOrder": 0 },
+      {
+        "drugId": "drug_lazertinib",
+        "role": "COMBINATION_COMPONENT",
+        "sortOrder": 1
+      }
+    ]
+  },
+  {
+    "id": "assoc_nsclc_egfr_t790m_osimertinib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_egfr_t790m",
+    "therapyKey": "drug_osimertinib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXACT",
+    "proposedLevel": "3A",
+    "approvedLevel": "3A",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "AURA3 provides mature randomized evidence after progression on a first-line EGFR TKI. The current U.S. label no longer presents T790M as a standalone active indication, so the association is not Level 1.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "OTHER_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [
+      { "drugId": "drug_osimertinib", "role": "PRIMARY", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "assoc_nsclc_kras_g12c_sotorasib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_kras_g12c",
+    "therapyKey": "drug_sotorasib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "The active FDA indication covers previously treated KRAS G12C-mutated advanced NSCLC; CodeBreaK 100 and 200 provide phase 2 response and randomized phase 3 PFS evidence.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [{ "drugId": "drug_sotorasib", "role": "PRIMARY", "sortOrder": 0 }]
+  },
+  {
+    "id": "assoc_nsclc_kras_g12c_adagrasib",
+    "diseaseId": "disease_nsclc",
+    "variantId": "variant_kras_g12c",
+    "therapyKey": "drug_adagrasib:PRIMARY",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "The active FDA indication covers previously treated KRAS G12C-mutated advanced NSCLC; KRYSTAL-1 and KRYSTAL-12 provide phase 2 response and randomized phase 3 PFS evidence.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [{ "drugId": "drug_adagrasib", "role": "PRIMARY", "sortOrder": 0 }]
+  },
+  {
+    "id": "assoc_crc_kras_g12c_sotorasib_panitumumab",
+    "diseaseId": "disease_crc",
+    "variantId": "variant_kras_g12c",
+    "therapyKey": "drug_sotorasib:PRIMARY|drug_panitumumab:COMBINATION_COMPONENT",
+    "direction": "SENSITIVITY",
+    "variantApplicability": "EXACT",
+    "proposedLevel": "1",
+    "approvedLevel": "1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "Current FDA labeling covers sotorasib plus panitumumab for previously treated KRAS G12C-mutated metastatic colorectal cancer; CodeBreaK 300 provides randomized phase 3 PFS evidence.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": false
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [
+      { "drugId": "drug_sotorasib", "role": "PRIMARY", "sortOrder": 0 },
+      {
+        "drugId": "drug_panitumumab",
+        "role": "COMBINATION_COMPONENT",
+        "sortOrder": 1
+      }
+    ]
+  },
+  {
+    "id": "assoc_crc_kras_g12d_panitumumab_resistance",
+    "diseaseId": "disease_crc",
+    "variantId": "variant_kras_g12d",
+    "therapyKey": "drug_panitumumab:PRIMARY",
+    "direction": "RESISTANCE",
+    "variantApplicability": "EXPLICIT_GROUP_INCLUDES_EXACT",
+    "proposedLevel": "R1",
+    "approvedLevel": "R1",
+    "gradingRuleVersion": "evidex-therapeutic-v1",
+    "gradingRationale": "Randomized biomarker analysis found no panitumumab responses in KRAS-mutant metastatic colorectal cancer, and the current FDA label excludes RAS-mutant disease except the KRAS G12C sotorasib combination. This is group-level evidence that explicitly includes G12D, not a G12D-only effect estimate.",
+    "gradingInput": {
+      "diseaseApplicability": "SAME_DISEASE",
+      "regulatoryAlignment": "MATCHED_INDICATION",
+      "guidelineSupported": false,
+      "biomarkerSpecificResistance": true
+    },
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugs": [
+      { "drugId": "drug_panitumumab", "role": "PRIMARY", "sortOrder": 0 }
+    ]
+  }
+]

@@ -1,0 +1,749 @@
+[
+  {
+    "id": "claim_flaura_29151359_pfs",
+    "associationId": "assoc_nsclc_egfr_l858r_osimertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Randomized, double-blind, phase 3 trial",
+    "studyName": "FLAURA",
+    "populationSummary": "556 previously untreated patients with advanced NSCLC harboring EGFR exon 19 deletion or L858R.",
+    "sampleSize": 556,
+    "diseaseStage": "Locally advanced or metastatic",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "osimertinib 80 mg once daily",
+    "comparator": "gefitinib 250 mg once daily or erlotinib 150 mg once daily",
+    "endpoint": "Investigator-assessed progression-free survival",
+    "effectValue": {
+      "medianMonthsIntervention": 18.9,
+      "medianMonthsComparator": 10.2,
+      "hazardRatio": 0.46,
+      "confidenceInterval95": [0.37, 0.57],
+      "pValue": "<0.001"
+    },
+    "conclusion": "Osimertinib prolonged progression-free survival versus first-generation EGFR TKIs in the combined exon 19 deletion/L858R population.",
+    "limitations": "The abstract reports the primary result for the combined exon 19 deletion/L858R population, not an independent L858R effect estimate.",
+    "cohortFingerprint": "FLAURA|NCT02296125",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_29151359_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_luxlung3_23816960_pfs",
+    "associationId": "assoc_nsclc_egfr_l858r_afatinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Open-label, randomized, phase 3 trial",
+    "studyName": "LUX-Lung 3",
+    "populationSummary": "345 previously untreated patients with stage IIIB/IV EGFR-mutated lung adenocarcinoma; the common-mutation PFS analysis included 308 with exon 19 deletion or L858R.",
+    "sampleSize": 345,
+    "diseaseStage": "Stage IIIB or IV",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "afatinib 40 mg once daily",
+    "comparator": "cisplatin plus pemetrexed, up to six cycles",
+    "endpoint": "Independent-review progression-free survival",
+    "effectValue": {
+      "commonMutationSampleSize": 308,
+      "medianMonthsIntervention": 13.6,
+      "medianMonthsComparator": 6.9,
+      "hazardRatio": 0.47,
+      "confidenceInterval95": [0.34, 0.65],
+      "pValue": "0.001"
+    },
+    "conclusion": "Afatinib prolonged progression-free survival versus cisplatin-pemetrexed in the combined exon 19 deletion/L858R population.",
+    "limitations": "The cited PFS estimate combines exon 19 deletion and L858R; it must not be presented as an L858R-only benefit.",
+    "cohortFingerprint": "LUX-Lung 3|NCT00949650",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_23816960_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_luxlung3_6_25589191_l858r_os",
+    "associationId": "assoc_nsclc_egfr_l858r_afatinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Preplanned overall-survival analysis of two randomized phase 3 trials",
+    "studyName": "LUX-Lung 3 / LUX-Lung 6 OS analysis",
+    "populationSummary": "Previously untreated stage IIIB/IV EGFR-mutated lung adenocarcinoma; this claim concerns the prespecified L858R subgroups in both trials.",
+    "sampleSize": null,
+    "diseaseStage": "Stage IIIB or IV",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "afatinib",
+    "comparator": "cisplatin-based chemotherapy",
+    "endpoint": "Overall survival in the L858R subgroup",
+    "effectValue": {
+      "luxLung3": {
+        "medianMonthsIntervention": 27.6,
+        "medianMonthsComparator": 40.3,
+        "hazardRatio": 1.3,
+        "confidenceInterval95": [0.8, 2.11],
+        "pValue": "0.29"
+      },
+      "luxLung6": {
+        "medianMonthsIntervention": 19.6,
+        "medianMonthsComparator": 24.3,
+        "hazardRatio": 1.22,
+        "confidenceInterval95": [0.81, 1.83],
+        "pValue": "0.34"
+      }
+    },
+    "conclusion": "Neither trial showed a statistically significant overall-survival advantage for afatinib over chemotherapy in the L858R subgroup.",
+    "limitations": "Subgroup analyses were not the primary endpoint; this neutral OS finding does not negate the FDA indication or combined-population PFS evidence.",
+    "cohortFingerprint": "LUX-Lung program|NCT00949650|NCT01121393",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_25589191_l858r_os",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_ifum_24263064_response_pfs",
+    "associationId": "assoc_nsclc_egfr_l858r_gefitinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Prospective, multicenter, open-label, single-arm phase 4 study",
+    "studyName": "IFUM",
+    "populationSummary": "106 treated Caucasian patients with stage IIIA/B/IV NSCLC and sensitizing EGFR mutations; 31.1% of mutation-positive tumors had L858R.",
+    "sampleSize": 106,
+    "diseaseStage": "Stage IIIA/B unsuitable for curative therapy or stage IV",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "gefitinib 250 mg once daily",
+    "comparator": null,
+    "endpoint": "Objective response rate; secondary progression-free survival",
+    "effectValue": {
+      "objectiveResponseRatePercent": 69.8,
+      "objectiveResponseRateConfidenceInterval95": [60.5, 77.7],
+      "diseaseControlRatePercent": 90.6,
+      "medianProgressionFreeSurvivalMonths": 9.7,
+      "l858rPopulationPercent": 31.1
+    },
+    "conclusion": "First-line gefitinib showed antitumor activity in a sensitizing-EGFR NSCLC cohort that explicitly included L858R.",
+    "limitations": "Single-arm study; efficacy endpoints were reported for the pooled sensitizing-EGFR cohort rather than independently for L858R.",
+    "cohortFingerprint": "IFUM|NCT01203917",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_24263064_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_mariposa_38924756_pfs",
+    "associationId": "assoc_nsclc_egfr_l858r_amivantamab_lazertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "International, randomized, phase 3 trial",
+    "studyName": "MARIPOSA",
+    "populationSummary": "1074 previously untreated patients with locally advanced or metastatic NSCLC harboring EGFR exon 19 deletion or L858R.",
+    "sampleSize": 1074,
+    "diseaseStage": "Locally advanced or metastatic",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "amivantamab plus lazertinib",
+    "comparator": "osimertinib",
+    "endpoint": "Progression-free survival",
+    "effectValue": {
+      "primaryComparisonSampleSizePerArm": 429,
+      "medianMonthsIntervention": 23.7,
+      "medianMonthsComparator": 16.6,
+      "hazardRatio": 0.7,
+      "confidenceInterval95": [0.58, 0.85],
+      "pValue": "<0.001",
+      "treatmentRelatedDiscontinuationPercent": {
+        "intervention": 10,
+        "comparator": 3
+      }
+    },
+    "conclusion": "Amivantamab-lazertinib prolonged progression-free survival versus osimertinib in the combined exon 19 deletion/L858R population.",
+    "limitations": "The primary result combines exon 19 deletion and L858R. Treatment-related discontinuation was more frequent with the combination.",
+    "cohortFingerprint": "MARIPOSA|NCT04487080",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_38924756_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_mariposa_40923797_os_safety",
+    "associationId": "assoc_nsclc_egfr_l858r_amivantamab_lazertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Protocol-specified final overall-survival analysis of a randomized phase 3 trial",
+    "studyName": "MARIPOSA final OS analysis",
+    "populationSummary": "858 participants in the amivantamab-lazertinib and osimertinib arms of MARIPOSA; tumors had EGFR exon 19 deletion or L858R.",
+    "sampleSize": 858,
+    "diseaseStage": "Locally advanced or metastatic",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "amivantamab plus lazertinib",
+    "comparator": "osimertinib",
+    "endpoint": "Overall survival; grade 3 or higher adverse events",
+    "effectValue": {
+      "hazardRatioForDeath": 0.75,
+      "confidenceInterval95": [0.61, 0.92],
+      "pValue": "0.005",
+      "threeYearOverallSurvivalPercent": {
+        "intervention": 60,
+        "comparator": 51
+      },
+      "grade3OrHigherAdverseEventPercent": {
+        "intervention": 80,
+        "comparator": 52
+      }
+    },
+    "conclusion": "Final MARIPOSA analysis showed longer overall survival with amivantamab-lazertinib versus osimertinib in the combined exon 19 deletion/L858R population.",
+    "limitations": "The result is not L858R-specific, and grade 3 or higher adverse events were substantially more common with the combination.",
+    "cohortFingerprint": "MARIPOSA|NCT04487080",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_40923797_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_flaura_29151359_pfs_exon19del",
+    "associationId": "assoc_nsclc_egfr_e746_a750del_osimertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Randomized, double-blind, phase 3 trial",
+    "studyName": "FLAURA",
+    "populationSummary": "556 previously untreated patients with advanced NSCLC harboring EGFR exon 19 deletion or L858R.",
+    "sampleSize": 556,
+    "diseaseStage": "Locally advanced or metastatic",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "osimertinib",
+    "comparator": "gefitinib or erlotinib",
+    "endpoint": "Investigator-assessed progression-free survival",
+    "effectValue": {
+      "medianMonthsIntervention": 18.9,
+      "medianMonthsComparator": 10.2,
+      "hazardRatio": 0.46,
+      "confidenceInterval95": [0.37, 0.57],
+      "pValue": "<0.001"
+    },
+    "conclusion": "Osimertinib prolonged progression-free survival versus first-generation EGFR TKIs in the combined exon 19 deletion/L858R population.",
+    "limitations": "The primary estimate combines multiple exon 19 deletions with L858R and is not an independent p.E746_A750del estimate.",
+    "cohortFingerprint": "FLAURA|NCT02296125",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_29151359_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_luxlung3_23816960_pfs_exon19del",
+    "associationId": "assoc_nsclc_egfr_e746_a750del_afatinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Open-label, randomized, phase 3 trial",
+    "studyName": "LUX-Lung 3",
+    "populationSummary": "345 untreated patients with stage IIIB/IV EGFR-mutated lung adenocarcinoma; 308 carried exon 19 deletion or L858R.",
+    "sampleSize": 345,
+    "diseaseStage": "Stage IIIB or IV",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "afatinib",
+    "comparator": "cisplatin plus pemetrexed",
+    "endpoint": "Independent-review progression-free survival",
+    "effectValue": {
+      "commonMutationSampleSize": 308,
+      "medianMonthsIntervention": 13.6,
+      "medianMonthsComparator": 6.9,
+      "hazardRatio": 0.47,
+      "confidenceInterval95": [0.34, 0.65],
+      "pValue": "0.001"
+    },
+    "conclusion": "Afatinib prolonged progression-free survival versus cisplatin-pemetrexed in the combined exon 19 deletion/L858R population.",
+    "limitations": "The cited PFS estimate is not specific to p.E746_A750del.",
+    "cohortFingerprint": "LUX-Lung 3|NCT00949650",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_23816960_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_luxlung3_6_25589191_del19_os",
+    "associationId": "assoc_nsclc_egfr_e746_a750del_afatinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Preplanned overall-survival analysis of two randomized phase 3 trials",
+    "studyName": "LUX-Lung 3 / LUX-Lung 6 OS analysis",
+    "populationSummary": "Previously untreated stage IIIB/IV EGFR-mutated lung adenocarcinoma; this claim concerns the prespecified exon 19 deletion subgroups.",
+    "sampleSize": null,
+    "diseaseStage": "Stage IIIB or IV",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "afatinib",
+    "comparator": "cisplatin-based chemotherapy",
+    "endpoint": "Overall survival in the exon 19 deletion subgroup",
+    "effectValue": {
+      "luxLung3": {
+        "medianMonthsIntervention": 33.3,
+        "medianMonthsComparator": 21.1,
+        "hazardRatio": 0.54,
+        "confidenceInterval95": [0.36, 0.79],
+        "pValue": "0.0015"
+      },
+      "luxLung6": {
+        "medianMonthsIntervention": 31.4,
+        "medianMonthsComparator": 18.4,
+        "hazardRatio": 0.64,
+        "confidenceInterval95": [0.44, 0.94],
+        "pValue": "0.023"
+      }
+    },
+    "conclusion": "Both trials showed longer overall survival with afatinib versus chemotherapy in the prespecified exon 19 deletion subgroups.",
+    "limitations": "The subgroup includes multiple exon 19 deletion alleles and is not restricted to p.E746_A750del.",
+    "cohortFingerprint": "LUX-Lung program|NCT00949650|NCT01121393",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_25589191_del19_os",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_ifum_24263064_response_pfs_exon19del",
+    "associationId": "assoc_nsclc_egfr_e746_a750del_gefitinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Prospective, multicenter, open-label, single-arm phase 4 study",
+    "studyName": "IFUM",
+    "populationSummary": "106 treated patients with stage IIIA/B/IV NSCLC and sensitizing EGFR mutations, including exon 19 deletions.",
+    "sampleSize": 106,
+    "diseaseStage": "Stage IIIA/B unsuitable for curative therapy or stage IV",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "gefitinib",
+    "comparator": null,
+    "endpoint": "Objective response rate and progression-free survival",
+    "effectValue": {
+      "objectiveResponseRatePercent": 69.8,
+      "objectiveResponseRateConfidenceInterval95": [60.5, 77.7],
+      "diseaseControlRatePercent": 90.6,
+      "medianProgressionFreeSurvivalMonths": 9.7
+    },
+    "conclusion": "First-line gefitinib showed activity in a sensitizing-EGFR NSCLC cohort that included exon 19 deletions.",
+    "limitations": "Single-arm study; endpoints were reported for the pooled cohort, not independently for p.E746_A750del.",
+    "cohortFingerprint": "IFUM|NCT01203917",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_24263064_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_mariposa_38924756_pfs_exon19del",
+    "associationId": "assoc_nsclc_egfr_e746_a750del_amivantamab_lazertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "International, randomized, phase 3 trial",
+    "studyName": "MARIPOSA",
+    "populationSummary": "1074 untreated patients with locally advanced or metastatic NSCLC harboring EGFR exon 19 deletion or L858R.",
+    "sampleSize": 1074,
+    "diseaseStage": "Locally advanced or metastatic",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "amivantamab plus lazertinib",
+    "comparator": "osimertinib",
+    "endpoint": "Progression-free survival",
+    "effectValue": {
+      "primaryComparisonSampleSizePerArm": 429,
+      "medianMonthsIntervention": 23.7,
+      "medianMonthsComparator": 16.6,
+      "hazardRatio": 0.7,
+      "confidenceInterval95": [0.58, 0.85],
+      "pValue": "<0.001"
+    },
+    "conclusion": "Amivantamab-lazertinib prolonged progression-free survival versus osimertinib in the combined exon 19 deletion/L858R population.",
+    "limitations": "The primary result is not specific to p.E746_A750del.",
+    "cohortFingerprint": "MARIPOSA|NCT04487080",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_38924756_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_mariposa_40923797_os_exon19del",
+    "associationId": "assoc_nsclc_egfr_e746_a750del_amivantamab_lazertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Final overall-survival analysis of a randomized phase 3 trial",
+    "studyName": "MARIPOSA final OS analysis",
+    "populationSummary": "858 participants in the amivantamab-lazertinib and osimertinib arms; tumors had EGFR exon 19 deletion or L858R.",
+    "sampleSize": 858,
+    "diseaseStage": "Locally advanced or metastatic",
+    "treatmentLine": "First line",
+    "priorTherapy": "No prior systemic therapy for advanced disease",
+    "intervention": "amivantamab plus lazertinib",
+    "comparator": "osimertinib",
+    "endpoint": "Overall survival and grade 3 or higher adverse events",
+    "effectValue": {
+      "hazardRatioForDeath": 0.75,
+      "confidenceInterval95": [0.61, 0.92],
+      "pValue": "0.005",
+      "threeYearOverallSurvivalPercent": {
+        "intervention": 60,
+        "comparator": 51
+      },
+      "grade3OrHigherAdverseEventPercent": {
+        "intervention": 80,
+        "comparator": 52
+      }
+    },
+    "conclusion": "Final MARIPOSA analysis showed longer overall survival with amivantamab-lazertinib versus osimertinib in the combined exon 19 deletion/L858R population.",
+    "limitations": "The result is not p.E746_A750del-specific, and severe adverse events were more common with the combination.",
+    "cohortFingerprint": "MARIPOSA|NCT04487080",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_40923797_results",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_aura3_27959700_pfs",
+    "associationId": "assoc_nsclc_egfr_t790m_osimertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "International, randomized, open-label, phase 3 trial",
+    "studyName": "AURA3",
+    "populationSummary": "419 patients with EGFR T790M-positive advanced NSCLC progressing after first-line EGFR TKI therapy.",
+    "sampleSize": 419,
+    "diseaseStage": "Advanced",
+    "treatmentLine": "After progression on first-line EGFR TKI",
+    "priorTherapy": "First-line EGFR TKI",
+    "intervention": "osimertinib",
+    "comparator": "platinum plus pemetrexed",
+    "endpoint": "Investigator-assessed progression-free survival",
+    "effectValue": {
+      "medianMonthsIntervention": 10.1,
+      "medianMonthsComparator": 4.4,
+      "hazardRatio": 0.3,
+      "confidenceInterval95": [0.23, 0.41],
+      "pValue": "<0.001",
+      "objectiveResponseRatePercent": { "intervention": 71, "comparator": 31 }
+    },
+    "conclusion": "Osimertinib improved progression-free survival and response versus platinum-pemetrexed in T790M-positive advanced NSCLC after EGFR TKI progression.",
+    "limitations": "Open-label study; this historical T790M treatment setting is not presented as a standalone indication in the current U.S. label.",
+    "cohortFingerprint": "AURA3|NCT02151981",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_27959700_pfs",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_aura3_32861806_os",
+    "associationId": "assoc_nsclc_egfr_t790m_osimertinib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Final overall-survival analysis of a randomized phase 3 trial",
+    "studyName": "AURA3 final OS analysis",
+    "populationSummary": "419 patients with EGFR T790M-positive advanced NSCLC progressing after prior EGFR TKI.",
+    "sampleSize": 419,
+    "diseaseStage": "Advanced",
+    "treatmentLine": "After progression on prior EGFR TKI",
+    "priorTherapy": "EGFR TKI",
+    "intervention": "osimertinib",
+    "comparator": "platinum plus pemetrexed",
+    "endpoint": "Overall survival",
+    "effectValue": {
+      "medianMonthsIntervention": 26.8,
+      "medianMonthsComparator": 22.5,
+      "hazardRatio": 0.87,
+      "confidenceInterval95": [0.67, 1.12],
+      "pValue": "0.277",
+      "controlArmCrossoverPercent": 73
+    },
+    "conclusion": "Final AURA3 analysis did not show a statistically significant overall-survival benefit for osimertinib versus platinum-pemetrexed.",
+    "limitations": "Seventy-three percent of the control arm crossed over to osimertinib, which may have diluted the overall-survival comparison.",
+    "cohortFingerprint": "AURA3|NCT02151981",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_32861806_os",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_codebreak100_34096690_response",
+    "associationId": "assoc_nsclc_kras_g12c_sotorasib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Single-group phase 2 trial",
+    "studyName": "CodeBreaK 100",
+    "populationSummary": "126 patients with previously treated KRAS G12C-mutated advanced NSCLC.",
+    "sampleSize": 126,
+    "diseaseStage": "Advanced",
+    "treatmentLine": "Previously treated",
+    "priorTherapy": "Most had received platinum chemotherapy and PD-1/PD-L1 inhibition",
+    "intervention": "sotorasib",
+    "comparator": null,
+    "endpoint": "Objective response; duration of response; progression-free and overall survival",
+    "effectValue": {
+      "objectiveResponseRatePercent": 37.1,
+      "confidenceInterval95": [28.6, 46.2],
+      "medianDurationOfResponseMonths": 11.1,
+      "medianProgressionFreeSurvivalMonths": 6.8,
+      "medianOverallSurvivalMonths": 12.5
+    },
+    "conclusion": "Sotorasib produced objective responses and durable disease control in previously treated KRAS G12C-mutated advanced NSCLC.",
+    "limitations": "Single-arm phase 2 evidence cannot establish comparative survival benefit.",
+    "cohortFingerprint": "CodeBreaK 100|NCT03600883",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_34096690_response",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_codebreak200_36764316_pfs",
+    "associationId": "assoc_nsclc_kras_g12c_sotorasib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Randomized, open-label, phase 3 trial",
+    "studyName": "CodeBreaK 200",
+    "populationSummary": "345 patients with advanced KRAS G12C-mutated NSCLC after platinum chemotherapy and PD-1/PD-L1 inhibition.",
+    "sampleSize": 345,
+    "diseaseStage": "Advanced",
+    "treatmentLine": "Previously treated",
+    "priorTherapy": "Platinum chemotherapy and PD-1/PD-L1 inhibitor",
+    "intervention": "sotorasib",
+    "comparator": "docetaxel",
+    "endpoint": "Blinded independent central review progression-free survival",
+    "effectValue": {
+      "medianMonthsIntervention": 5.6,
+      "medianMonthsComparator": 4.5,
+      "hazardRatio": 0.66,
+      "confidenceInterval95": [0.51, 0.86],
+      "pValue": "0.0017",
+      "grade3OrHigherTreatmentRelatedAdverseEventPercent": {
+        "intervention": 33,
+        "comparator": 40
+      }
+    },
+    "conclusion": "Sotorasib improved progression-free survival versus docetaxel in previously treated KRAS G12C-mutated advanced NSCLC.",
+    "limitations": "The trial did not establish an overall-survival advantage; the primary benefit was progression-free survival.",
+    "cohortFingerprint": "CodeBreaK 200|NCT04303780",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_36764316_pfs",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_krystal1_35658005_response",
+    "associationId": "assoc_nsclc_kras_g12c_adagrasib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Registrational single-arm phase 2 cohort",
+    "studyName": "KRYSTAL-1",
+    "populationSummary": "116 patients with previously treated KRAS G12C-mutated NSCLC; 112 had measurable disease at baseline.",
+    "sampleSize": 116,
+    "diseaseStage": "Advanced",
+    "treatmentLine": "Previously treated",
+    "priorTherapy": "Platinum chemotherapy and PD-1/PD-L1 therapy",
+    "intervention": "adagrasib",
+    "comparator": null,
+    "endpoint": "Objective response; duration of response; progression-free and overall survival",
+    "effectValue": {
+      "objectiveResponseRatePercent": 42.9,
+      "medianDurationOfResponseMonths": 8.5,
+      "medianProgressionFreeSurvivalMonths": 6.5,
+      "medianOverallSurvivalMonths": 12.6,
+      "grade3OrHigherTreatmentRelatedAdverseEventPercent": 44.8
+    },
+    "conclusion": "Adagrasib showed clinical activity in previously treated KRAS G12C-mutated NSCLC.",
+    "limitations": "Single-arm cohort; grade 3 or higher treatment-related adverse events occurred in 44.8%, including two grade 5 events.",
+    "cohortFingerprint": "KRYSTAL-1|NCT03785249",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_35658005_response",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_krystal12_40783289_pfs",
+    "associationId": "assoc_nsclc_kras_g12c_adagrasib",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Randomized, multicenter, open-label, phase 3 trial",
+    "studyName": "KRYSTAL-12",
+    "populationSummary": "453 patients with locally advanced or metastatic KRAS G12C-mutated NSCLC after chemotherapy and immunotherapy.",
+    "sampleSize": 453,
+    "diseaseStage": "Locally advanced or metastatic",
+    "treatmentLine": "Previously treated",
+    "priorTherapy": "Platinum chemotherapy and PD-1/PD-L1 therapy",
+    "intervention": "adagrasib",
+    "comparator": "docetaxel",
+    "endpoint": "Blinded independent central review progression-free survival",
+    "effectValue": {
+      "medianMonthsIntervention": 5.5,
+      "medianMonthsComparator": 3.8,
+      "hazardRatio": 0.58,
+      "confidenceInterval95": [0.45, 0.76],
+      "pValue": "<0.0001",
+      "grade3OrHigherTreatmentRelatedAdverseEventPercent": {
+        "intervention": 47,
+        "comparator": 46
+      },
+      "treatmentRelatedDeaths": { "intervention": 4, "comparator": 1 }
+    },
+    "conclusion": "Adagrasib improved progression-free survival versus docetaxel in previously treated KRAS G12C-mutated NSCLC.",
+    "limitations": "Open-label trial; treatment-related deaths occurred in both arms and overall-survival benefit is not established by this claim.",
+    "cohortFingerprint": "KRYSTAL-12|NCT04685135",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_40783289_pfs",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_codebreak300_37870968_pfs",
+    "associationId": "assoc_crc_kras_g12c_sotorasib_panitumumab",
+    "claimType": "EFFICACY",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Multicenter, randomized, open-label, phase 3 trial",
+    "studyName": "CodeBreaK 300",
+    "populationSummary": "160 patients with chemorefractory KRAS G12C-mutated metastatic colorectal cancer and no prior KRAS G12C inhibitor.",
+    "sampleSize": 160,
+    "diseaseStage": "Metastatic",
+    "treatmentLine": "Chemorefractory",
+    "priorTherapy": "Prior fluoropyrimidine-, oxaliplatin-, and irinotecan-based chemotherapy",
+    "intervention": "sotorasib plus panitumumab",
+    "comparator": "trifluridine-tipiracil or regorafenib",
+    "endpoint": "Blinded independent central review progression-free survival",
+    "effectValue": {
+      "medianMonthsIntervention": 5.6,
+      "medianMonthsComparator": 2.2,
+      "hazardRatio": 0.49,
+      "confidenceInterval95": [0.3, 0.8],
+      "pValue": "0.006",
+      "objectiveResponseRatePercent": { "intervention": 26.4, "comparator": 0 }
+    },
+    "conclusion": "Sotorasib plus panitumumab improved progression-free survival versus standard care in chemorefractory KRAS G12C-mutated metastatic colorectal cancer.",
+    "limitations": "Overall-survival data were still maturing in the publication; the FDA page later reported an updated analysis.",
+    "cohortFingerprint": "CodeBreaK 300|NCT05198934",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_37870968_pfs",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  },
+  {
+    "id": "claim_panitumumab_18316791_kras_mutant_no_response",
+    "associationId": "assoc_crc_kras_g12d_panitumumab_resistance",
+    "claimType": "RESISTANCE",
+    "evidenceMaturity": "MATURE_CLINICAL",
+    "studyType": "Retrospective biomarker analysis of a randomized phase 3 trial",
+    "studyName": "Panitumumab KRAS biomarker analysis",
+    "populationSummary": "KRAS status was available for 427 of 463 patients with metastatic colorectal cancer; 43% had a KRAS mutation.",
+    "sampleSize": 427,
+    "diseaseStage": "Metastatic",
+    "treatmentLine": "Chemotherapy-refractory",
+    "priorTherapy": "Prior standard chemotherapy",
+    "intervention": "panitumumab monotherapy",
+    "comparator": "best supportive care",
+    "endpoint": "Progression-free survival and objective response by KRAS status",
+    "effectValue": {
+      "mutantKrasProgressionFreeSurvivalHazardRatio": 0.99,
+      "confidenceInterval95": [0.73, 1.36],
+      "objectiveResponseRatePercent": { "wildType": 17, "mutant": 0 }
+    },
+    "conclusion": "Panitumumab monotherapy efficacy was confined to wild-type KRAS tumors; no responses were observed in the KRAS-mutant group.",
+    "limitations": "This is KRAS-mutant group evidence that explicitly includes G12D, not an independent G12D effect estimate; current G12C combination labeling is a specific exception.",
+    "cohortFingerprint": "Panitumumab phase 3 biomarker analysis|NCT00113763",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_pubmed_18316791_response",
+        "supportRole": "PRIMARY"
+      }
+    ]
+  }
+]

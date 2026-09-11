@@ -1,0 +1,282 @@
+[
+  {
+    "id": "approval_fda_nda208065_orig1_osimertinib",
+    "authority": "FDA",
+    "applicationNumber": "NDA208065",
+    "submissionNumber": "ORIG-1",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2015-11-13",
+    "statusAsOf": "2026-09-08",
+    "indicationText": "First-line treatment of adult patients with metastatic NSCLC whose tumors have EGFR exon 19 deletions or exon 21 L858R mutations, as detected by an FDA-approved test.",
+    "biomarkerText": "EGFR exon 19 deletion or exon 21 L858R mutation",
+    "labelEffectiveDate": "2024-09-25",
+    "sourceDocumentId": "doc_fda_nda208065_s033",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugIds": ["drug_osimertinib"],
+    "diseaseLinks": [{ "diseaseId": "disease_nsclc", "scope": "EXACT" }],
+    "variantLinks": [
+      {
+        "variantId": "variant_egfr_l858r",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      },
+      {
+        "variantId": "variant_egfr_e746_a750del",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      }
+    ],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_nda208065_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_nda201292_orig1_afatinib",
+    "authority": "FDA",
+    "applicationNumber": "NDA201292",
+    "submissionNumber": "ORIG-1",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2013-07-12",
+    "statusAsOf": "2026-09-08",
+    "indicationText": "First-line treatment of patients with metastatic NSCLC whose tumors have non-resistant EGFR mutations as detected by an FDA-approved test.",
+    "biomarkerText": "Non-resistant EGFR mutations; L858R is included in the labeled clinical and diagnostic scope.",
+    "labelEffectiveDate": "2022-04-11",
+    "sourceDocumentId": "doc_fda_nda201292_s017",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugIds": ["drug_afatinib"],
+    "diseaseLinks": [{ "diseaseId": "disease_nsclc", "scope": "EXACT" }],
+    "variantLinks": [
+      {
+        "variantId": "variant_egfr_l858r",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      },
+      {
+        "variantId": "variant_egfr_e746_a750del",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      }
+    ],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_nda201292_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_nda206995_orig1_gefitinib",
+    "authority": "FDA",
+    "applicationNumber": "NDA206995",
+    "submissionNumber": "ORIG-1",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2015-07-13",
+    "statusAsOf": "2026-09-08",
+    "indicationText": "First-line treatment of patients with metastatic NSCLC whose tumors have EGFR exon 19 deletions or exon 21 L858R substitution mutations as detected by an FDA-approved test.",
+    "biomarkerText": "EGFR exon 19 deletion or exon 21 L858R substitution mutation",
+    "labelEffectiveDate": "2021-05-06",
+    "sourceDocumentId": "doc_fda_nda206995_s004",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugIds": ["drug_gefitinib"],
+    "diseaseLinks": [{ "diseaseId": "disease_nsclc", "scope": "EXACT" }],
+    "variantLinks": [
+      {
+        "variantId": "variant_egfr_l858r",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      },
+      {
+        "variantId": "variant_egfr_e746_a750del",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      }
+    ],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_nda206995_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_bla761210_s005_amivantamab_lazertinib",
+    "authority": "FDA",
+    "applicationNumber": "BLA761210",
+    "submissionNumber": "S-005",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2024-08-19",
+    "statusAsOf": "2026-09-08",
+    "indicationText": "Amivantamab in combination with lazertinib for first-line treatment of adults with locally advanced or metastatic NSCLC with EGFR exon 19 deletions or exon 21 L858R substitution mutations.",
+    "biomarkerText": "EGFR exon 19 deletion or exon 21 L858R substitution mutation",
+    "labelEffectiveDate": "2025-11-11",
+    "sourceDocumentId": "doc_fda_bla761210_s011",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugIds": ["drug_amivantamab"],
+    "diseaseLinks": [{ "diseaseId": "disease_nsclc", "scope": "EXACT" }],
+    "variantLinks": [
+      {
+        "variantId": "variant_egfr_l858r",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      },
+      {
+        "variantId": "variant_egfr_e746_a750del",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      }
+    ],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_bla761210_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_nda219008_orig1_lazertinib_amivantamab",
+    "authority": "FDA",
+    "applicationNumber": "NDA219008",
+    "submissionNumber": "ORIG-1",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2024-08-19",
+    "statusAsOf": "2026-09-08",
+    "indicationText": "Lazertinib in combination with amivantamab for first-line treatment of adults with locally advanced or metastatic NSCLC with EGFR exon 19 deletions or exon 21 L858R substitution mutations.",
+    "biomarkerText": "EGFR exon 19 deletion or exon 21 L858R substitution mutation",
+    "labelEffectiveDate": "2026-05-05",
+    "sourceDocumentId": "doc_fda_nda219008_s004",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-09T16:00:00.000Z",
+    "drugIds": ["drug_lazertinib"],
+    "diseaseLinks": [{ "diseaseId": "disease_nsclc", "scope": "EXACT" }],
+    "variantLinks": [
+      {
+        "variantId": "variant_egfr_l858r",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      },
+      {
+        "variantId": "variant_egfr_e746_a750del",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      }
+    ],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_nda219008_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_nda214665_orig1_sotorasib_nsclc",
+    "authority": "FDA",
+    "applicationNumber": "NDA214665",
+    "submissionNumber": "ORIG-1",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2021-05-28",
+    "statusAsOf": "2026-09-10",
+    "indicationText": "Treatment of adults with KRAS G12C-mutated locally advanced or metastatic NSCLC, as determined by an FDA-approved test, after at least one prior systemic therapy.",
+    "biomarkerText": "KRAS G12C mutation",
+    "labelEffectiveDate": "2025-01-16",
+    "sourceDocumentId": "doc_fda_nda214665_s009",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugIds": ["drug_sotorasib"],
+    "diseaseLinks": [{ "diseaseId": "disease_nsclc", "scope": "EXACT" }],
+    "variantLinks": [{ "variantId": "variant_kras_g12c", "scope": "EXACT" }],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_nda214665_nsclc_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_nda216340_orig1_adagrasib_nsclc",
+    "authority": "FDA",
+    "applicationNumber": "NDA216340",
+    "submissionNumber": "ORIG-1",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2022-12-12",
+    "statusAsOf": "2026-09-10",
+    "indicationText": "Treatment of adults with KRAS G12C-mutated locally advanced or metastatic NSCLC, as determined by an FDA-approved test, after at least one prior systemic therapy.",
+    "biomarkerText": "KRAS G12C mutation",
+    "labelEffectiveDate": "2026-03-01",
+    "sourceDocumentId": "doc_fda_nda216340_s009",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugIds": ["drug_adagrasib"],
+    "diseaseLinks": [{ "diseaseId": "disease_nsclc", "scope": "EXACT" }],
+    "variantLinks": [{ "variantId": "variant_kras_g12c", "scope": "EXACT" }],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_nda216340_nsclc_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_nda214665_s009_sotorasib_panitumumab_crc",
+    "authority": "FDA",
+    "applicationNumber": "NDA214665",
+    "submissionNumber": "S-009",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2025-01-16",
+    "statusAsOf": "2026-09-10",
+    "indicationText": "Sotorasib in combination with panitumumab for adults with KRAS G12C-mutated metastatic colorectal cancer after prior fluoropyrimidine-, oxaliplatin-, and irinotecan-based chemotherapy.",
+    "biomarkerText": "KRAS G12C mutation",
+    "labelEffectiveDate": "2025-01-16",
+    "sourceDocumentId": "doc_fda_nda214665_s009",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugIds": ["drug_sotorasib", "drug_panitumumab"],
+    "diseaseLinks": [{ "diseaseId": "disease_crc", "scope": "EXACT" }],
+    "variantLinks": [{ "variantId": "variant_kras_g12c", "scope": "EXACT" }],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_nda214665_crc_indication",
+        "supportRole": "INDICATION"
+      }
+    ]
+  },
+  {
+    "id": "approval_fda_bla125147_s213_panitumumab_crc",
+    "authority": "FDA",
+    "applicationNumber": "BLA125147",
+    "submissionNumber": "S-213",
+    "approvalStatus": "APPROVED",
+    "approvalDate": "2025-01-16",
+    "statusAsOf": "2026-09-10",
+    "indicationText": "Panitumumab is indicated with sotorasib for previously treated KRAS G12C-mutated metastatic colorectal cancer; it is not indicated for other RAS-mutant metastatic colorectal cancers.",
+    "biomarkerText": "KRAS G12C inclusion and other RAS-mutant exclusion; the exclusion group explicitly includes KRAS G12D.",
+    "labelEffectiveDate": "2025-01-16",
+    "sourceDocumentId": "doc_fda_bla125147_s213",
+    "reviewStatus": "APPROVED",
+    "reviewedBy": "product-owner-fast-track",
+    "reviewedAt": "2026-09-11T00:00:00.000Z",
+    "drugIds": ["drug_panitumumab"],
+    "diseaseLinks": [{ "diseaseId": "disease_crc", "scope": "EXACT" }],
+    "variantLinks": [
+      { "variantId": "variant_kras_g12c", "scope": "EXACT" },
+      {
+        "variantId": "variant_kras_g12d",
+        "scope": "EXPLICIT_GROUP_INCLUDES_EXACT"
+      }
+    ],
+    "passageLinks": [
+      {
+        "sourcePassageId": "passage_fda_bla125147_crc_g12c_indication",
+        "supportRole": "INDICATION"
+      },
+      {
+        "sourcePassageId": "passage_fda_bla125147_ras_limitation",
+        "supportRole": "BIOMARKER"
+      }
+    ]
+  }
+]

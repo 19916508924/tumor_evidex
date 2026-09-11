@@ -1,0 +1,186 @@
+{
+  "diseases": [
+    {
+      "id": "disease_nsclc",
+      "canonicalName": "NSCLC",
+      "displayNameZh": "非小细胞肺癌",
+      "displayNameEn": "Non-small cell lung cancer",
+      "ontologySystem": "NCIt",
+      "ontologyCode": "C2926",
+      "lineage": "SOLID",
+      "aliases": [
+        "non-small-cell lung cancer",
+        "non-small cell lung carcinoma"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "disease_crc",
+      "canonicalName": "CRC",
+      "displayNameZh": "结直肠癌",
+      "displayNameEn": "Colorectal cancer",
+      "ontologySystem": "NCIt",
+      "ontologyCode": "C2955",
+      "lineage": "SOLID",
+      "aliases": ["colorectal carcinoma", "colorectal cancer", "CRC"],
+      "status": "ACTIVE"
+    }
+  ],
+  "genes": [
+    {
+      "id": "gene_egfr",
+      "symbol": "EGFR",
+      "hgncId": "HGNC:3236",
+      "name": "epidermal growth factor receptor",
+      "aliases": ["ERBB1", "HER1"],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "gene_kras",
+      "symbol": "KRAS",
+      "hgncId": "HGNC:6407",
+      "name": "KRAS proto-oncogene, GTPase",
+      "aliases": ["KRAS2", "RASK2"],
+      "status": "ACTIVE"
+    }
+  ],
+  "variants": [
+    {
+      "id": "variant_egfr_l858r",
+      "geneId": "gene_egfr",
+      "alterationType": "SNV",
+      "hgvsp": "p.L858R",
+      "hgvsc": "c.2573T>G",
+      "transcript": "NM_005228.5",
+      "canonicalKey": "EGFR|SNV|p.L858R",
+      "aliases": ["p.Leu858Arg", "exon 21 L858R"],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "variant_egfr_e746_a750del",
+      "geneId": "gene_egfr",
+      "alterationType": "DEL",
+      "hgvsp": "p.E746_A750del",
+      "hgvsc": "c.2235_2249del",
+      "transcript": "NM_005228.5",
+      "canonicalKey": "EGFR|DEL|p.E746_A750del",
+      "aliases": ["p.Glu746_Ala750del", "exon19del", "EGFR exon 19 deletion"],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "variant_egfr_t790m",
+      "geneId": "gene_egfr",
+      "alterationType": "SNV",
+      "hgvsp": "p.T790M",
+      "hgvsc": "c.2369C>T",
+      "transcript": "NM_005228.5",
+      "canonicalKey": "EGFR|SNV|p.T790M",
+      "aliases": ["p.Thr790Met", "exon 20 T790M"],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "variant_kras_g12c",
+      "geneId": "gene_kras",
+      "alterationType": "SNV",
+      "hgvsp": "p.G12C",
+      "hgvsc": "c.34G>T",
+      "transcript": "NM_004985.5",
+      "canonicalKey": "KRAS|SNV|p.G12C",
+      "aliases": ["p.Gly12Cys", "KRAS G12C"],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "variant_kras_g12d",
+      "geneId": "gene_kras",
+      "alterationType": "SNV",
+      "hgvsp": "p.G12D",
+      "hgvsc": "c.35G>A",
+      "transcript": "NM_004985.5",
+      "canonicalKey": "KRAS|SNV|p.G12D",
+      "aliases": ["p.Gly12Asp", "KRAS G12D"],
+      "status": "ACTIVE"
+    }
+  ],
+  "drugs": [
+    {
+      "id": "drug_osimertinib",
+      "genericName": "osimertinib",
+      "displayNameZh": "奥希替尼",
+      "displayNameEn": "osimertinib",
+      "brandNames": ["TAGRISSO"],
+      "aliases": ["AZD9291"],
+      "externalIds": { "fdaApplicationNumber": "NDA208065" },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "drug_afatinib",
+      "genericName": "afatinib",
+      "displayNameZh": "阿法替尼",
+      "displayNameEn": "afatinib",
+      "brandNames": ["GILOTRIF"],
+      "aliases": ["BIBW 2992"],
+      "externalIds": { "fdaApplicationNumber": "NDA201292" },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "drug_gefitinib",
+      "genericName": "gefitinib",
+      "displayNameZh": "吉非替尼",
+      "displayNameEn": "gefitinib",
+      "brandNames": ["IRESSA"],
+      "aliases": ["ZD1839"],
+      "externalIds": { "fdaApplicationNumber": "NDA206995" },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "drug_amivantamab",
+      "genericName": "amivantamab-vmjw",
+      "displayNameZh": "阿米万单抗",
+      "displayNameEn": "amivantamab-vmjw",
+      "brandNames": ["RYBREVANT"],
+      "aliases": ["amivantamab", "JNJ-61186372"],
+      "externalIds": { "fdaApplicationNumber": "BLA761210" },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "drug_lazertinib",
+      "genericName": "lazertinib",
+      "displayNameZh": "拉泽替尼",
+      "displayNameEn": "lazertinib",
+      "brandNames": ["LAZCLUZE"],
+      "aliases": ["YH25448"],
+      "externalIds": { "fdaApplicationNumber": "NDA219008" },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "drug_sotorasib",
+      "genericName": "sotorasib",
+      "displayNameZh": "索托拉西布",
+      "displayNameEn": "sotorasib",
+      "brandNames": ["LUMAKRAS"],
+      "aliases": ["AMG 510"],
+      "externalIds": { "fdaApplicationNumber": "NDA214665" },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "drug_adagrasib",
+      "genericName": "adagrasib",
+      "displayNameZh": "阿达格拉西布",
+      "displayNameEn": "adagrasib",
+      "brandNames": ["KRAZATI"],
+      "aliases": ["MRTX849"],
+      "externalIds": { "fdaApplicationNumber": "NDA216340" },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "drug_panitumumab",
+      "genericName": "panitumumab",
+      "displayNameZh": "帕尼单抗",
+      "displayNameEn": "panitumumab",
+      "brandNames": ["VECTIBIX"],
+      "aliases": ["ABX-EGF"],
+      "externalIds": { "fdaApplicationNumber": "BLA125147" },
+      "status": "ACTIVE"
+    }
+  ]
+}
