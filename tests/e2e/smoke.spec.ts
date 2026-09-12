@@ -62,8 +62,12 @@ test('Chinese landing page renders with the correct locale', async ({
 });
 
 test('landing page API example copies and the mobile navigation returns focus', async ({
+  context,
   page,
 }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+    origin: 'http://localhost:3100',
+  });
   await page.goto('/');
   await page.getByRole('button', { name: 'Copy API request' }).click();
   await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible();
@@ -88,20 +92,26 @@ test('landing page remains visible when reduced motion is requested', async ({
   await expect(page.locator('main > section')).toHaveCount(11);
 });
 
-test('Evidex evidence workflow page exposes the V0.2 query selectors', async ({
+test('Evidex evidence page exposes the public query experience', async ({
   page,
 }) => {
   const response = await page.goto('/zh/evidence');
   expect(response?.status()).toBe(200);
   await expect(
-    page.getByRole('heading', { name: '体验一次完整的循证检索' })
+    page.getByRole('heading', { name: '探索与基因变异相关的治疗证据' })
+  ).toBeVisible();
+  await expect(
+    page.getByText('资料来源覆盖 PubMed 文献与美国药监局公开记录')
   ).toBeVisible();
   await expect(page.getByLabel('癌种')).toHaveValue('NSCLC');
   await expect(page.getByLabel('基因')).toHaveValue('EGFR');
   await expect(page.getByLabel('蛋白变异')).toHaveValue('EGFR|SNV|p.L858R');
   await expect(
-    page.getByRole('button', { name: '生成循证综述' })
+    page.getByRole('button', { name: '查看治疗证据' })
   ).toBeEnabled();
+  await expect(page.locator('body')).not.toContainText(
+    /V0\.2|体验版|后端|知识版本|接口：/
+  );
 });
 
 test('protected pages redirect anonymous users and preserve their destination', async ({

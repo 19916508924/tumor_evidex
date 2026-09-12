@@ -1,22 +1,22 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpenText,
   Check,
   CircleAlert,
   Clock3,
-  Database,
   Dna,
   ExternalLink,
-  FileCheck2,
   FlaskConical,
   LoaderCircle,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -66,29 +66,6 @@ type RequestState =
   | { status: 'success'; data: EvidencePageData }
   | { status: 'out-of-scope'; field: OutOfScopeData['field'] }
   | { status: 'error'; message: string };
-
-const workflowSteps = [
-  {
-    icon: FileCheck2,
-    title: '规范化输入',
-    description: '严格校验癌种与变异',
-  },
-  {
-    icon: Database,
-    title: '检索知识版本',
-    description: '只读取已审核、已发布证据',
-  },
-  {
-    icon: Sparkles,
-    title: '受约束归纳',
-    description: '模型只使用证据包',
-  },
-  {
-    icon: ShieldCheck,
-    title: '校验引用',
-    description: '拒绝越界证据 ID',
-  },
-];
 
 const scopeLabels = {
   SAME_DISEASE: '同疾病证据',
@@ -317,11 +294,11 @@ const passageSectionLabels: Record<string, string> = {
 };
 
 const fieldLabels = {
-  disease: '当前 V0.2 支持非小细胞肺癌（NSCLC）和结直肠癌（CRC）。',
-  gene: '当前 V0.2 支持 EGFR 和 KRAS 基因。',
-  hgvsp: '当前 V0.2 尚未收录这个基因与变异类型组合。',
-  jurisdiction: '当前 V0.2 仅支持美国药品监督管理局监管范围。',
-  locale: '当前 V0.2 仅支持中文结果。',
+  disease: '目前支持非小细胞肺癌（NSCLC）和结直肠癌（CRC）。',
+  gene: '目前支持 EGFR 和 KRAS 基因。',
+  hgvsp: '暂未收录这个基因与变异类型组合。',
+  jurisdiction: '目前仅覆盖美国药品监督管理局监管范围。',
+  locale: '目前仅提供中文结果。',
 };
 
 function containsChinese(value: string | null | undefined) {
@@ -333,6 +310,30 @@ function keepChineseOrFallback(
   fallback: string
 ) {
   return containsChinese(value) ? value! : fallback;
+}
+
+function toPublicFacingCopy(value: string) {
+  return value
+    .replaceAll('当前已发布知识中', '当前收录资料中')
+    .replaceAll('当前 Evidex 知识版本', 'Evidex 当前收录范围')
+    .replaceAll('当前知识版本', '当前收录范围')
+    .replaceAll('知识版本', '收录范围')
+    .replace(/\s*\bFDA\b\s*/g, '美国药监局')
+    .replace(/\s*\bNSCLC\b\s*/g, '非小细胞肺癌')
+    .replace(/\s*\bCRC\b\s*/g, '结直肠癌')
+    .replace(/\bexon\b/gi, '外显子')
+    .replace(/\s*\bPFS\b\s*/g, '无进展生存期')
+    .replace(/\s*\bOS\b\s*/g, '总生存期')
+    .replace(/\s*\bORR\b\s*/g, '客观缓解率')
+    .replace(/\s*\bHR\b\s*/g, '风险比')
+    .replace(/\s*\bCI\b\s*/g, '置信区间');
+}
+
+function joinPublicCopy(values: string[]) {
+  return values
+    .map((value) => toPublicFacingCopy(value))
+    .map((value) => (/[。！？]$/u.test(value) ? value : `${value}。`))
+    .join('');
 }
 
 function getClaimTranslation(
@@ -436,9 +437,9 @@ function getRequestError(message: string) {
     return '输入格式未通过校验，请检查后重试。';
   }
   if (message === 'PAYLOAD_TOO_LARGE') {
-    return '请求内容超过接口限制，请缩减后重试。';
+    return '提交内容过长，请精简后重试。';
   }
-  return '知识服务暂时不可用，请稍后重试。';
+  return '暂时无法获取证据，请稍后重试。';
 }
 
 function getAnswerTherapy(
@@ -453,10 +454,10 @@ function getAnswerTherapy(
 function MetaItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[0.75rem] font-medium tracking-[0.08em] text-slate-500 uppercase">
+      <dt className="text-sm font-medium text-[#64748B]">
         {label}
       </dt>
-      <dd className="mt-1 truncate text-sm font-semibold text-slate-900">
+      <dd className="mt-1 truncate text-base font-semibold text-[#0B1F3A]">
         {value}
       </dd>
     </div>
@@ -479,7 +480,7 @@ function SourceLink({
   return (
     <a
       aria-label={label}
-      className="group inline-flex items-center gap-1.5 text-sm font-semibold text-[#087f8c] underline-offset-4 hover:underline"
+      className="group inline-flex min-h-11 items-center gap-1.5 rounded-[10px] px-2 text-sm font-semibold text-[#175CD3] underline-offset-4 transition-colors hover:bg-[#EAF2FF] hover:text-[#134EAE] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
       href={url}
       target="_blank"
       rel="noreferrer"
@@ -509,28 +510,27 @@ function EvidenceClaim({
   ].filter(Boolean);
 
   return (
-    <article className="border-t border-slate-200 pt-5 first:border-t-0 first:pt-0">
+    <article className="border-t border-[#C7D9F2] pt-6 first:border-t-0 first:pt-0">
       <div className="flex flex-wrap items-center gap-2">
         <Badge
           variant="outline"
-          className="border-[#9ecfd1] bg-[#edfafa] text-[#086b75]"
+          className="border-[#A9C4EA] bg-[#EDF5FF] text-[#0B4DA2]"
         >
           {evidenceMaturityLabels[claim.evidenceMaturity]}
         </Badge>
-        <span className="font-mono text-xs text-slate-500">{claim.id}</span>
       </div>
 
-      <h4 className="mt-3 text-base font-semibold text-slate-950">
+      <h4 className="mt-3 text-lg font-semibold tracking-[-0.015em] text-[#0B1F3A]">
         {studyFacts.join(' · ')}
       </h4>
-      <p className="mt-2 text-[0.9375rem] leading-7 text-slate-600">
+      <p className="mt-2 text-base leading-7 text-[#52637A]">
         {localizedClaim.populationSummary}
       </p>
 
-      <dl className="mt-4 grid gap-3 rounded-lg bg-slate-50 p-4 text-sm sm:grid-cols-2">
+      <dl className="mt-5 grid gap-5 border-y border-[#D9E5F5] bg-[#F7FAFF]/80 px-4 py-4 text-sm sm:grid-cols-2">
         <div>
-          <dt className="text-slate-500">干预与对照</dt>
-          <dd className="mt-1 font-medium text-slate-900">
+          <dt className="text-[#64748B]">干预与对照</dt>
+          <dd className="mt-1.5 font-medium leading-6 text-[#0B1F3A]">
             {localizedClaim.intervention}
             {localizedClaim.comparator
               ? ` 对比 ${localizedClaim.comparator}`
@@ -538,8 +538,8 @@ function EvidenceClaim({
           </dd>
         </div>
         <div>
-          <dt className="text-slate-500">主要终点</dt>
-          <dd className="mt-1 font-medium text-slate-900">
+          <dt className="text-[#64748B]">主要终点</dt>
+          <dd className="mt-1.5 font-medium leading-6 text-[#0B1F3A]">
             {localizedClaim.endpoint}
             {claim.effectValue
               ? ` · ${formatEffectValue(claim.effectValue)}`
@@ -549,15 +549,15 @@ function EvidenceClaim({
       </dl>
 
       {clinicalContext.length > 0 && (
-        <p className="mt-3 text-sm leading-6 text-slate-500">
+        <p className="mt-4 text-sm leading-6 text-[#64748B]">
           {clinicalContext.join(' · ')}
         </p>
       )}
 
-      <p className="mt-4 text-[0.9375rem] leading-7 text-slate-800">
+      <p className="mt-5 text-base leading-7 text-[#243B5A]">
         {localizedClaim.conclusion}
       </p>
-      <div className="mt-3 rounded-lg border-l-2 border-amber-400 bg-amber-50/70 px-4 py-3 text-sm leading-6 text-amber-950">
+      <div className="mt-4 border-l-2 border-[#E3A008] bg-[#FFF9E8]/80 px-4 py-3 text-sm leading-6 text-[#62420A]">
         <span className="font-semibold">局限：</span>
         {localizedClaim.limitations}
       </div>
@@ -566,18 +566,18 @@ function EvidenceClaim({
         {claim.passages.map((passage) => (
           <div
             key={passage.id}
-            className="flex flex-col justify-between gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-start"
+            className="flex flex-col justify-between gap-3 rounded-xl border border-[#D9E5F5] bg-white/70 p-4 sm:flex-row sm:items-start"
           >
             <div className="min-w-0">
-              <p className="text-sm font-medium text-slate-900">
+              <p className="text-sm font-semibold text-[#0B1F3A]">
                 {passage.source.title}
               </p>
               {passage.text && (
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="mt-2 text-sm leading-6 text-[#52637A]">
                   “{passage.text}”
                 </p>
               )}
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-sm text-[#64748B]">
                 {passage.section
                   ? (passageSectionLabels[passage.section] ?? '文献定位')
                   : '来源页面'}
@@ -620,73 +620,70 @@ function TherapyCard({
     : localizedRationale;
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_55px_-36px_rgba(15,23,42,0.45)]">
-      <div className="grid gap-6 border-b border-slate-200 px-5 py-6 md:grid-cols-[1fr_auto] md:px-7">
+    <article className="overflow-hidden rounded-2xl border border-white/90 bg-white/78 shadow-[0_24px_70px_-42px_rgba(23,92,211,0.34)] backdrop-blur-xl">
+      <div className="grid gap-6 border-b border-[#D9E5F5] px-5 py-6 md:grid-cols-[1fr_auto] md:px-7">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge className="rounded-full border-0 bg-[#0b2638] px-3 py-1 text-white">
+            <Badge className="rounded-full border-0 bg-[#0B3975] px-3 py-1 text-white">
               证据等级 {therapy.approvedLevel}
             </Badge>
             <Badge
               variant="outline"
-              className="rounded-full border-[#b6dfe0] bg-[#eefafa] px-3 py-1 text-[#086b75]"
+              className="rounded-full border-[#A9C4EA] bg-[#EDF5FF] px-3 py-1 text-[#0B4DA2]"
             >
               {directionLabels[therapy.direction]}
             </Badge>
             <Badge
               variant="outline"
-              className="rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-slate-600"
+              className="rounded-full border-[#C7D9F2] bg-white/70 px-3 py-1 text-[#52637A]"
             >
               {regulatoryLabels[therapy.regulatoryAlignment]}
             </Badge>
           </div>
-          <h3 className="mt-4 text-2xl font-semibold tracking-[-0.025em] text-slate-950">
+          <h3 className="mt-4 text-2xl font-semibold tracking-[-0.025em] text-[#0B1F3A]">
             {drugNames}
           </h3>
-          <p className="mt-2 max-w-3xl text-[0.9375rem] leading-7 text-slate-600">
-            {overview}
+          <p className="mt-2 max-w-3xl text-base leading-7 text-[#52637A]">
+            {toPublicFacingCopy(overview)}
           </p>
         </div>
-        <div className="flex h-fit items-center gap-6 rounded-xl bg-slate-50 px-5 py-4 text-center">
+        <div className="flex h-fit items-center gap-6 border-l-2 border-[#8DB6EA] bg-[#EDF5FF]/70 px-5 py-3 text-center">
           <div>
-            <div className="text-xl font-semibold text-slate-950">
+            <div className="text-xl font-semibold text-[#0B1F3A]">
               {therapy.evidenceClaims.length}
             </div>
-            <div className="mt-0.5 text-xs text-slate-500">临床证据</div>
+            <div className="mt-0.5 text-sm text-[#64748B]">临床证据</div>
           </div>
-          <div className="h-9 w-px bg-slate-200" />
+          <div className="h-9 w-px bg-[#C7D9F2]" />
           <div>
-            <div className="text-xl font-semibold text-slate-950">
+            <div className="text-xl font-semibold text-[#0B1F3A]">
               {therapy.regulatoryApprovals.length}
             </div>
-            <div className="mt-0.5 text-xs text-slate-500">美国药监局记录</div>
+            <div className="mt-0.5 text-sm text-[#64748B]">监管记录</div>
           </div>
         </div>
       </div>
 
       {answerTherapy && answerTherapy.statements.length > 0 && (
-        <div className="border-b border-slate-200 bg-[#f0f8f7] px-5 py-5 md:px-7">
-          <p className="text-xs font-semibold tracking-[0.12em] text-[#087f8c] uppercase">
-            证据约束归纳
+        <div className="border-b border-[#D9E5F5] bg-[#EDF5FF]/65 px-5 py-5 md:px-7">
+          <p className="text-sm font-semibold text-[#0B4DA2]">
+            证据要点
           </p>
           <div className="mt-3 space-y-3">
             {answerTherapy.statements.map((statement, index) => (
               <div
                 key={`${therapy.associationId}-statement-${index}`}
-                className="flex gap-3 text-[0.9375rem] leading-7 text-slate-800"
+                className="flex gap-3 text-base leading-7 text-[#243B5A]"
               >
-                <Check className="mt-1.5 size-4 shrink-0 text-[#087f8c]" />
+                <Check className="mt-1.5 size-4 shrink-0 text-[#175CD3]" />
                 <div>
                   <p>
-                    {keepChineseOrFallback(
-                      statement.text,
-                      '该条受约束归纳暂缺中文内容。'
+                    {toPublicFacingCopy(
+                      keepChineseOrFallback(
+                        statement.text,
+                        '该条归纳暂缺中文内容。'
+                      )
                     )}
-                  </p>
-                  <p className="mt-1 font-mono text-xs text-slate-500">
-                    {[...statement.evidenceIds, ...statement.regulatoryApprovalIds]
-                      .map((id) => `[${id}]`)
-                      .join(' ')}
                   </p>
                 </div>
               </div>
@@ -695,11 +692,11 @@ function TherapyCard({
         </div>
       )}
 
-      <div className="grid gap-8 px-5 py-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(16rem,0.55fr)] md:px-7">
+      <div className="grid gap-8 px-5 py-7 lg:grid-cols-[minmax(0,1.45fr)_minmax(16rem,0.55fr)] md:px-7">
         <div>
           <div className="mb-5 flex items-center gap-2">
-            <BookOpenText className="size-4 text-[#087f8c]" />
-            <h4 className="text-sm font-semibold tracking-[0.04em] text-slate-900">
+            <BookOpenText className="size-4 text-[#175CD3]" />
+            <h4 className="text-sm font-semibold text-[#0B1F3A]">
               临床证据
             </h4>
           </div>
@@ -710,10 +707,10 @@ function TherapyCard({
           </div>
         </div>
 
-        <aside className="border-t border-slate-200 pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7">
+        <aside className="border-t border-[#D9E5F5] pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="size-4 text-[#087f8c]" />
-            <h4 className="text-sm font-semibold tracking-[0.04em] text-slate-900">
+            <ShieldCheck className="size-4 text-[#175CD3]" />
+            <h4 className="text-sm font-semibold text-[#0B1F3A]">
               监管记录
             </h4>
           </div>
@@ -723,26 +720,26 @@ function TherapyCard({
               return (
                 <div
                   key={approval.id}
-                  className="rounded-xl border border-slate-200 p-4"
+                  className="rounded-xl border border-[#D9E5F5] bg-white/60 p-4"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="font-mono text-xs text-slate-500">
+                    <span className="font-mono text-sm text-[#52637A]">
                       {approval.applicationNumber}
                     </span>
                     <span className="text-xs font-semibold text-emerald-700">
                       {approvalStatusLabels[approval.approvalStatus]}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">
+                  <p className="mt-3 text-sm leading-6 text-[#334A67]">
                     {translation.indicationText}
                   </p>
                   {translation.biomarkerText && (
-                    <p className="mt-2 text-xs leading-5 text-slate-500">
+                    <p className="mt-2 text-sm leading-6 text-[#64748B]">
                       生物标志物：{translation.biomarkerText}
                     </p>
                   )}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-xs text-slate-500">
+                    <span className="text-sm text-[#64748B]">
                       批准于 {formatDate(approval.approvalDate)}
                     </span>
                     <SourceLink
@@ -762,15 +759,23 @@ function TherapyCard({
 }
 
 function LoadingResult() {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <section
-      className="mx-auto mt-10 max-w-6xl px-4 pb-16 sm:px-6 lg:px-8"
+    <motion.section
+      key="loading"
+      className="mx-auto mt-10 max-w-6xl px-4 pb-16 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-500 sm:px-6 lg:px-8"
       aria-label="正在生成结果"
+      exit={reduceMotion ? undefined : { opacity: 0, y: -10 }}
+      transition={{
+        duration: reduceMotion ? 0 : 0.45,
+        ease: [0.16, 1, 0.3, 1],
+      }}
     >
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
-        <div className="flex items-center gap-3 text-sm font-medium text-[#087f8c]">
+      <div className="rounded-2xl border border-white/90 bg-white/72 p-6 shadow-[0_24px_70px_-42px_rgba(23,92,211,0.34)] backdrop-blur-2xl md:p-8">
+        <div className="flex items-center gap-3 text-sm font-medium text-[#175CD3]">
           <LoaderCircle className="size-4 animate-spin" />
-          后端正在检索已发布知识并生成受约束综述
+          正在整理相关证据，请稍候
         </div>
         <Skeleton className="mt-7 h-7 w-2/3" />
         <Skeleton className="mt-4 h-4 w-full" />
@@ -781,117 +786,117 @@ function LoadingResult() {
           <Skeleton className="h-20 rounded-xl" />
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
 function ResultView({ data }: { data: EvidencePageData }) {
   const totals = useMemo(() => countEvidence(data.resultGroups), [data]);
+  const reduceMotion = useReducedMotion();
   const nonEmptyGroups = data.resultGroups.filter(
     (group) => group.therapies.length > 0
   );
   const fallbackSummary =
     data.status === 'SUMMARY_UNAVAILABLE'
-      ? '证据检索已经完成，但本次模型生成或引用校验未通过。你仍可继续查看下方结构化证据。'
-      : '输入有效，但当前 Evidex 知识版本尚未收录符合条件的证据；这不代表不存在公开医学证据。';
+      ? '相关资料已经找到，但本次综述暂时无法完整呈现。你仍可查看下方证据与来源。'
+      : '当前收录范围内暂未找到符合条件的证据；这不代表不存在公开医学资料。';
   const summary = data.answer
     ? keepChineseOrFallback(data.answer.overallSummary, fallbackSummary)
     : fallbackSummary;
 
   return (
-    <section
+    <motion.section
+      key="results"
       id="evidence-results"
-      className="mx-auto mt-10 max-w-6xl scroll-mt-8 px-4 pb-20 sm:px-6 lg:px-8"
+      className="mx-auto mt-10 max-w-7xl scroll-mt-24 px-4 pb-20 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-6 motion-safe:duration-500 sm:px-6 lg:px-8"
       aria-labelledby="result-title"
+      transition={{
+        duration: reduceMotion ? 0 : 0.55,
+        ease: [0.16, 1, 0.3, 1],
+      }}
     >
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)]">
-        <dl className="grid gap-5 border-b border-slate-200 bg-slate-50/80 px-5 py-5 sm:grid-cols-2 md:grid-cols-4 md:px-7">
+      <div className="overflow-hidden rounded-2xl border border-white/90 bg-white/75 shadow-[0_28px_90px_-50px_rgba(23,92,211,0.4)] backdrop-blur-2xl">
+        <dl className="grid gap-5 border-b border-[#D9E5F5] bg-[#F7FAFF]/72 px-5 py-5 sm:grid-cols-2 md:px-7">
           <MetaItem
             label="查询"
             value={`${data.normalizedInput.disease} · ${data.normalizedInput.gene} ${data.normalizedInput.hgvsp}`}
           />
-          <MetaItem label="知识版本" value={`知识版本 ${data.knowledge.release}`} />
           <MetaItem
-            label="文献检索截止"
+            label="资料更新至"
             value={formatDate(data.knowledge.literatureCutoffAt)}
           />
-          <MetaItem label="生成时间" value={formatDate(data.generatedAt)} />
         </dl>
 
         <div className="grid gap-8 px-5 py-7 md:grid-cols-[minmax(0,1fr)_auto] md:px-7 md:py-9">
           <div>
-            <div className="flex items-center gap-2 text-[#087f8c]">
-              <FlaskConical className="size-4" />
-              <span className="text-xs font-semibold tracking-[0.14em] uppercase">
-                治疗证据摘要
-              </span>
-            </div>
             <h2
               id="result-title"
-              className="mt-3 text-2xl font-semibold tracking-[-0.025em] text-slate-950 md:text-3xl"
+              className="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] text-[#0B1F3A] md:text-3xl"
             >
+              <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-[#EAF2FF] text-[#175CD3]">
+                <FlaskConical className="size-4" />
+              </span>
               {data.status === 'SUMMARY_UNAVAILABLE'
-                ? '综述暂不可用'
+                ? '综述暂时无法呈现'
                 : data.status === 'NO_CURATED_EVIDENCE'
-                  ? '当前知识版本暂无已收录证据'
-                  : '循证综述'}
+                  ? '暂未找到相关证据'
+                  : '治疗证据综述'}
             </h2>
-            <p className="mt-4 max-w-4xl text-base leading-8 text-slate-700">
-              {summary}
+            <p className="mt-4 max-w-4xl text-base leading-8 text-[#334A67]">
+              {toPublicFacingCopy(summary)}
             </p>
             {data.answer && data.answer.overallLimitations.length > 0 && (
-              <div className="mt-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+              <div className="mt-5 flex gap-3 border-l-2 border-[#E3A008] bg-[#FFF9E8]/80 px-4 py-3 text-sm leading-6 text-[#62420A]">
                 <CircleAlert className="mt-0.5 size-4 shrink-0" />
                 <p>
-                  {data.answer.overallLimitations
-                    .map((limitation) =>
+                  {joinPublicCopy(
+                    data.answer.overallLimitations.map((limitation) =>
                       keepChineseOrFallback(
                         limitation,
                         '该条整体局限暂缺中文内容。'
                       )
                     )
-                    .join('；')}
+                  )}
                 </p>
               </div>
             )}
           </div>
 
-          <div className="flex h-fit gap-7 rounded-xl border border-slate-200 px-5 py-4">
+          <div className="flex h-fit gap-7 border-l-2 border-[#8DB6EA] bg-[#EDF5FF]/75 px-5 py-4">
             <div>
-              <div className="text-2xl font-semibold text-slate-950">
+              <div className="text-2xl font-semibold text-[#0B1F3A]">
                 {totals.therapies}
               </div>
-              <div className="mt-1 text-xs text-slate-500">治疗关联</div>
+              <div className="mt-1 text-sm text-[#64748B]">治疗方案</div>
             </div>
             <div>
-              <div className="text-2xl font-semibold text-slate-950">
+              <div className="text-2xl font-semibold text-[#0B1F3A]">
                 {totals.claims}
               </div>
-              <div className="mt-1 text-xs text-slate-500">临床证据</div>
+              <div className="mt-1 text-sm text-[#64748B]">临床证据</div>
             </div>
             <div>
-              <div className="text-2xl font-semibold text-slate-950">
+              <div className="text-2xl font-semibold text-[#0B1F3A]">
                 {totals.approvals}
               </div>
-              <div className="mt-1 text-xs text-slate-500">美国药监局记录</div>
+              <div className="mt-1 text-sm text-[#64748B]">监管记录</div>
             </div>
           </div>
         </div>
       </div>
 
       {nonEmptyGroups.map((group) => (
-        <section key={group.scope} className="mt-10" aria-label={scopeLabels[group.scope]}>
+        <section
+          key={group.scope}
+          className="mt-10"
+          aria-label={scopeLabels[group.scope]}
+        >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold tracking-[0.12em] text-[#087f8c] uppercase">
-                证据分组
-              </p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-950">
-                {scopeLabels[group.scope]}
-              </h2>
-            </div>
-            <span className="text-sm text-slate-500">
-              {group.therapies.length} 个治疗关联
+            <h2 className="text-xl font-semibold tracking-[-0.02em] text-[#0B1F3A]">
+              {scopeLabels[group.scope]}
+            </h2>
+            <span className="text-sm text-[#64748B]">
+              {group.therapies.length} 个治疗方案
             </span>
           </div>
           <div className="space-y-6">
@@ -906,9 +911,9 @@ function ResultView({ data }: { data: EvidencePageData }) {
         </section>
       ))}
 
-      <footer className="mt-10 rounded-2xl bg-[#0b2638] px-5 py-6 text-slate-200 md:px-7">
+      <footer className="mt-10 rounded-2xl bg-[#0B1F3A] px-5 py-6 text-[#D8E8FF] md:px-7">
         <div className="flex gap-3">
-          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#69d0d1]" />
+          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#8DB6EA]" />
           <div>
             <p className="font-semibold text-white">使用边界</p>
             <p className="mt-2 text-sm leading-6">
@@ -920,11 +925,12 @@ function ResultView({ data }: { data: EvidencePageData }) {
           </div>
         </div>
       </footer>
-    </section>
+    </motion.section>
   );
 }
 
 export function EvidenceExplorer() {
+  const reduceMotion = useReducedMotion();
   const [selectedDisease, setSelectedDisease] =
     useState<SupportedDisease>('NSCLC');
   const [selectedVariantKey, setSelectedVariantKey] = useState(
@@ -1000,80 +1006,93 @@ export function EvidenceExplorer() {
     } catch {
       setRequestState({
         status: 'error',
-        message: '知识服务暂时不可用，请稍后重试。',
+        message: '暂时无法获取证据，请稍后重试。',
       });
     }
   }
 
   return (
     <main
-      aria-label="Evidex 循证检索体验"
-      className="min-h-screen bg-[#f4f7f6] text-slate-950"
+      aria-label="Evidex 治疗证据"
+      className="min-h-screen overflow-x-clip bg-[#F4F8FF] text-[#0B1F3A] [color-scheme:light] selection:bg-[#CFE2FF] selection:text-[#0B3975]"
     >
-      <header className="border-b border-slate-200/80 bg-[#f4f7f6]/95">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <span className="grid size-9 place-items-center rounded-lg bg-[#0b2638] text-[#6ed4d3]">
+      <header className="sticky top-0 z-50 border-b border-white/80 bg-white/65 backdrop-blur-2xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/zh"
+            className="flex items-center gap-3 rounded-[10px] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            <span className="grid size-9 place-items-center rounded-[10px] bg-[#175CD3] text-white shadow-[0_8px_22px_rgba(23,92,211,0.2)]">
               <Dna className="size-5" />
             </span>
-            <div>
-              <div className="text-base font-semibold tracking-[-0.02em]">
-                Evidex
-              </div>
-              <div className="text-xs text-slate-500">治疗证据工作台</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <span className="size-2 rounded-full bg-emerald-500" />
-            V0.2 体验版
-          </div>
+            <span className="text-base font-semibold tracking-[-0.025em]">
+              Evidex
+            </span>
+          </Link>
+          <Link
+            href="/zh"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[10px] px-3 text-sm font-semibold text-[#334A67] transition-colors hover:bg-white/85 hover:text-[#175CD3] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
+          >
+            <ArrowLeft className="size-4" />
+            返回首页
+          </Link>
         </div>
       </header>
 
-      <section className="relative overflow-hidden border-b border-slate-200">
+      <section className="relative isolate overflow-hidden">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.22]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, #3b6670 1px, transparent 0)',
-            backgroundSize: '28px 28px',
-          }}
+          aria-hidden
+          className="pointer-events-none absolute -top-40 -right-36 -z-10 size-[34rem] rounded-full bg-[#D8E8FF]/90 blur-3xl"
         />
-        <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:py-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(28rem,1.15fr)] lg:items-center lg:gap-16 lg:px-8">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#b6dfe0] bg-[#e9f8f7] px-3 py-1.5 text-xs font-semibold text-[#086b75]">
-              <FlaskConical className="size-3.5" />
-              V0.2 可选查询链路
-            </div>
-            <h1 className="mt-6 max-w-xl font-serif text-4xl leading-[1.12] font-bold tracking-[-0.035em] text-[#0b2638] sm:text-5xl">
-              体验一次完整的循证检索
-            </h1>
-            <p className="mt-5 max-w-xl text-base leading-8 text-slate-600">
-              提交结构化疾病与变异，查看后端如何从已审核知识中检索证据、生成受约束综述，并把每个结论追溯到 PubMed 文献库与美国药监局来源。
-            </p>
-            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-600">
-              <span className="inline-flex items-center gap-2">
-                <Check className="size-4 text-[#087f8c]" /> 非自然语言猜测
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Check className="size-4 text-[#087f8c]" /> 非个体化治疗建议
-              </span>
-            </div>
-          </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-52 -left-48 -z-10 size-[30rem] rounded-full bg-[#E8F2FF]/80 blur-3xl"
+        />
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_28px_80px_-42px_rgba(11,38,56,0.5)]">
-            <div className="border-b border-slate-200 bg-[#0b2638] px-5 py-4 text-white sm:px-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.12em] text-[#69d0d1] uppercase">
-                    结构化查询
-                  </p>
-                  <h2 className="mt-1 text-lg font-semibold">结构化病例输入</h2>
-                </div>
-                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-slate-200">
-                  仅 1 个生物标志物
-                </span>
-              </div>
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,0.88fr)_minmax(30rem,1.12fr)] lg:items-center lg:gap-16 lg:px-8 lg:py-20">
+          <motion.div
+            className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-500"
+            transition={{
+              duration: reduceMotion ? 0 : 0.55,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+          >
+            <h1 className="max-w-2xl text-4xl leading-[1.08] font-semibold tracking-[-0.045em] text-balance text-[#0B1F3A] sm:text-5xl">
+              探索与基因变异相关的治疗证据
+            </h1>
+            <p className="mt-6 max-w-[62ch] text-base leading-8 text-[#52637A] sm:text-lg">
+              选择癌种与基因变异，查看经过整理的临床研究、监管信息与原始来源，快速建立清晰、可追溯的证据全景。
+            </p>
+            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#334A67]">
+              <span className="inline-flex items-center gap-2">
+                <Check className="size-4 text-[#175CD3]" /> 结论可回到原始来源
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <Check className="size-4 text-[#175CD3]" /> 不提供个体化治疗建议
+              </span>
+            </div>
+            <div className="mt-8 flex max-w-xl items-start gap-3 border-l-2 border-[#175CD3] pl-4 text-sm leading-6 text-[#52637A]">
+              <BookOpenText className="mt-0.5 size-4 shrink-0 text-[#175CD3]" />
+              <span>资料来源覆盖 PubMed 文献与美国药监局公开记录</span>
+            </div>
+          </motion.div>
+
+          <motion.div
+            layout
+            transition={{
+              duration: reduceMotion ? 0 : 0.6,
+              delay: reduceMotion ? 0 : 0.08,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="overflow-hidden rounded-2xl border border-white/90 bg-white/72 shadow-[0_30px_90px_-42px_rgba(23,92,211,0.36)] backdrop-blur-2xl motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-6 motion-safe:duration-700"
+          >
+            <div className="border-b border-[#D9E5F5] px-5 py-5 sm:px-6">
+              <h2 className="text-xl font-semibold tracking-[-0.025em] text-[#0B1F3A]">
+                选择查询条件
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-[#64748B]">
+                选择一个癌种和蛋白变异，我们会整理与之相关的治疗证据。
+              </p>
             </div>
 
             <form
@@ -1084,10 +1103,10 @@ export function EvidenceExplorer() {
               }}
             >
               <div className="grid gap-4 sm:grid-cols-3">
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-semibold text-[#334A67]">
                   癌种
                   <select
-                    className="mt-2 h-11 w-full rounded-lg border-slate-200 bg-white px-3 text-base font-semibold text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-2 h-12 w-full rounded-[10px] border-[#BFD1E7] !bg-white px-3 text-base font-semibold !text-[#0B1F3A] transition focus:border-[#175CD3] focus:ring-2 focus:ring-[#175CD3]/20 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                     value={selectedDisease}
                     disabled={isLoading}
                     onChange={(event) => {
@@ -1106,19 +1125,19 @@ export function EvidenceExplorer() {
                     ))}
                   </select>
                 </label>
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-semibold text-[#334A67]">
                   基因
                   <input
-                    className="mt-2 h-11 w-full rounded-lg border-slate-200 bg-slate-50 px-3 text-base font-semibold text-slate-900 disabled:cursor-not-allowed disabled:opacity-100"
+                    className="mt-2 h-12 w-full rounded-[10px] border-[#D9E5F5] !bg-[#F7FAFF] px-3 text-base font-semibold !text-[#0B1F3A] disabled:cursor-not-allowed disabled:opacity-100"
                     value={selectedVariant.gene}
                     disabled
                     readOnly
                   />
                 </label>
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-semibold text-[#334A67]">
                   蛋白变异
                   <select
-                    className="mt-2 h-11 w-full rounded-lg border-[#9ecfd1] bg-[#effafa] px-3 font-mono text-base font-semibold text-[#075f68] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-2 h-12 w-full rounded-[10px] border-[#8DB6EA] !bg-[#EDF5FF] px-3 font-mono text-base font-semibold !text-[#0B4DA2] transition focus:border-[#175CD3] focus:ring-2 focus:ring-[#175CD3]/20 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                     value={selectedVariant.canonicalVariantKey}
                     disabled={isLoading}
                     onChange={(event) => setSelectedVariantKey(event.target.value)}
@@ -1135,8 +1154,8 @@ export function EvidenceExplorer() {
                 </label>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-slate-50 px-4 py-3 text-xs text-slate-500">
-                <span>监管地区：美国 · 语言：简体中文</span>
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#D9E5F5] pt-4 text-sm text-[#64748B]">
+                <span>当前资料范围：美国</span>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock3 className="size-3.5" /> 首次生成可能需要片刻
                 </span>
@@ -1145,12 +1164,12 @@ export function EvidenceExplorer() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="mt-5 h-12 w-full rounded-lg bg-[#087f8c] text-base font-semibold text-white shadow-[0_10px_25px_-12px_rgba(8,127,140,0.8)] hover:bg-[#076d78]"
+                className="mt-5 h-12 w-full rounded-[10px] bg-[#175CD3] text-base font-semibold text-white shadow-[0_12px_28px_rgba(23,92,211,0.24)] transition duration-200 hover:bg-[#134EAE] focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:ring-offset-2 active:translate-y-px"
               >
                 {isLoading ? (
                   <>
-                    <LoaderCircle className="animate-spin" />
-                    正在检索与生成综述…
+                    <LoaderCircle className="animate-spin motion-reduce:animate-none" />
+                    正在整理相关证据…
                   </>
                 ) : requestState.status === 'error' ? (
                   <>
@@ -1159,13 +1178,13 @@ export function EvidenceExplorer() {
                   </>
                 ) : (
                   <>
-                    生成循证综述
+                    查看治疗证据
                     <ArrowRight />
                   </>
                 )}
               </Button>
 
-              <p className="mt-3 text-center text-xs leading-5 text-slate-500">
+              <p className="mt-3 text-center text-sm leading-6 text-[#64748B]">
                 页面不会收集姓名、病历号或其他个人身份信息
               </p>
 
@@ -1173,7 +1192,7 @@ export function EvidenceExplorer() {
                 requestState.status === 'out-of-scope') && (
                 <div
                   role="alert"
-                  className="mt-4 flex gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-900"
+                  className="mt-4 flex gap-3 rounded-[10px] border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm leading-6 text-rose-900"
                 >
                   <CircleAlert className="mt-1 size-4 shrink-0" />
                   <p>
@@ -1184,55 +1203,17 @@ export function EvidenceExplorer() {
                 </div>
               )}
             </form>
-          </div>
+          </motion.div>
         </div>
-      </section>
-
-      <section
-        className="mx-auto max-w-6xl px-4 py-9 sm:px-6 lg:px-8"
-        aria-labelledby="workflow-title"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 id="workflow-title" className="text-sm font-semibold text-slate-900">
-            一次请求在后端经过什么
-          </h2>
-          <span className="font-mono text-xs text-slate-500">
-            接口：/api/v1/evidence-answer
-          </span>
-        </div>
-        <ol className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {workflowSteps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <li
-                key={step.title}
-                className="flex min-w-0 gap-3 rounded-xl border border-slate-200 bg-white p-4"
-              >
-                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#e9f8f7] text-[#087f8c]">
-                  <Icon className="size-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold tracking-[0.08em] text-slate-400 uppercase">
-                    0{index + 1}
-                  </p>
-                  <h3 className="mt-1 text-sm font-semibold text-slate-900">
-                    {step.title}
-                  </h3>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    {step.description}
-                  </p>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
       </section>
 
       <div aria-live="polite">
-        {requestState.status === 'loading' && <LoadingResult />}
-        {requestState.status === 'success' && (
-          <ResultView data={requestState.data} />
-        )}
+        <AnimatePresence mode="wait">
+          {requestState.status === 'loading' && <LoadingResult />}
+          {requestState.status === 'success' && (
+            <ResultView data={requestState.data} />
+          )}
+        </AnimatePresence>
       </div>
     </main>
   );

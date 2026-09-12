@@ -143,7 +143,7 @@ const answeredData = {
             overview: '奥希替尼具有同疾病精确变异的临床与监管证据。',
             statements: [
               {
-                text: '一项一线随机研究支持该关联。',
+                text: 'MARIPOSA 研究中的 FDA、NSCLC 与 PFS 结果支持该关联。',
                 evidenceIds: ['claim_flaura_29151359_pfs'],
                 regulatoryApprovalIds: [
                   'approval_fda_nda208065_orig1_osimertinib',
@@ -181,21 +181,25 @@ describe('EvidenceExplorer', () => {
     render(<EvidenceExplorer />);
 
     expect(
-      screen.getByRole('heading', { name: '体验一次完整的循证检索' })
+      screen.getByRole('heading', {
+        name: '探索与基因变异相关的治疗证据',
+      })
     ).toBeInTheDocument();
     expect(screen.getByLabelText('癌种')).toBeEnabled();
     expect(screen.getByDisplayValue('EGFR')).toBeDisabled();
     expect(screen.getByLabelText('蛋白变异')).toBeEnabled();
-    expect(screen.getByText('结构化查询')).toBeVisible();
-    expect(screen.getByText('仅 1 个生物标志物')).toBeVisible();
-    expect(screen.getByText('模型只使用证据包')).toBeVisible();
-    expect(screen.getByText('监管地区：美国 · 语言：简体中文')).toBeVisible();
-    expect(screen.getByText('接口：/api/v1/evidence-answer')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '选择查询条件' })).toBeVisible();
+    expect(
+      screen.getByText('资料来源覆盖 PubMed 文献与美国药监局公开记录')
+    ).toBeVisible();
+    expect(
+      screen.queryByText(/V0\.2|体验版|后端|知识版本|接口：/i)
+    ).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: '生成循证综述' }));
+    await user.click(screen.getByRole('button', { name: '查看治疗证据' }));
 
     expect(
-      screen.getByRole('button', { name: '正在检索与生成综述…' })
+      screen.getByRole('button', { name: '正在整理相关证据…' })
     ).toBeDisabled();
     expect(fetchMock).toHaveBeenCalledWith('/api/v1/evidence-answer', {
       method: 'POST',
@@ -217,10 +221,16 @@ describe('EvidenceExplorer', () => {
 
     expect(
       await screen.findByText(
-        '当前已发布知识中包含多项与 EGFR p.L858R 相关的治疗证据。'
+        '当前收录资料中包含多项与 EGFR p.L858R 相关的治疗证据。'
       )
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /奥希替尼/ })).toBeVisible();
+    expect(
+      screen.getByText(
+        'MARIPOSA 研究中的美国药监局、非小细胞肺癌与无进展生存期结果支持该关联。'
+      )
+    ).toBeVisible();
+    expect(screen.queryByText(/MARIP总生存期A/)).not.toBeInTheDocument();
     expect(screen.getByText('证据等级 1')).toBeVisible();
     expect(
       screen.getByText('随机、双盲、Ⅲ期临床试验 · FLAURA · n=556')
@@ -252,7 +262,8 @@ describe('EvidenceExplorer', () => {
     expect(
       screen.getByRole('link', { name: '查看美国药监局记录' })
     ).toHaveAttribute('href', 'https://www.accessdata.fda.gov/example');
-    expect(screen.getByText('知识版本 v0.1.0')).toBeVisible();
+    expect(screen.getByText('资料更新至')).toBeVisible();
+    expect(screen.getByText('2026年9月1日')).toBeVisible();
     expect(screen.getByText(answeredData.disclaimer)).toBeVisible();
     expect(
       screen.queryByText(answeredData.disclaimerEn)
@@ -261,6 +272,15 @@ describe('EvidenceExplorer', () => {
       screen.queryByText('Treatment evidence brief')
     ).not.toBeInTheDocument();
     expect(screen.queryByText('Evidence group')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/V0\.2|体验版|后端|知识版本|接口：/i)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('claim_flaura_29151359_pfs')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('approval_fda_nda208065_orig1_osimertinib')
+    ).not.toBeInTheDocument();
   });
 
   it('lets the user select a colorectal KRAS variant and submits its canonical structured query', async () => {
@@ -285,7 +305,7 @@ describe('EvidenceExplorer', () => {
     );
 
     expect(screen.getByDisplayValue('KRAS')).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: '生成循证综述' }));
+    await user.click(screen.getByRole('button', { name: '查看治疗证据' }));
 
     expect(fetchMock).toHaveBeenCalledWith('/api/v1/evidence-answer', {
       method: 'POST',
@@ -320,9 +340,9 @@ describe('EvidenceExplorer', () => {
     );
 
     render(<EvidenceExplorer />);
-    await user.click(screen.getByRole('button', { name: '生成循证综述' }));
+    await user.click(screen.getByRole('button', { name: '查看治疗证据' }));
 
-    expect(await screen.findByText('综述暂不可用')).toBeVisible();
+    expect(await screen.findByText('综述暂时无法呈现')).toBeVisible();
     expect(screen.getByRole('heading', { name: /奥希替尼/ })).toBeVisible();
     expect(screen.getByRole('link', { name: '查看文献原文' })).toBeVisible();
   });
@@ -442,7 +462,7 @@ describe('EvidenceExplorer', () => {
     );
 
     render(<EvidenceExplorer />);
-    await user.click(screen.getByRole('button', { name: '生成循证综述' }));
+    await user.click(screen.getByRole('button', { name: '查看治疗证据' }));
 
     expect(
       await screen.findByText('该治疗关联的证据分级依据暂缺中文释义。')
@@ -482,10 +502,10 @@ describe('EvidenceExplorer', () => {
     );
 
     render(<EvidenceExplorer />);
-    await user.click(screen.getByRole('button', { name: '生成循证综述' }));
+    await user.click(screen.getByRole('button', { name: '查看治疗证据' }));
 
     expect(
-      await screen.findByText(/当前 V0\.2 尚未收录这个基因与变异类型组合/)
+      await screen.findByText(/暂未收录这个基因与变异类型组合/)
     ).toBeVisible();
     expect(screen.queryByText('Level 1')).not.toBeInTheDocument();
   });
@@ -506,18 +526,18 @@ describe('EvidenceExplorer', () => {
     );
 
     render(<EvidenceExplorer />);
-    await user.click(screen.getByRole('button', { name: '生成循证综述' }));
+    await user.click(screen.getByRole('button', { name: '查看治疗证据' }));
 
     expect(
-      await screen.findByText('知识服务暂时不可用，请稍后重试。')
+      await screen.findByText('暂时无法获取证据，请稍后重试。')
     ).toBeVisible();
     expect(screen.getByRole('button', { name: '重新尝试' })).toBeEnabled();
   });
 
   it.each([
     ['INVALID_INPUT', '输入格式未通过校验，请检查后重试。'],
-    ['PAYLOAD_TOO_LARGE', '请求内容超过接口限制，请缩减后重试。'],
-  ])('localizes the %s API error', async (message, expected) => {
+    ['PAYLOAD_TOO_LARGE', '提交内容过长，请精简后重试。'],
+  ])('localizes the %s request error', async (message, expected) => {
     const user = userEvent.setup();
     vi.stubGlobal(
       'fetch',
@@ -530,7 +550,7 @@ describe('EvidenceExplorer', () => {
     );
 
     render(<EvidenceExplorer />);
-    await user.click(screen.getByRole('button', { name: '生成循证综述' }));
+    await user.click(screen.getByRole('button', { name: '查看治疗证据' }));
 
     expect(await screen.findByText(expected)).toBeVisible();
   });
