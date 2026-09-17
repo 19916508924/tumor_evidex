@@ -12,6 +12,8 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     fileParallelism: false,
-    testTimeout: 30_000,
+    // Neon is in us-east-2 while local development may be cross-region.
+    // Keep business assertions strict but allow remote DDL/read round trips.
+    testTimeout: 120_000,
   },
 });

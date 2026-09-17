@@ -4,7 +4,9 @@ import { getAuth } from '@/core/auth';
 import { isCloudflareWorker } from '@/shared/lib/env';
 import { enforceMinIntervalRateLimit } from '@/shared/lib/rate-limit';
 
-function maybeRateLimitGetSession(request: Request): Response | null {
+async function maybeRateLimitGetSession(
+  request: Request
+): Promise<Response | null> {
   const url = new URL(request.url);
   // better-auth session endpoint is served under this catch-all route.
   if (isCloudflareWorker || !url.pathname.endsWith('/api/auth/get-session')) {
@@ -23,7 +25,7 @@ function maybeRateLimitGetSession(request: Request): Response | null {
 }
 
 export async function POST(request: Request) {
-  const limited = maybeRateLimitGetSession(request);
+  const limited = await maybeRateLimitGetSession(request);
   if (limited) {
     return limited;
   }
@@ -34,7 +36,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const limited = maybeRateLimitGetSession(request);
+  const limited = await maybeRateLimitGetSession(request);
   if (limited) {
     return limited;
   }

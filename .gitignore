@@ -70,6 +70,7 @@ src/shared/types/cloudflare.d.ts
 .test
 
 *.sql
+!src/config/db/migrations/*.sql
 .source
 
 .chats

@@ -51,8 +51,8 @@
         "description": "Evidex uses AI to structure clinical signals across disease, stage, subtype, line of therapy, prior treatments, and genomic variants. It unifies publications, guidelines, regulatory approvals, public databases, and conference abstracts into one evidence base, so every match can be traced to its source.",
         "access_line": "Search in the workspace or integrate the same capabilities through an API.",
         "primary_action": {
-          "label": "Try the current demo",
-          "href": "/zh/evidence"
+          "label": "Ask Evidex",
+          "href": "/zh/ask"
         },
         "secondary_action": {
           "label": "View a sample result",
@@ -184,7 +184,7 @@
             "Internal case discussion and training",
             "Output validation before integration"
           ],
-          "action": { "label": "Try the current demo", "href": "/zh/evidence" }
+          "action": { "label": "Ask Evidex", "href": "/zh/ask" }
         },
         "api": {
           "title": "API integration",
@@ -334,8 +334,8 @@
         "description": "Start with evidence search and source traceability, then evaluate how patient context, clinical trials, and integration could fit your reporting workflow.",
         "demo_status": "The external demo request channel is being configured. No contact request is collected on this page yet.",
         "primary_action": {
-          "label": "Try the current demo",
-          "href": "/zh/evidence"
+          "label": "Ask Evidex",
+          "href": "/zh/ask"
         },
         "secondary_action": {
           "label": "Review integration",

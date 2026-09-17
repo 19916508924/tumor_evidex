@@ -47,7 +47,7 @@
         {
           "title": "体验",
           "children": [
-            { "title": "当前版本", "url": "/zh/evidence" },
+            { "title": "证据问答", "url": "/zh/ask" },
             { "title": "接入方式", "url": "/#integration" },
             { "title": "申请产品演示", "url": "/#contact" }
           ]

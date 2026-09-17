@@ -47,12 +47,15 @@ describe('Evidex knowledge package import', () => {
       migrationsSchema: testSchema,
       migrationsTable: '__evidex_migrations',
     });
-  }, 120_000);
+  }, 300_000);
 
   afterAll(async () => {
-    if (client) await client.end();
-    await admin.unsafe(`drop schema if exists "${testSchema}" cascade`);
-    await admin.end();
+    if (client) {
+      await client.unsafe('set search_path to public');
+      await client.unsafe(`drop schema if exists "${testSchema}" cascade`);
+      await client.end({ timeout: 1 });
+    }
+    await admin.end({ timeout: 1 });
   }, 30_000);
 
   it('dry-runs, transactionally publishes, retrieves, and idempotently reuses v0.2', async () => {
@@ -90,6 +93,22 @@ describe('Evidex knowledge package import', () => {
         published_by: 'product-owner-fast-track',
       },
     ]);
+    expect(
+      await client!`
+        select count(*)::int as count
+        from knowledge_release_claim
+        where knowledge_release_id = ${knowledgePackage.release.id}
+      `
+    ).toEqual([{ count: 20 }]);
+    expect(
+      await client!`
+        select count(*)::int as count
+        from knowledge_release_association
+        where knowledge_release_id = ${knowledgePackage.release.id}
+          and approved_level is not null
+          and grading_rationale is not null
+      `
+    ).toEqual([{ count: 13 }]);
 
     const repository = createPostgresEvidenceRepository(drizzle(client!), {
       releaseVersion: 'v0.2.0',
@@ -217,7 +236,7 @@ describe('Evidex knowledge package import', () => {
     expect(
       await client!`select count(*)::int as count from knowledge_release`
     ).toEqual([{ count: 1 }]);
-  }, 90_000);
+  }, 120_000);
 
   it('fails on a conflicting stable record and rolls back the new release', async () => {
     const knowledgePackage =

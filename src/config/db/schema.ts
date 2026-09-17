@@ -4,3 +4,4 @@
 // export * from './schema.postgres'; // postgres schema, used when DATABASE_PROVIDER=postgresql
 export * from './schema.postgres';
 export * from './schema.evidence.postgres';
+export * from './schema.evidence-platform.postgres';

@@ -29,6 +29,7 @@ function evidenceAnswerPrompt(
     task: 'Produce the fixed-intent Evidex treatment evidence summary.',
     promptVersion: input.promptVersion,
     normalizedQuery: input.normalizedQuery,
+    requestContext: input.requestContext ?? {},
     evidencePack: input.evidencePack,
   });
 }

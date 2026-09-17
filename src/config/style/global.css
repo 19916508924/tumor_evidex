@@ -12,6 +12,14 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+  input,
+  select,
+  textarea {
+    @apply border-border outline-ring/50 bg-background;
+  }
+  button {
+    @apply border-border outline-ring/50 cursor-pointer;
+  }
 }
 
 .container {
@@ -29,14 +37,18 @@
   scrollbar-width: none; /* Firefox */
 }
 
-input,
-select,
-textarea {
-  @apply border-border outline-ring/50 bg-background;
-}
+@layer components {
+  .definition-input {
+    @apply border-input bg-background focus-visible:ring-ring mt-2 w-full rounded-xl border font-normal outline-none focus-visible:ring-2;
+  }
 
-button {
-  @apply border-border outline-ring/50 cursor-pointer;
+  .definition-action {
+    @apply border-border bg-background hover:bg-muted focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors outline-none focus-visible:ring-2;
+  }
+
+  .definition-primary-action {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors outline-none focus-visible:ring-2;
+  }
 }
 
 pre {
@@ -107,6 +119,41 @@ pre {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+.evidex-landing-page,
+.evidex-product {
+  color-scheme: light;
+}
+
+.evidex-product {
+  caret-color: #175cd3;
+  scrollbar-color: #8db6ea #eaf2ff;
+  scrollbar-width: thin;
+}
+
+.evidex-product ::selection {
+  background: #b9d5ff;
+  color: #07182d;
+}
+
+.evidex-product a,
+.evidex-product button,
+.evidex-product input,
+.evidex-product select,
+.evidex-product textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evidex-product *,
+  .evidex-product *::before,
+  .evidex-product *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer base {

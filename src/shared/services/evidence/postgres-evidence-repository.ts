@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { and, desc, eq, inArray, isNotNull, type SQL } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, inArray, type SQL } from 'drizzle-orm';
 
 import {
   answerSnapshot,
@@ -11,6 +11,7 @@ import {
   knowledgeRelease,
   knowledgeReleaseApproval,
   knowledgeReleaseAssociation,
+  knowledgeReleaseClaim,
   regulatoryApproval,
   regulatoryApprovalDisease,
   regulatoryApprovalDrug,
@@ -185,8 +186,8 @@ export function createPostgresEvidenceRepository(
         canonicalKey: variant.canonicalKey,
         variantApplicability: therapeuticAssociation.variantApplicability,
         direction: therapeuticAssociation.direction,
-        approvedLevel: therapeuticAssociation.approvedLevel,
-        gradingRationale: therapeuticAssociation.gradingRationale,
+        approvedLevel: knowledgeReleaseAssociation.approvedLevel,
+        gradingRationale: knowledgeReleaseAssociation.gradingRationale,
       })
       .from(knowledgeReleaseAssociation)
       .innerJoin(
@@ -203,7 +204,6 @@ export function createPostgresEvidenceRepository(
         and(
           eq(knowledgeReleaseAssociation.knowledgeReleaseId, releaseId),
           eq(therapeuticAssociation.reviewStatus, 'APPROVED'),
-          isNotNull(therapeuticAssociation.approvedLevel),
           eq(disease.status, 'ACTIVE'),
           eq(variant.status, 'ACTIVE'),
           eq(gene.status, 'ACTIVE'),
@@ -393,10 +393,15 @@ export function createPostgresEvidenceRepository(
     }
 
     const claimRows = (await database
-      .select()
-      .from(evidenceClaim)
+      .select(getTableColumns(evidenceClaim))
+      .from(knowledgeReleaseClaim)
+      .innerJoin(
+        evidenceClaim,
+        eq(knowledgeReleaseClaim.evidenceClaimId, evidenceClaim.id)
+      )
       .where(
         and(
+          eq(knowledgeReleaseClaim.knowledgeReleaseId, releaseId),
           inArray(evidenceClaim.associationId, associationIds),
           eq(evidenceClaim.reviewStatus, 'APPROVED')
         )

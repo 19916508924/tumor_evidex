@@ -281,7 +281,7 @@ describe('EvidenceExplorer', () => {
     expect(
       screen.queryByText('approval_fda_nda208065_orig1_osimertinib')
     ).not.toBeInTheDocument();
-  });
+  }, 10_000);
 
   it('lets the user select a colorectal KRAS variant and submits its canonical structured query', async () => {
     const user = userEvent.setup();

@@ -234,13 +234,29 @@ describe('answerEvidenceQuery', () => {
   });
 
   it('turns database retrieval failures into service unavailability', async () => {
+    const trace = vi.fn();
     repository.retrieveEvidence.mockRejectedValue(new Error('database'));
-    expect(await answerEvidenceQuery(request, dependencies)).toEqual({
-      status: 'KNOWLEDGE_RELEASE_UNAVAILABLE',
-    });
+    expect(
+      await answerEvidenceQuery(request, { ...dependencies, trace })
+    ).toEqual({ status: 'KNOWLEDGE_RELEASE_UNAVAILABLE' });
     expect(logError).toHaveBeenCalledWith(
       'Failed to retrieve Evidex knowledge',
       expect.any(Error)
+    );
+    expect(trace).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stepKey: 'build_evidence_pack',
+        status: 'FAILED',
+        agentVersion: 'evidence-retrieval-agent@1.0.0',
+        skillVersion: 'build_evidence_pack@1.0.0',
+        errorCode: 'SKILL_EXECUTION_FAILED',
+      })
+    );
+    expect(trace).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        stepKey: 'build_retrieval_plan',
+        status: 'FAILED',
+      })
     );
     expect(generator.generate).not.toHaveBeenCalled();
   });
@@ -275,6 +291,28 @@ describe('answerEvidenceQuery', () => {
     });
     expect(generator.generate).not.toHaveBeenCalled();
     expect(repository.saveAnswerSnapshot).not.toHaveBeenCalled();
+  });
+
+  it('attributes each governed answer step to its role-specific agent', async () => {
+    const trace = vi.fn();
+
+    await expect(
+      answerEvidenceQuery(request, { ...dependencies, trace })
+    ).resolves.toMatchObject({ status: 'ANSWERED' });
+
+    expect(
+      trace.mock.calls.map(([entry]) => [entry.stepKey, entry.agentVersion])
+    ).toEqual([
+      ['normalize_query', 'question-understanding-agent@1.0.0'],
+      ['build_retrieval_plan', 'retrieval-planning-agent@1.0.0'],
+      ['build_evidence_pack', 'evidence-retrieval-agent@1.0.0'],
+      ['analyze_evidence', 'evidence-analysis-agent@1.0.0'],
+      ['compose_evidence_answer', 'answer-composition-agent@1.0.0'],
+      ['validate_answer', 'answer-qa-agent@1.0.0'],
+    ]);
+    expect(trace).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'SUCCEEDED', attempt: 1 })
+    );
   });
 
   it.each(['invalid snapshot', 'snapshot read failure'])(
@@ -357,6 +395,27 @@ describe('answerEvidenceQuery', () => {
       expect(repository.saveAnswerSnapshot).not.toHaveBeenCalled();
     }
   );
+
+  it('emits a failed model trace after governed retries are exhausted', async () => {
+    const trace = vi.fn();
+    generator.generate.mockRejectedValue(new Error('provider unavailable'));
+
+    await expect(
+      answerEvidenceQuery(request, { ...dependencies, trace })
+    ).resolves.toMatchObject({ status: 'SUMMARY_UNAVAILABLE' });
+
+    expect(trace).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stepKey: 'compose_evidence_answer',
+        status: 'FAILED',
+        agentVersion: 'answer-composition-agent@1.0.0',
+        skillVersion: 'compose_evidence_answer@1.0.0',
+        attempt: 2,
+        errorCode: 'SKILL_EXECUTION_FAILED',
+        outputHash: null,
+      })
+    );
+  });
 
   it('returns a validated answer when snapshot persistence fails', async () => {
     repository.saveAnswerSnapshot.mockRejectedValue(new Error('database'));

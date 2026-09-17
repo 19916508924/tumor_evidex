@@ -5,6 +5,8 @@ import { envConfigs } from '@/config';
 const publicRoutes = [
   '',
   '/zh',
+  '/zh/ask',
+  '/zh/knowledge',
   '/zh/evidence',
   '/privacy-policy',
   '/zh/privacy-policy',

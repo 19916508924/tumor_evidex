@@ -612,11 +612,17 @@ export const knowledgeReleaseAssociation = table(
     therapeuticAssociationId: text('therapeutic_association_id')
       .notNull()
       .references(() => therapeuticAssociation.id),
+    approvedLevel: text('approved_level', { enum: evidenceLevels }).notNull(),
+    gradingRationale: text('grading_rationale').notNull(),
   },
   (record) => [
     primaryKey({
       columns: [record.knowledgeReleaseId, record.therapeuticAssociationId],
     }),
+    check(
+      'ck_knowledge_release_association_approved_level',
+      sql`${record.approvedLevel} in ('1', '2', '3A', '3B', '4', 'R1', 'R2', 'UNRATED')`
+    ),
   ]
 );
 

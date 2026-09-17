@@ -4,7 +4,7 @@ Evidex 是基于 ShipAny Template Two 的新产品项目。当前技术栈为 Ne
 
 ## 产品定义与当前共识
 
-> 本节汇总截至 2026-09-11 的产品讨论。当前可运行基线为 V0.2；标为“待确认”的内容尚未定案。
+> 本节汇总截至 2026-09-16 的产品讨论。当前可运行基线为 V0.2；标为“待确认”的内容尚未定案。
 
 ### 产品定位
 
@@ -215,7 +215,7 @@ V0 先完成并验证真实后端。核心接口稳定后再开发 Landing Page�
 - 指南、NMPA、ClinicalTrials.gov 或其他监管地区；
 - 临床试验匹配、完整肿瘤目录和全量 PubMed 收录；
 - embedding、向量数据库、开放问题和多轮 RAG；
-- 长期自动获取、自动解构、自动审核和定期更新知识；
+- 不包含每周或 Cron 自动调度、开放式自主 Agent 和自动审核；知识更新只能由授权 Ops 用户人工发起，并由持久 Worker 执行；
 - 冲突证据的专门识别、评级或自动裁决；
 - 真实企业 API、账号接入、计费、配额、SLA 或生产运维承诺；
 - 剂量、疗程、处方或个体化治疗方案。
@@ -242,6 +242,7 @@ V0 先完成并验证真实后端。核心接口稳定后再开发 Landing Page�
 - 当前知识包含 2 个疾病、2 个基因、5 个变异、8 个药物、13 个治疗关联、20 条临床 claim、9 条 FDA 批准记录和 22 份来源文档；
 - Evolink 使用服务端固定模型 `gpt-5.6-terra`；模型只归纳 Evidence Pack，不决定检索、FDA 状态或 Evidex 等级；
 - `POST /api/v1/evidence-answer` 已跑通数据库检索、模型结构化输出、引用白名单校验和答案缓存；
+- Agent/Skill 平台已有可运行纵向链路：人工 Preview、持久 Discovery Run、分页 PubMed 获取、跨查询去重、受治理抽取/独立判级/QA、待审草稿、人工批准发布、知识目录和异步自然语言问答；
 - 证据与监管复核入口见 [`data/evidex/v0/REVIEW.md`](./data/evidex/v0/REVIEW.md)。
 
 知识包操作：
@@ -253,6 +254,410 @@ pnpm evidex:smoke
 ```
 
 导入器会校验 Zod 字段、稳定 ID、外键、PRIMARY passage、模型使用权限、FDA INDICATION passage、审核状态和等级重算；正式发布在单一事务中完成，同内容重跑返回 `UNCHANGED`，冲突内容失败并回滚。
+
+### **2026-09-17 验收结论：待审核、发布与问答门禁**
+
+> **结论：审核页面和“先审核、后发布”的核心门禁已经实现；2026-09-17 的发布等级快照、统一 Release 选择和批准说明门禁整改也已完成。不要重新开发已经存在的审核队列。**
+
+当前真实链路为：
+
+```text
+Discovery / 单篇 PMID
+→ Candidate Document + Evidence Draft（仅 Staging）
+→ /[locale]/ops/reviews 待审核队列
+→ /[locale]/ops/reviews/[reviewTaskId] 医学审核工作台
+→ REQUEST_CHANGES / REJECT / APPROVE_AND_PUBLISH
+→ 单事务创建 patch Knowledge Release
+→ Knowledge 与异步 Ask 只按已发布 release + 已审核 Claim 查询
+```
+
+已核实的安全边界：
+
+- Candidate、Draft 和 Review Task 与正式 `source_document`、`evidence_claim`、`knowledge_release_claim` 分开保存；生成草稿本身不会进入公开知识。
+- `APPROVE_AND_PUBLISH` 需要登录管理员权限、最新草稿版本、非空批准说明、幂等键且不得存在 BLOCKING QA；正式知识、Release 成员关系、最终等级快照和审核状态在一个数据库事务内写入。
+- Knowledge、异步自然语言 Ask 与兼容结构化问答默认锁定最新 `PUBLISHED` Release，并同时过滤 `review_status=APPROVED` 和 release 成员关系；旧 Release 不会看到后来批准的 Claim，也不会被新等级污染。
+- 当前所谓 RAG 是**版本化结构化检索 + Evidence Pack + 受约束生成**，不是 embedding / 向量数据库。医学实体和关系优先使用确定性检索；向量召回只作为后续可评估的补充能力。
+
+下一阶段的向量化方案已经固化在[《Evidex 向量数据库与混合 RAG 技术规格》](./docs/specs/evidex-vector-rag.md)：使用现有 Neon PostgreSQL + pgvector，在保留结构化医学安全门的前提下增加向量与全文召回；该文档目前是待实施设计，不代表向量检索已经上线。
+
+**2026-09-17 已完成整改：**
+
+| 优先级 | 问题                                                                                                      | 整改要求                                                                                                                                                               |
+| ------ | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1     | Release Association 等级快照                                                                              | `knowledge_release_association` 保存最终 `approvedLevel` / `gradingRationale`；patch 发布复制旧快照并只覆盖当前 Association，Knowledge、Ask 与 Release Diff 均读取快照 |
+| P1     | 公开查询 Release 选择                                                                                     | Knowledge、异步 Ask 和 `POST /api/v1/evidence-answer` 默认使用最新 `PUBLISHED`；仅显式 `EVIDEX_KNOWLEDGE_RELEASE_OVERRIDE` 可用于历史复现/回滚                         |
+| P1     | 审核发布确认                                                                                              | Review Task 返回服务端计算的 `publicationPreview`；批准说明在 API Schema 和服务层双重必填，成功体返回实际 `releaseVersion`                                             |
+| P2     | 当前自动更新主要向已有已批准 Association 增加 Claim，尚不能完整创建全新的疾病、基因、变异、药物和治疗关联 | 后续增加 Proposed Entity / Proposed Association 的 Staging 与审核发布路径；在实现前不得宣称系统可以自动扩展任意新知识图谱关系                                          |
+
+发布与检索的统一验收必须覆盖：未审核、已退回、已拒绝数据在 Knowledge 和两种问答接口中均不可见；批准后新 Claim、最终等级和 Release 版本均可见；发布失败全部回滚；历史 Release 查询结果保持不变。
+
+### **本轮必须修改：人工发起知识更新与平台整改**
+
+> **开发必读：暂时不做每周自动更新。** 内部用户点击“发起知识更新”，选择检索范围和文献数量后创建一次后台任务。页面关闭、刷新或服务短暂重启都不能导致任务丢失；系统只生成待审核证据，人工批准后才进入正式知识库。
+
+本轮目标交互：
+
+```text
+Evidence Ops 点击“发起知识更新”
+→ 选择“整个知识库”或疾病 / 基因 / 变异范围
+→ 选择处理 50 篇、100 篇或全部匹配文献
+→ 预览规范化范围、时间窗、预计数量和警告
+→ 用户确认后创建持久 Discovery Run
+→ 多 Agent 发现、筛选、抽取、规范化、分级和 QA
+→ 生成可导航的待审核任务
+→ 人工退回、驳回或批准发布
+→ Knowledge 与 Ask 使用新的不可变知识版本
+```
+
+表单规则：
+
+| 字段     | 默认值                   | 规则                                                                                                   |
+| -------- | ------------------------ | ------------------------------------------------------------------------------------------------------ |
+| 更新范围 | 整个知识库               | 也可切换为指定范围；疾病、基因、变异使用当前规范目录的搜索选择器，不能把未识别自由文本直接交给模型猜测 |
+| 文献数量 | 50                       | 支持 50、100、全部；上限按所有子查询合并、PMID 去重后统一计算                                          |
+| 时间窗   | 最近成功截止点至当前时间 | 新范围无历史游标时默认回看 90 天；可在高级设置中调整                                                   |
+| 全部文献 | 关闭                     | 必须先预览并二次确认；使用稳定排序、分页和游标处理到来源耗尽，不用一个伪造的大数字代表全部             |
+
+#### 本轮后端实现前的审计基线（历史）
+
+以下表格保留 2026-09-16 开始开发前的差距，用于解释本轮变更来源；其中持久队列、Preview、Skill Runtime、独立判级、运行 Trace 和 `NEEDS_HUMAN` 等后端 P1 项已经实现，下游 Ask 的发布目录驱动解析、持久任务和真实 Skill Trace 也已经补齐。前端页面项不属于本轮后端交付。更完整的字段、状态、接口和验收见[《Evidex Agent 与 Skill 平台规格》第 1.1—1.2 节](./docs/specs/evidex-agent-skill-platform.md)。
+
+| 优先级 | 当前已有                                                                      | 本轮必须补齐                                                                                                                         |
+| ------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| P1     | 已有检索策略手工触发和 Discovery Run                                          | 新增统一发起页、全库/指定范围、50/100/全部、Preview 与幂等创建；移除本轮对每周调度的要求                                             |
+| P1     | 当前长任务使用请求后的临时执行                                                | 接入持久队列和 Worker，保存分页游标，支持断点续跑、限流、重试、暂停、继续、取消和失败恢复                                            |
+| P1     | 已有 Review API 与审核详情雏形                                                | 新增 `/ops/reviews` 队列及导航入口；`REQUEST_CHANGES` 必传字段，`REJECT` 必填原因；决策后刷新状态并禁用非法重复操作                  |
+| P1     | 已有 Skill 定义、Schema 校验和执行原语                                        | 生产 Workflow 必须真实调用 Skill Runtime 并强制 allowlist、Schema、超时、最大重试、预算和失败 Trace，不能只记录版本字符串            |
+| P1     | 已有抽取、草稿与发布纵向链路                                                  | 不再要求预选单一 Association；收录、实体/关系、规范化、分级和 QA 分节点产出 Artifact；等级不得复制已有结论，字段必须定位到句子或段落 |
+| P2     | 已有 Workflow Run/Step/Artifact 页面                                          | 保存所有真实节点轨迹；等待人工审核时使用 `NEEDS_HUMAN` 等非终态，不能提前标记 `SUCCEEDED`                                            |
+| P2     | 已有 Knowledge 四类目录、搜索、详情和引用                                     | 保持同一发布版本隔离；补数据库冷启动/跨区性能优化、缓存、移动端与键盘可访问性和真实交互 E2E                                          |
+| P2     | 已有异步 Ask、Evidence Pack、引用校验和反馈                                   | 去除只覆盖少数实体的硬编码解析；改为已发布目录驱动，并把问题理解、检索规划、证据分析、回答生成和引用 QA 变成可追踪 Agent/Skill       |
+| P2     | Agent、Skill、Workflow 页面目前以查看为主                                     | 提供受控的 Draft 复制、允许 Skill/Tool、节点顺序、条件分支、重试、评估、激活和回滚；不允许浏览器执行任意代码                         |
+| P2     | 已有基础内部鉴权、同源保护和进程内限流                                        | 将公开接口限流迁移到 Redis/数据库等共享存储；定义 p50/p95 延迟预算并优先同区部署应用和数据库                                         |
+| P2     | Knowledge、Ask、Ops 功能集中在大型客户端组件                                  | 按表单、查询、列表、详情和运行状态拆分；增加导航当前态、移动抽屉焦点锁定、Escape/焦点返回、至少 44px 热区和统一设计令牌              |
+| P2     | 审计时 40 个测试文件、286 个测试通过；隔离生产构建与 8 条 Playwright E2E 通过 | 将三大前端主组件和 PostgreSQL Repository 纳入覆盖与真实数据库/交互测试；本次审计未重跑数据库测试，不能据此宣称数据库验收完成         |
+| P2     | 核心平台文件当前存在未提交或未跟踪状态                                        | 交付前将代码、迁移、测试和文档全部纳入版本控制，并通过 `git status --short` 复核                                                     |
+
+#### 已实现的 Discovery Run API
+
+以下接口已经实现，供完整 Ops 前端直接调用：
+
+```text
+POST /api/internal/v1/discovery-runs/preview
+POST /api/internal/v1/discovery-runs
+POST /api/internal/v1/discovery-runs/{id}/pause
+POST /api/internal/v1/discovery-runs/{id}/resume
+POST /api/internal/v1/discovery-runs/{id}/cancel
+```
+
+Preview 请求包含 `scope.mode`、规范的 `diseaseIds` / `geneIds` / `variantIds`、`documentLimit` 和时间窗。创建 Run 必须携带服务端返回的 `previewToken` 与 `idempotencyKey`，服务端校验用户没有在 Preview 后偷换范围或数量。
+
+Preview 不创建 Candidate、不调用抽取模型，也不写 Discovery Run。创建接口返回 HTTP `202`，任务由独立 Worker 从 PostgreSQL 队列领取；页面刷新、服务重启不会丢失游标。旧的 `POST /api/internal/v1/discovery-strategies/{id}/trigger` 已退役并返回 HTTP `410` / `USE_DISCOVERY_RUN_PREVIEW`。
+
+```ts
+const preview = await fetch('/api/internal/v1/discovery-runs/preview', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({
+    scope: {
+      mode: 'SCOPED',
+      diseaseIds: ['disease_nsclc'],
+      geneIds: ['gene_egfr'],
+      variantIds: ['variant_l858r'],
+    },
+    documentLimit: 50,
+    // window 可省略；无历史游标时默认回看 90 天。
+  }),
+}).then((response) => response.json());
+
+const created = await fetch('/api/internal/v1/discovery-runs', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    'idempotency-key': crypto.randomUUID(),
+  },
+  body: JSON.stringify({ previewToken: preview.data.previewToken }),
+}).then((response) => response.json());
+```
+
+`preview.data` 包含 `snapshot`、`documentLimit`、`window`、`queries`、`estimatedMatchCount`、`warnings`、`previewHash`、`expiresAt` 和 `previewToken`。Token 与当前登录用户绑定，有效期 15 分钟；相同规范范围和时间窗重复确认会返回同一个 Run，并以 `idempotent: true` 标识。
+
+后端验收标准是：同一范围和时间窗重复提交不产生重复 Run；50/100 上限在跨查询去重后生效；“全部”能够分页续跑；关闭页面和重启 Worker 不丢进度；所有合格候选进入待审核区且不会自动发布；批准后新证据能被 Knowledge 浏览和 Ask 引用。
+
+### Agent/Skill 平台与完整前端 API
+
+仓库已按[《Evidex Agent 与 Skill 平台规格》](./docs/specs/evidex-agent-skill-platform.md)建立 Knowledge、Ask 与 Evidence Ops 后端。现有结构化接口保持兼容；公开知识浏览、问答、证据生产、人工审核和运行监控均有可调用接口。本轮只交付后端，前端页面可依据下列契约独立开发。
+
+当前已实现的上游链路为：
+
+```text
+人工选择全库或规范实体范围
+  → 只读 Preview 与短期确认 Token
+  → PostgreSQL 持久队列、稳定分页与跨查询 PMID 去重
+  → PubMed 题录/摘要获取
+  → Skill Runtime：抽取、独立建议等级、完整性 QA
+  → Candidate / Workflow Run / Draft / Artifact / Review Task
+  → 人工审核（乐观锁 + 幂等键）
+  → 单事务发布 patch release
+  → 新 Claim 仅属于新 release
+```
+
+抽取和问答均使用服务端固定的 Evolink `gpt-5.6-terra`。抽取模型只能生成待审草稿，不能调用发布能力；正式发布必须来自已登录且具有 `admin.access` 权限的审核人。生产抽取链路已通过 Skill Runtime 强制执行输入/输出 Schema、Agent allowlist、超时、最大重试和不可变 Trace。新文献的 `proposedLevel` 由文献自身的方向与成熟度独立产生，不复制历史 Association 等级；等待人工审核的 Workflow 状态为 `NEEDS_HUMAN`。
+
+新拉取的 PubMed 摘要默认允许服务端模型处理，但公开展示策略为 `LINK_ONLY`；知识接口返回题录和 PubMed 链接，不直接公开整段摘要。审核页面可以创建新的不可变草稿版本并记录编辑人和原因；只有完成来源许可复核后才能显式调整公开摘录策略。
+
+下游链路为：
+
+```text
+自然语言问题
+  → PII 脱敏与越界安全门
+  → 锁定一个已发布知识版本
+  → understand_question：按该版本的疾病/基因/变异/药物目录确定性解析
+  → 单事务创建 Question Run、下游 Workflow Run 和 PostgreSQL Job
+  → 独立 Worker 执行 normalize_query、build_retrieval_plan、build_evidence_pack
+  → analyze_evidence、Evolink compose_evidence_answer、validate_answer
+  → 每个真实 Skill 保存 Step、Artifact、版本和输入/输出哈希
+  → 前端按 Question Run ID 轮询实际阶段与公开终态
+```
+
+问答请求不会依赖 Next.js 进程内的后台回调；API 服务重启后，未完成 Job 仍可由 Worker 领取。Worker 锁过期时可恢复同一个 `RUNNING` Question Run；同一幂等键并发提交只会产生一个 Run。实体候选只来自该 Question Run 锁定的发布目录，新增已发布实体不需要修改解析代码，未知或歧义实体不会被近似猜测。
+
+知识发布现在显式维护 `knowledge_release_claim`。向已有治疗关联增加 Claim 时，旧 release 不会读到新 Claim；目录和问答也只查询同一个 release 下已审核、已发布的数据。
+
+#### 公开 Knowledge 与 Ask 接口
+
+这些接口供完整公开前端使用，不限于 Landing Page。Knowledge 接口只返回同一已发布版本中的审核数据；`LINK_ONLY`/`INTERNAL_ONLY` passage 不返回正文。
+
+| 方法   | 路径                                                       | 用途                                                              |
+| ------ | ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| `GET`  | `/api/v1/knowledge/summary?release=`                       | 当前或指定发布版本、截止日期、分级规则、数量和最近发布版本        |
+| `GET`  | `/api/v1/knowledge/search`                                 | 跨疾病/基因/变异/药物搜索                                         |
+| `GET`  | `/api/v1/knowledge/diseases`、`genes`、`variants`、`drugs` | 分类型目录；支持 `q`、`release`、`page`、`pageSize` 和适用筛选    |
+| `GET`  | `/api/v1/knowledge/diseases/{id}`                          | 疾病详情、已发布治疗关联和相关实体                                |
+| `GET`  | `/api/v1/knowledge/genes/{id}`                             | 基因详情、已发布治疗关联和相关实体                                |
+| `GET`  | `/api/v1/knowledge/variants/{id}`                          | 变异详情、已发布治疗关联和相关实体                                |
+| `GET`  | `/api/v1/knowledge/drugs/{id}`                             | 药物详情、已发布治疗关联和相关实体                                |
+| `GET`  | `/api/v1/knowledge/evidence/{id}`                          | Evidence Claim、治疗关联、来源 passage 和公开摘录                 |
+| `GET`  | `/api/v1/knowledge/sources/{id}`                           | PubMed/FDA 来源详情、可公开 passage、关联 Claim 与监管记录        |
+| `POST` | `/api/v1/evidence-questions`                               | 创建持久化自然语言 Question Run，返回 HTTP `202`                  |
+| `GET`  | `/api/v1/evidence-questions/{id}`                          | 轮询进度与公开终态；不返回 Prompt、模型原始输出、费用或内部 Trace |
+| `POST` | `/api/v1/evidence-questions/{id}/retry`                    | 重排原失败任务，不重复创建 Question Run                           |
+| `POST` | `/api/v1/evidence-questions/{id}/feedback`                 | 对终态回答提交帮助度、引用、限制、可理解性或其他反馈              |
+
+目录和搜索通用参数：`q`、`release`、`page`（默认 1）、`pageSize`（默认 20，最大 100）。还可按 `diseaseId`、`geneId`、`direction=SENSITIVITY|RESISTANCE|EXPLORATORY` 和 `level=1|2|3A|3B|4|R1|R2|UNRATED` 筛选。成功列表统一返回：
+
+```ts
+type PageResult<T> = {
+  items: T[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+};
+```
+
+自然语言问题示例：
+
+```ts
+const created = await fetch('/api/v1/evidence-questions', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    'idempotency-key': crypto.randomUUID(),
+  },
+  body: JSON.stringify({
+    question: 'NSCLC 的 EGFR p.L858R 有哪些治疗证据？',
+    locale: 'zh-CN',
+  }),
+}).then((response) => response.json());
+
+const result = await fetch(
+  `/api/v1/evidence-questions/${created.data.questionRunId}`
+).then((response) => response.json());
+```
+
+创建接口固定返回 HTTP `202`，`data` 为 `{ questionRunId, status, pollAfterMs }`。轮询接口的 `data` 包含：
+
+```ts
+type PublicQuestionRunResponse = {
+  id: string;
+  questionRunId: string;
+  status:
+    | 'PENDING'
+    | 'RUNNING'
+    | 'NEEDS_CLARIFICATION'
+    | 'ANSWERED'
+    | 'NO_CURATED_EVIDENCE'
+    | 'OUT_OF_SCOPE'
+    | 'SUMMARY_UNAVAILABLE'
+    | 'FAILED'
+    | 'CANCELLED';
+  progress:
+    | 'UNDERSTANDING_QUESTION'
+    | 'RETRIEVING_APPROVED_EVIDENCE'
+    | 'ORGANIZING_EVIDENCE'
+    | 'COMPOSING_ANSWER'
+    | 'VALIDATING_CITATIONS'
+    | 'COMPLETED';
+  pollAfterMs: number | null;
+  question: string; // 已脱敏
+  normalizedQuestion: PublicQuestionInterpretation;
+  knowledgeRelease: {
+    id: string;
+    version: string;
+    literatureCutoffAt?: string;
+    regulatoryCutoffAt?: string;
+    gradingRuleVersion?: string;
+  };
+  result: unknown | null;
+  disclaimer: string;
+  disclaimerEn: string;
+  createdAt: string;
+  completedAt: string | null;
+};
+```
+
+`progress` 来自后端实际 Workflow Step，不是前端计时器。`PENDING`/`RUNNING` 时按 `pollAfterMs` 继续轮询；终态时该值为 `null`。终态包括 `NEEDS_CLARIFICATION`、`ANSWERED`、`NO_CURATED_EVIDENCE`、`OUT_OF_SCOPE`、`SUMMARY_UNAVAILABLE`、`FAILED` 和 `CANCELLED`。缺少疾病，或询问剂量、处方、最佳治疗时，不调用回答模型。治疗比较和监管状态问题会保留 `intent`，问题中明确出现的药物会实际约束 Evidence Pack。`ANSWERED` 和 `SUMMARY_UNAVAILABLE` 的结构化证据仍沿用 [`src/shared/types/evidence.ts`](./src/shared/types/evidence.ts)；公开接口不返回内部 Prompt、模型原始输出、费用或 Trace。
+
+`FAILED` 或 `SUMMARY_UNAVAILABLE` 可调用 `POST /api/v1/evidence-questions/{id}/retry`。接口返回 HTTP `202` 和 `{ questionRunId, status: "PENDING", pollAfterMs: 1000, idempotent }`，复用原 Question Run、锁定知识版本和持久任务；重复点击只返回同一个 `PENDING`/`RUNNING` 任务，不创建副本。已回答、无证据、需澄清或越界等不可重试终态返回 `409 QUESTION_RUN_NOT_RETRYABLE`。
+
+反馈示例：
+
+```ts
+await fetch(`/api/v1/evidence-questions/${questionRunId}/feedback`, {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    'idempotency-key': crypto.randomUUID(),
+  },
+  body: JSON.stringify({
+    category: 'MISSING_LIMITATION',
+    comment: '希望更明确区分同病种与跨适应证证据',
+  }),
+});
+```
+
+#### 内部 Evidence Ops 接口
+
+内部接口要求服务端登录会话和 `admin.access` 权限；所有写接口还检查同源 `Origin`。前端不要传审核人 ID，服务端只采用登录会话身份。
+
+登录、注册、退出和会话由模板已有的 Better Auth `GET|POST /api/auth/*` 处理；仓库内前端优先复用 [`src/core/auth/client.ts`](./src/core/auth/client.ts) 的 `useSession`、`signIn`、`signUp` 和 `signOut`。Ops 用户还需通过 `pnpm rbac:assign` 获得管理员角色。
+
+| 模块               | 方法与路径                                                                                                                                                                          | 用途                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| Dashboard          | `GET /api/internal/v1/ops/dashboard?range=`（`7d` 或 `30d`）                                                                                                                        | 漏斗、积压、失败率、重试、人工介入、最近运行/发布和告警   |
+| Association        | `GET /api/internal/v1/associations`                                                                                                                                                 | 为 PMID 入库、策略和审核页面选择已审核治疗关联            |
+| Discovery Strategy | `GET /api/internal/v1/discovery-strategies`；`POST /{id}/pause`、`resume`                                                                                                           | 策略目录与策略启停；旧 `trigger` 返回 `410`               |
+| Discovery Run      | `POST /api/internal/v1/discovery-runs/preview`；`GET`、`POST /api/internal/v1/discovery-runs`；`GET /{id}`；`POST /{id}/pause`、`resume`、`cancel`                                  | 只读预览、幂等创建、进度详情和运行控制                    |
+| Candidate          | `GET`、`POST /api/internal/v1/candidates`；`GET /api/internal/v1/candidates/{id}`；`POST /api/internal/v1/candidates/{id}/retry`                                                    | 列表/详情、单篇 PMID 入库和失败任务重试请求               |
+| Review             | `GET /api/internal/v1/review-tasks`；`GET /api/internal/v1/review-tasks/{id}`；`PATCH /api/internal/v1/review-tasks/{id}/draft`；`POST /api/internal/v1/review-tasks/{id}/decision` | 审核队列、详情、版本化编辑、退回/驳回/批准发布            |
+| Release            | `GET /api/internal/v1/releases`；`GET /api/internal/v1/releases/{id}`                                                                                                               | 版本、成员数量、变更集和审核来源                          |
+| Definition Catalog | `GET /api/internal/v1/agents`；`GET /api/internal/v1/skills`；`GET /api/internal/v1/workflows`                                                                                      | Agent/Skill/Workflow 版本、Schema、工具权限和状态         |
+| Execution Trace    | `GET /api/internal/v1/workflow-runs`；`GET /api/internal/v1/workflow-runs/{id}`；`GET /api/internal/v1/question-runs`；`GET /api/internal/v1/question-runs/{id}`                    | Workflow step/artifact、Question Run 与反馈的内部排障信息 |
+| Definition Version | `POST /api/internal/v1/{agents                                                                                                                                                      | skills                                                    | workflows}/{id}/versions`；`PATCH /versions/{versionId}`；`POST /versions/{versionId}/evaluate`、`activate`、`rollback`；`GET /{id}/audit` | 受控复制、编辑、评估、激活、回滚和审计，不执行任意代码 |
+| Worker Health      | `GET /api/internal/v1/worker/health`                                                                                                                                                | Worker 心跳、存活实例数、队列积压、重试等待和死信状态     |
+
+所有内部列表支持 `page`、`pageSize`、`q`、`status`、`from` 和 `to`，并返回与公开列表相同的 `PageResult`。Review 队列额外支持 `waitingAge=24h|72h|7d`、`diseaseId`、`geneId`、`variantId`、`risk=LOW|MEDIUM|HIGH` 和 `blocking=true|false`。未知详情返回 `404`，未登录/无权限返回 `401` 或 `403`，草稿版本或审核状态并发冲突返回 `409`。
+
+Review 列表项同时返回 `waitingHours`、`waitingSince`、疾病/基因/变异摘要、`risk` 和 `hasBlockingIssues`，前端无需自行拼接目录数据。Candidate 详情中的 Workflow Step 和 Artifact 是真实持久记录；手工 PMID 与批量 Discovery 使用同一 Eligibility → Extraction → Entity Recognition → Normalization → Relationship → Grading → QA 链路。不命中目标疾病与基因的来源保存为可审计 `EXCLUDED`，不会调用抽取模型。
+
+审核草稿更新必须携带当前版本并说明原因；更新会创建新 Draft，不覆盖 Agent 原始版本：
+
+```json
+{
+  "expectedDraftVersion": 1,
+  "reason": "已核对 PubMed 摘要中的人群、终点和局限",
+  "draft": {
+    "associationId": "association-id",
+    "proposedLevel": "3A",
+    "gradingRationale": "...",
+    "passages": [],
+    "claims": [],
+    "fieldProvenance": {},
+    "qaIssues": []
+  }
+}
+```
+
+`fieldProvenance` 的键使用 `claims.<从 0 开始的 claim 下标>.<字段名>`，值是支撑该字段的 `passageId[]`。例如：
+
+```json
+{
+  "fieldProvenance": {
+    "claims.0.populationSummary": ["passage-pubmed-123-abstract-1"],
+    "claims.0.endpoint": ["passage-pubmed-123-abstract-2"]
+  }
+}
+```
+
+Passage 可包含 `locator.sentenceIndex`；后端会拒绝未知 passage、越界 claim 下标、未知草稿字段、缺少允许模型使用的 PRIMARY passage 以及带 BLOCKING QA 的草稿。
+
+`GET /api/internal/v1/review-tasks/{id}` 的 `data.publicationPreview` 由服务端按当前最新发布版本计算，前端无需自行对正式知识做 diff：
+
+```json
+{
+  "currentApprovedLevel": "1",
+  "currentGradingRationale": "当前 Release 的分级理由",
+  "proposedApprovedLevel": "3A",
+  "proposedGradingRationale": "审核后拟发布的分级理由",
+  "levelChanged": true,
+  "newClaimCount": 1,
+  "modifiedClaimCount": 0,
+  "source": {
+    "sourceType": "PUBMED",
+    "externalId": "12345678",
+    "sourceScope": "ABSTRACT"
+  },
+  "currentRelease": { "id": "release-id", "version": "v0.3.0" },
+  "expectedNextRelease": "v0.3.1"
+}
+```
+
+当前 P1 工作流中的 Draft Claim 均按拟新增 Claim 计数，因此 `modifiedClaimCount` 固定为 `0`。Release 详情的 `members.associationSnapshots[]` 返回每个 Association 在该版本的 `associationId`、`approvedLevel` 和 `gradingRationale`，用于版本 Diff。
+
+批准发布请求示例：
+
+```json
+{
+  "decision": "APPROVE_AND_PUBLISH",
+  "expectedDraftVersion": 1,
+  "comment": "已核对研究人群、终点和原文摘要",
+  "idempotencyKey": "review-task-id:1:approve"
+}
+```
+
+接口 DTO 可直接从 [`src/shared/types/evidence-platform-api.ts`](./src/shared/types/evidence-platform-api.ts) 导入；医学回答 DTO 继续从 [`src/shared/types/evidence.ts`](./src/shared/types/evidence.ts) 导入。成功体统一为 `{ code: 0, message: "ok", data }`，错误体统一为 `{ code: -1, message, details? }`。
+
+当前边界：Discovery Run、Candidate retry 和 Question Run 均进入 PostgreSQL 持久队列，Worker 支持锁超时恢复、指数退避和死信状态；Discovery 保存每个子查询的分页游标，支持暂停、继续和取消。没有每周或 Cron 定时器。完整自主决策式 Agent、企业配额/SLA 仍不在本轮范围。
+
+Worker 必须作为与 Next.js API 独立的常驻进程部署：
+
+```bash
+# 常驻轮询，空闲时默认每 2 秒检查一次
+pnpm evidex:worker
+
+# 运维或测试时只领取一个任务
+pnpm evidex:worker -- --once
+
+# 可选轮询间隔，限制为 250—60000 ms
+pnpm evidex:worker -- --poll-ms 5000
+
+# 使用同一 Dockerfile/源码版本构建 Web 与 Worker
+docker build --target runner -t evidex-web .
+docker build --target worker -t evidex-worker .
+```
+
+生产环境必须从同一 Git revision 构建并部署 Web `runner` 与 `worker` target，至少保持一个独立 Worker 进程，并使用与 API 相同的 `DATABASE_URL`、Evolink、NCBI 和 Workflow 环境变量；不要把 Worker 循环放进请求生命周期。部署前先由一次性发布任务执行 `pnpm db:migrate`。部署后通过 `GET /api/internal/v1/worker/health` 检查：`status=HEALTHY`、`liveWorkerCount >= 1`，并监控 `backlog.queued`、`retryWaiting` 与 `deadLetter`。API 实例和 Worker 的 PubMed 请求使用 PostgreSQL `rate_limit_bucket` 原子行锁共享状态，不依赖单进程内存。
+
+PubMed 分页使用 NCBI History 的 `WebEnv/query_key` 快照游标，服务端按有无 NCBI API key 分别限制请求速率，并对 `429`/`5xx` 执行有限重试和 `Retry-After`。存在 PMCID 时，仅对白名单许可（CC0/Public Domain/不含 NC 或 ND 限制的 CC BY）使用全文；未知或受限许可一律回退 PubMed 摘要，并在 Candidate/Source 中保留 `pmcid`、`sourceScope`、原始 `license`、许可判定及原因。
+
+### CIViC 候选发现试点
+
+Ops 的“发起知识更新”支持显式选择 `CIVIC` 来源。试点只覆盖现有 NSCLC、CRC 与 5 个变异（EGFR L858R、E746_A750del、T790M；KRAS G12C、G12D），只读取 CIViC 中 `ACCEPTED + PREDICTIVE + PUBMED` 的 Evidence Item。服务端仍会校验疾病、基因和分子谱，按 PMID 合并重复 EID，并保存 CIViC EID、查询范围、治疗、等级、方向、显著性和检索时间等审计来源。
+
+CIViC 不作为可直接发布的证据正文，也不会把 CIViC Evidence Level 映射成 Evidex 等级。候选 PMID 必须重新从 PubMed 获取原文，继续经过现有去重、Eligibility、抽取、QA 和人工审核；分子谱不是精确命中，或 CIViC 治疗不能精确覆盖当前 Association 的候选会停在 `NEEDS_HUMAN`。预览数是 CIViC Evidence Item 数而不是唯一文献数，执行时才按 PMID 去重。匿名 GraphQL 调用通过 PostgreSQL 共享限流，并对 `429`/`5xx` 做有限重试；`EVIDEX_CIVIC_API_KEY` 可选。
 
 ### Landing Page 开发接入手册
 
@@ -304,7 +709,8 @@ return payload.data;
 本地联调：
 
 ```bash
-pnpm dev
+# 推荐：同时启动 Web 与异步 Worker；自然语言问答、Discovery 和重试都需要 Worker
+pnpm dev:full
 
 curl --request POST 'http://localhost:3000/api/v1/evidence-answer' \
   --header 'content-type: application/json' \
@@ -320,7 +726,7 @@ curl --request POST 'http://localhost:3000/api/v1/evidence-answer' \
   }'
 ```
 
-V0.2 请求是严格结构化输入，只接受一个 biomarker。疾病、基因和 HGVS 的大小写，以及 `p.` 前缀、`CRC`/`colorectal cancer`、`exon19del` 等有限别名可以规范化；`jurisdiction` 必须是 `US`，`locale` 必须是 `zh-CN`。不要先做自由文本病例输入，因为当前接口不会让模型猜测疾病或变异。
+`POST /api/v1/evidence-answer` 仍是严格结构化输入，只接受一个 biomarker。疾病、基因和 HGVS 的大小写，以及 `p.` 前缀、`CRC`/`colorectal cancer`、`exon19del` 等有限别名可以规范化；`jurisdiction` 必须是 `US`，`locale` 必须是 `zh-CN`。自由文本页面应改用上面的异步 `/api/v1/evidence-questions`，实体 ID 仍由确定性目录解析，不让模型猜测疾病或变异。
 
 #### 响应状态与页面行为
 
@@ -393,17 +799,38 @@ DATABASE_URL="postgresql://..."
 DB_SINGLETON_ENABLED="true"
 DB_MAX_CONNECTIONS="1"
 
-EVIDEX_KNOWLEDGE_RELEASE="v0.2.0"
+# 默认留空并读取最新 PUBLISHED；仅历史复现/运维回滚时显式填写。
+EVIDEX_KNOWLEDGE_RELEASE_OVERRIDE=""
 EVIDEX_PROMPT_VERSION="evidex-answer-v1"
 EVIDEX_AI_PROVIDER="evolink"
 EVIDEX_AI_MODEL="gpt-5.6-terra"
+EVIDEX_EXTRACTION_MODEL="gpt-5.6-terra"
 EVIDEX_EVOLINK_API_KEY="..."
 EVIDEX_EVOLINK_BASE_URL="https://direct.evolink.ai/v1"
+EVIDEX_DISCOVERY_WORKFLOW_VERSION="pubmed-discovery-v2"
+EVIDEX_PREVIEW_SECRET="用 openssl rand -hex 32 生成"
+EVIDEX_INGESTION_WORKFLOW_VERSION="single-pubmed-v3"
+EVIDEX_EXTRACTION_AGENT_VERSION="extraction-agent@1.0.0"
+EVIDEX_QUESTION_MIN_INTERVAL_MS="1000"
+EVIDEX_FEEDBACK_MIN_INTERVAL_MS="1000"
+EVIDEX_NCBI_EMAIL=""
+EVIDEX_NCBI_API_KEY=""
+EVIDEX_CIVIC_API_KEY=""
+EVIDEX_CIVIC_BASE_URL="https://civicdb.org/api/graphql"
 ```
 
-真实值已经放在本地、被 Git 忽略的 `.env.local` 中；README 和前端代码只保留占位符。浏览器只调用 Evidex API，不能直接连接 Neon 或 Evolink。当前接口没有登录、限流、配额和公开 API SLA，应按演示版同源接口使用，不要在 Landing Page 上宣传为开放企业 API。
+真实值已经放在本地、被 Git 忽略的 `.env.local` 中；README 和前端代码只保留占位符。浏览器只调用 Evidex API，不能直接连接 Neon 或 Evolink。内部 Ops 接口已接入登录权限和同源写保护；公开问答与反馈有请求大小和频率限制。当前仍没有企业配额、SDK 和公开 API SLA，不应宣传为生产级开放企业 API。
 
-现有 Neon 数据库无需为 Landing Page 再执行迁移或重复导入。只有连接一套全新数据库时，才依次执行：
+接入新版 Agent/Skill 平台的现有 Neon 数据库需要执行一次增量迁移，但不需要重复导入 V0 知识包；迁移会为历史发布版本回填 Claim 成员关系：
+
+```bash
+pnpm db:migrate
+pnpm evidex:smoke
+```
+
+迁移新增平台表、Discovery/Ops 表、索引、外键、不可变约束、反馈幂等键和历史成员回填，不删除 V0 医学记录。`0005_robust_onslaught.sql` 允许队列保存 `QUESTION_RUN`，`0006_quick_malcolm_colcord.sql` 将 Question Run 关联下游 Workflow；`0007_bizarre_the_spike.sql` 登记上游 Eligibility 与多 Agent 版本以及 `single-pubmed-v2`；`0008_demonic_terror.sql` 增加 PMC 来源范围和许可字段；`0009_solid_magik.sql` 增加 Worker 心跳和 PostgreSQL 共享限流桶；`0010_broken_silverclaw.sql` 保存 PMC 许可判定并登记精确变异安全链路 `single-pubmed-v3`；`0011_mean_master_mold.sql` 为每个历史 Release 回填 Association 最终等级和分级理由快照，并为后续 patch 发布启用版本隔离。若应用版本需要回退，可直接部署旧代码并保留新增列；旧代码仍读取全局 Association，不受新增列影响。迁移失败由数据库事务回滚。已经通过新链路发布 patch release 后，不应删除 `knowledge_release_claim` 或 `knowledge_release_association`，否则会丢失版本隔离信息。
+
+只有连接一套全新数据库时，才依次执行：
 
 ```bash
 pnpm db:migrate
@@ -433,8 +860,12 @@ corepack prepare pnpm@10.30.3 --activate
 pnpm install --frozen-lockfile
 cp .env.example .env.local
 # 按本地开发需要配置 .env.local，不要提交密钥
-pnpm dev
+pnpm dev:full
 ```
+
+`pnpm dev:full` 会同时启动 `next dev` 和 `evidex:worker`，其中任一进程退出时会终止另一进程，适合需要异步 Question Run、Discovery Run 或 Candidate Retry 的本地联调。`pnpm dev` 仍只启动 Web，适合不依赖队列的页面开发；此时提交到持久队列的任务会保持 `PENDING/QUEUED`，不会在请求生命周期内执行。
+
+Worker 是否离线可通过已登录 Ops 账号请求 `GET /api/internal/v1/worker/health` 诊断：`status="STALE"`、`liveWorkerCount=0` 表示最近 2 分钟没有存活 Worker；结合 `backlog.queued`、`backlog.retryWaiting` 和 `backlog.oldestPendingSince` 可以确认任务是否因 Worker 离线而积压。
 
 若没有 Corepack，可使用现有 pnpm 执行 `pnpm dlx pnpm@10.30.3 <命令>`，不要用不匹配的全局版本改写锁文件。
 

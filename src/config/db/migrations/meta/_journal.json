@@ -8,6 +8,83 @@
       "when": 1788946324317,
       "tag": "0000_superb_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789488084149,
+      "tag": "0001_futuristic_eternals",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789488147178,
+      "tag": "0002_purple_overlord",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789517482080,
+      "tag": "0003_lowly_mordo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789534017383,
+      "tag": "0004_absent_ben_urich",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789540750627,
+      "tag": "0005_robust_onslaught",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789541242170,
+      "tag": "0006_quick_malcolm_colcord",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789552389638,
+      "tag": "0007_bizarre_the_spike",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789552869029,
+      "tag": "0008_demonic_terror",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789553551561,
+      "tag": "0009_solid_magik",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789559662469,
+      "tag": "0010_broken_silverclaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789611861574,
+      "tag": "0011_mean_master_mold",
+      "breakpoints": true
     }
   ]
 }

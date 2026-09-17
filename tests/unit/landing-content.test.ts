@@ -77,7 +77,7 @@ describe('Evidex landing content contract', () => {
   ])(
     'states the current product boundary and real release data in %s',
     (_, page) => {
-      expect(page.page.sections.hero.primary_action.href).toBe('/zh/evidence');
+      expect(page.page.sections.hero.primary_action.href).toBe('/zh/ask');
       expect(page.page.sections.integration.api.request).toEqual({
         disease: 'NSCLC',
         biomarkers: [

@@ -1,0 +1,2 @@
+ALTER TABLE "platform_job" DROP CONSTRAINT "ck_platform_job_type";--> statement-breakpoint
+ALTER TABLE "platform_job" ADD CONSTRAINT "ck_platform_job_type" CHECK ("platform_job"."job_type" in ('DISCOVERY_RUN', 'CANDIDATE_RETRY', 'QUESTION_RUN'));

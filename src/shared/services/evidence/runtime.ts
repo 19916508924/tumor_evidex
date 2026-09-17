@@ -34,7 +34,8 @@ export function getEvidenceAnswerDependencies(): EvidenceAnswerDependencies {
         });
   dependencies = {
     repository: createPostgresEvidenceRepository(dbPostgres(), {
-      releaseVersion: process.env.EVIDEX_KNOWLEDGE_RELEASE || undefined,
+      releaseVersion:
+        process.env.EVIDEX_KNOWLEDGE_RELEASE_OVERRIDE?.trim() || undefined,
     }),
     generator,
     promptVersion: process.env.EVIDEX_PROMPT_VERSION || 'evidex-answer-v1',

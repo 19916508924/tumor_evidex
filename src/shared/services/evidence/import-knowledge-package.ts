@@ -4,6 +4,7 @@ import { eq, inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import type postgres from 'postgres';
 
+import { knowledgeReleaseClaim } from '@/config/db/schema.evidence-platform.postgres';
 import {
   disease,
   drug,
@@ -377,11 +378,25 @@ export async function importKnowledgePackage(
       publishedBy: null,
       notes: withHashMarker(value.release.notes, packageHash),
     });
+    const associationById = new Map(
+      value.associations.map((association) => [association.id, association])
+    );
     await transaction.insert(knowledgeReleaseAssociation).values(
-      value.release.associationIds.map((therapeuticAssociationId) => ({
-        knowledgeReleaseId: value.release.id,
-        therapeuticAssociationId,
-      }))
+      value.release.associationIds.map((therapeuticAssociationId) => {
+        const association = associationById.get(therapeuticAssociationId);
+        if (!association) {
+          throw new Error(
+            `Release association ${therapeuticAssociationId} is missing from the package`
+          );
+        }
+        return {
+          knowledgeReleaseId: value.release.id,
+          therapeuticAssociationId,
+          approvedLevel:
+            association.approvedLevel ?? association.proposedLevel ?? 'UNRATED',
+          gradingRationale: association.gradingRationale,
+        };
+      })
     );
     await transaction.insert(knowledgeReleaseApproval).values(
       value.release.regulatoryApprovalIds.map((regulatoryApprovalId) => ({
@@ -389,6 +404,18 @@ export async function importKnowledgePackage(
         regulatoryApprovalId,
       }))
     );
+    const releasedAssociations = new Set(value.release.associationIds);
+    const releasedClaimIds = value.evidenceClaims
+      .filter((claim) => releasedAssociations.has(claim.associationId))
+      .map((claim) => claim.id);
+    if (releasedClaimIds.length > 0) {
+      await transaction.insert(knowledgeReleaseClaim).values(
+        releasedClaimIds.map((evidenceClaimId) => ({
+          knowledgeReleaseId: value.release.id,
+          evidenceClaimId,
+        }))
+      );
+    }
     await transaction
       .update(knowledgeRelease)
       .set({

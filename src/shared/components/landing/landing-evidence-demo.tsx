@@ -328,7 +328,7 @@ export function LandingEvidenceDemo({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-[#52637A]">
         <p>{copy.language_note}</p>
         <Link
-          href="/zh/evidence"
+          href="/zh/ask"
           className="inline-flex min-h-11 items-center gap-1.5 font-semibold whitespace-nowrap text-[#175CD3] underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-[#175CD3] focus-visible:outline-none"
         >
           {copy.open_workspace}

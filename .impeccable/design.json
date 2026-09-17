@@ -1,0 +1,497 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-16T03:11:37Z",
+  "title": "Design System: Evidex",
+  "extensions": {
+    "colorMeta": {
+      "evidence-blue": {
+        "role": "primary",
+        "displayName": "Evidence Blue",
+        "canonical": "#175CD3",
+        "tonalRamp": [
+          "oklch(15% 0.18 257)",
+          "oklch(27% 0.18 257)",
+          "oklch(39% 0.18 257)",
+          "oklch(51% 0.18 257)",
+          "oklch(63% 0.18 257)",
+          "oklch(75% 0.18 257)",
+          "oklch(87% 0.18 257)",
+          "oklch(95% 0.18 257)"
+        ]
+      },
+      "evidence-blue-hover": {
+        "role": "primary",
+        "displayName": "Deepened Evidence Blue",
+        "canonical": "#134EAE",
+        "tonalRamp": [
+          "oklch(15% 0.16 257)",
+          "oklch(27% 0.16 257)",
+          "oklch(39% 0.16 257)",
+          "oklch(51% 0.16 257)",
+          "oklch(63% 0.16 257)",
+          "oklch(75% 0.16 257)",
+          "oklch(87% 0.16 257)",
+          "oklch(95% 0.16 257)"
+        ]
+      },
+      "deep-navy": {
+        "role": "secondary",
+        "displayName": "Deep Navy",
+        "canonical": "#0B3975",
+        "tonalRamp": [
+          "oklch(15% 0.09 257)",
+          "oklch(27% 0.09 257)",
+          "oklch(39% 0.09 257)",
+          "oklch(51% 0.09 257)",
+          "oklch(63% 0.09 257)",
+          "oklch(75% 0.09 257)",
+          "oklch(87% 0.09 257)",
+          "oklch(95% 0.09 257)"
+        ]
+      },
+      "ink-navy": {
+        "role": "secondary",
+        "displayName": "Ink Navy",
+        "canonical": "#0B1F3A",
+        "tonalRamp": [
+          "oklch(15% 0.045 255)",
+          "oklch(27% 0.045 255)",
+          "oklch(39% 0.045 255)",
+          "oklch(51% 0.045 255)",
+          "oklch(63% 0.045 255)",
+          "oklch(75% 0.045 255)",
+          "oklch(87% 0.045 255)",
+          "oklch(95% 0.045 255)"
+        ]
+      },
+      "near-black-navy": {
+        "role": "neutral",
+        "displayName": "Near-black Navy",
+        "canonical": "#07182D",
+        "tonalRamp": [
+          "oklch(15% 0.035 255)",
+          "oklch(27% 0.035 255)",
+          "oklch(39% 0.035 255)",
+          "oklch(51% 0.035 255)",
+          "oklch(63% 0.035 255)",
+          "oklch(75% 0.035 255)",
+          "oklch(87% 0.035 255)",
+          "oklch(95% 0.035 255)"
+        ]
+      },
+      "slate-copy": {
+        "role": "neutral",
+        "displayName": "Slate Copy",
+        "canonical": "#52637A",
+        "tonalRamp": [
+          "oklch(15% 0.03 255)",
+          "oklch(27% 0.03 255)",
+          "oklch(39% 0.03 255)",
+          "oklch(51% 0.03 255)",
+          "oklch(63% 0.03 255)",
+          "oklch(75% 0.03 255)",
+          "oklch(87% 0.03 255)",
+          "oklch(95% 0.03 255)"
+        ]
+      },
+      "quiet-slate": {
+        "role": "neutral",
+        "displayName": "Quiet Slate",
+        "canonical": "#60748D",
+        "tonalRamp": [
+          "oklch(15% 0.035 253)",
+          "oklch(27% 0.035 253)",
+          "oklch(39% 0.035 253)",
+          "oklch(51% 0.035 253)",
+          "oklch(63% 0.035 253)",
+          "oklch(75% 0.035 253)",
+          "oklch(87% 0.035 253)",
+          "oklch(95% 0.035 253)"
+        ]
+      },
+      "mist-canvas": {
+        "role": "neutral",
+        "displayName": "Mist Canvas",
+        "canonical": "#F4F8FF",
+        "tonalRamp": [
+          "oklch(15% 0.012 253)",
+          "oklch(27% 0.012 253)",
+          "oklch(39% 0.012 253)",
+          "oklch(51% 0.012 253)",
+          "oklch(63% 0.012 253)",
+          "oklch(75% 0.012 253)",
+          "oklch(87% 0.012 253)",
+          "oklch(95% 0.012 253)"
+        ]
+      },
+      "glass-white": {
+        "role": "neutral",
+        "displayName": "Glass White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.004 250)",
+          "oklch(27% 0.004 250)",
+          "oklch(39% 0.004 250)",
+          "oklch(51% 0.004 250)",
+          "oklch(63% 0.004 250)",
+          "oklch(75% 0.004 250)",
+          "oklch(87% 0.004 250)",
+          "oklch(95% 0.004 250)"
+        ]
+      },
+      "pale-evidence-blue": {
+        "role": "neutral",
+        "displayName": "Pale Evidence Blue",
+        "canonical": "#EAF2FF",
+        "tonalRamp": [
+          "oklch(15% 0.025 255)",
+          "oklch(27% 0.025 255)",
+          "oklch(39% 0.025 255)",
+          "oklch(51% 0.025 255)",
+          "oklch(63% 0.025 255)",
+          "oklch(75% 0.025 255)",
+          "oklch(87% 0.025 255)",
+          "oklch(95% 0.025 255)"
+        ]
+      },
+      "selected-evidence-blue": {
+        "role": "neutral",
+        "displayName": "Selected Evidence Blue",
+        "canonical": "#DDEBFF",
+        "tonalRamp": [
+          "oklch(15% 0.04 255)",
+          "oklch(27% 0.04 255)",
+          "oklch(39% 0.04 255)",
+          "oklch(51% 0.04 255)",
+          "oklch(63% 0.04 255)",
+          "oklch(75% 0.04 255)",
+          "oklch(87% 0.04 255)",
+          "oklch(95% 0.04 255)"
+        ]
+      },
+      "soft-border-blue": {
+        "role": "neutral",
+        "displayName": "Soft Border Blue",
+        "canonical": "#B4CAE6",
+        "tonalRamp": [
+          "oklch(15% 0.05 252)",
+          "oklch(27% 0.05 252)",
+          "oklch(39% 0.05 252)",
+          "oklch(51% 0.05 252)",
+          "oklch(63% 0.05 252)",
+          "oklch(75% 0.05 252)",
+          "oklch(87% 0.05 252)",
+          "oklch(95% 0.05 252)"
+        ]
+      },
+      "strong-border-blue": {
+        "role": "neutral",
+        "displayName": "Strong Border Blue",
+        "canonical": "#8DB6EA",
+        "tonalRamp": [
+          "oklch(15% 0.075 252)",
+          "oklch(27% 0.075 252)",
+          "oklch(39% 0.075 252)",
+          "oklch(51% 0.075 252)",
+          "oklch(63% 0.075 252)",
+          "oklch(75% 0.075 252)",
+          "oklch(87% 0.075 252)",
+          "oklch(95% 0.075 252)"
+        ]
+      },
+      "error-ink": {
+        "role": "tertiary",
+        "displayName": "Error Ink",
+        "canonical": "#7C2D12",
+        "tonalRamp": [
+          "oklch(15% 0.11 43)",
+          "oklch(27% 0.11 43)",
+          "oklch(39% 0.11 43)",
+          "oklch(51% 0.11 43)",
+          "oklch(63% 0.11 43)",
+          "oklch(75% 0.11 43)",
+          "oklch(87% 0.11 43)",
+          "oklch(95% 0.11 43)"
+        ]
+      },
+      "error-surface": {
+        "role": "tertiary",
+        "displayName": "Warm Error Surface",
+        "canonical": "#FFF7ED",
+        "tonalRamp": [
+          "oklch(15% 0.025 70)",
+          "oklch(27% 0.025 70)",
+          "oklch(39% 0.025 70)",
+          "oklch(51% 0.025 70)",
+          "oklch(63% 0.025 70)",
+          "oklch(75% 0.025 70)",
+          "oklch(87% 0.025 70)",
+          "oklch(95% 0.025 70)"
+        ]
+      },
+      "success-ink": {
+        "role": "tertiary",
+        "displayName": "Success Ink",
+        "canonical": "#166534",
+        "tonalRamp": [
+          "oklch(15% 0.11 148)",
+          "oklch(27% 0.11 148)",
+          "oklch(39% 0.11 148)",
+          "oklch(51% 0.11 148)",
+          "oklch(63% 0.11 148)",
+          "oklch(75% 0.11 148)",
+          "oklch(87% 0.11 148)",
+          "oklch(95% 0.11 148)"
+        ]
+      },
+      "success-surface": {
+        "role": "tertiary",
+        "displayName": "Success Surface",
+        "canonical": "#DCFCE7",
+        "tonalRamp": [
+          "oklch(15% 0.04 148)",
+          "oklch(27% 0.04 148)",
+          "oklch(39% 0.04 148)",
+          "oklch(51% 0.04 148)",
+          "oklch(63% 0.04 148)",
+          "oklch(75% 0.04 148)",
+          "oklch(87% 0.04 148)",
+          "oklch(95% 0.04 148)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Question-first Display",
+        "purpose": "Public hero statements and the primary evidence proposition."
+      },
+      "headline": {
+        "displayName": "Workspace Headline",
+        "purpose": "Major sections and top-level knowledge views."
+      },
+      "title": {
+        "displayName": "Evidence Title",
+        "purpose": "Evidence panels, entity summaries, and strong callouts."
+      },
+      "body": {
+        "displayName": "Readable Body",
+        "purpose": "Explanations, evidence summaries, and mixed-language source context."
+      },
+      "label": {
+        "displayName": "Wayfinding Label",
+        "purpose": "Statuses, metadata, and compact categorical overlines."
+      },
+      "mono": {
+        "displayName": "Source Mono",
+        "purpose": "Variant notation, identifiers, structured values, and source-oriented details."
+      }
+    },
+    "shadows": [
+      {
+        "name": "brand-mark",
+        "value": "0 8px 22px rgba(23, 92, 211, 0.22)",
+        "purpose": "Small blue logo tiles and compact signature controls."
+      },
+      {
+        "name": "action-lift",
+        "value": "0 10px 25px rgba(23, 92, 211, 0.20)",
+        "purpose": "Primary actions that need separation from a pale surface."
+      },
+      {
+        "name": "panel-ambient",
+        "value": "0 18px 50px rgba(20, 70, 140, 0.11)",
+        "purpose": "Search, evidence, and result panels at rest."
+      },
+      {
+        "name": "workbench-ambient",
+        "value": "0 24px 70px rgba(20, 70, 140, 0.14)",
+        "purpose": "The primary question composer or other dominant translucent workspace."
+      },
+      {
+        "name": "navy-feature",
+        "value": "0 22px 60px rgba(11, 57, 117, 0.20)",
+        "purpose": "Large dark-blue trust or provenance panels."
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration-quick",
+        "value": "200ms",
+        "purpose": "Hover, focus, button, and compact disclosure feedback."
+      },
+      {
+        "name": "duration-stage",
+        "value": "500ms",
+        "purpose": "Movement between evidence-processing stages."
+      },
+      {
+        "name": "duration-reveal",
+        "value": "550ms",
+        "purpose": "Section and answer-content reveal."
+      },
+      {
+        "name": "ease-emphasized",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Calm deceleration for major reveals."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Near-instant fallback for animations and transitions when reduced motion is requested."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single decisive action on a public or operational surface.",
+      "html": "<button class=\"ds-btn-primary\">查找证据 <svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path d=\"M5 12h14M13 6l6 6-6 6\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\"/></svg></button>",
+      "css": ".ds-btn-primary { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 10px; padding: 12px 20px; background: #175CD3; color: #FFFFFF; box-shadow: 0 10px 25px rgba(23, 92, 211, 0.20); font-family: Manrope, ui-sans-serif, sans-serif, system-ui; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 200ms, transform 200ms, box-shadow 200ms; } .ds-btn-primary svg { width: 17px; height: 17px; } .ds-btn-primary:hover { background: #134EAE; } .ds-btn-primary:focus-visible { outline: 2px solid #175CD3; outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(1px); box-shadow: 0 6px 16px rgba(23, 92, 211, 0.18); } .ds-btn-primary:disabled { cursor: not-allowed; opacity: 0.45; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A supporting action that stays quieter than the primary evidence action.",
+      "html": "<button class=\"ds-btn-secondary\">浏览知识库</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 8px; border: 1px solid #9CB9DF; border-radius: 10px; padding: 12px 20px; background: rgba(255, 255, 255, 0.80); color: #0B3975; font-family: Manrope, ui-sans-serif, sans-serif, system-ui; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 200ms, border-color 200ms, transform 200ms; } .ds-btn-secondary:hover { border-color: #175CD3; background: #FFFFFF; } .ds-btn-secondary:focus-visible { outline: 2px solid #175CD3; outline-offset: 2px; } .ds-btn-secondary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Evidence Input",
+      "kind": "input",
+      "refersTo": "input-evidence",
+      "description": "A clear structured field for disease, gene, variant, drug, or evidence search terms.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">变异</span><input class=\"ds-input-evidence\" value=\"p.L858R\" aria-label=\"变异\"></label>",
+      "css": ".ds-field { display: grid; gap: 8px; color: #334A67; font-family: Manrope, ui-sans-serif, sans-serif, system-ui; font-size: 12px; font-weight: 600; } .ds-input-evidence { min-height: 44px; width: 100%; border: 1px solid #B4CAE6; border-radius: 10px; padding: 10px 12px; background: #FFFFFF; color: #0B1F3A; font-family: JetBrains Mono, monospace; font-size: 14px; font-weight: 400; transition: border-color 200ms, box-shadow 200ms; } .ds-input-evidence:hover { border-color: #8DB6EA; } .ds-input-evidence:focus-visible { border-color: #175CD3; outline: 2px solid rgba(23, 92, 211, 0.30); outline-offset: 1px; } .ds-input-evidence:disabled { cursor: not-allowed; opacity: 0.5; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "A compact textual state marker for evidence availability, scope, or workflow state.",
+      "html": "<button class=\"ds-chip-status\" aria-pressed=\"true\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path d=\"m5 12 4 4L19 6\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\"/></svg> 已审核</button>",
+      "css": ".ds-chip-status { display: inline-flex; min-height: 28px; align-items: center; gap: 6px; border: 1px solid #8DB6EA; border-radius: 9999px; padding: 6px 12px; background: #EDF5FF; color: #0B4DA2; font-family: Manrope, ui-sans-serif, sans-serif, system-ui; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 200ms, border-color 200ms; } .ds-chip-status svg { width: 14px; height: 14px; } .ds-chip-status:hover, .ds-chip-status[aria-pressed=\"true\"] { border-color: #175CD3; background: #DDEBFF; } .ds-chip-status:focus-visible { outline: 2px solid #175CD3; outline-offset: 2px; }"
+    },
+    {
+      "name": "Glass Evidence Card",
+      "kind": "card",
+      "refersTo": "card-glass",
+      "description": "A focal evidence sheet for reviewed conclusions, limits, and source paths.",
+      "html": "<article class=\"ds-card-glass\"><div class=\"ds-card-kicker\">已审核证据</div><h3>EGFR p.L858R</h3><p>结论、适用范围与来源在同一阅读路径中呈现。</p><a href=\"#source\">查看来源 <span aria-hidden=\"true\">→</span></a></article>",
+      "css": ".ds-card-glass { max-width: 440px; border: 1px solid rgba(141, 182, 234, 0.70); border-radius: 16px; padding: 24px; background: rgba(255, 255, 255, 0.75); color: #0B1F3A; box-shadow: 0 18px 50px rgba(20, 70, 140, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.90); backdrop-filter: blur(16px); font-family: Manrope, ui-sans-serif, sans-serif, system-ui; transition: border-color 200ms, box-shadow 200ms; } .ds-card-glass:hover { border-color: #8DB6EA; box-shadow: 0 20px 60px rgba(20, 70, 140, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.95); } .ds-card-glass:focus-within { outline: 2px solid #175CD3; outline-offset: 2px; } .ds-card-kicker { color: #175CD3; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; } .ds-card-glass h3 { margin: 16px 0 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.025em; } .ds-card-glass p { margin: 12px 0 0; color: #52637A; font-size: 14px; line-height: 1.75; } .ds-card-glass a { display: inline-flex; margin-top: 20px; align-items: center; gap: 6px; color: #175CD3; font-size: 14px; font-weight: 600; text-decoration: none; } .ds-card-glass a:hover { text-decoration: underline; text-underline-offset: 4px; } .ds-card-glass a:focus-visible { outline: 2px solid #175CD3; outline-offset: 2px; }"
+    },
+    {
+      "name": "Public Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "A light, sticky navigation rhythm for question answering and knowledge browsing.",
+      "html": "<nav class=\"ds-public-nav\" aria-label=\"主要导航\"><a class=\"ds-brand\" href=\"#home\"><span class=\"ds-brand-mark\">E</span>Evidex</a><div class=\"ds-nav-links\"><a class=\"ds-nav-item\" href=\"#ask\">问证据</a><a class=\"ds-nav-item\" href=\"#knowledge\">知识库</a></div></nav>",
+      "css": ".ds-public-nav { display: flex; min-height: 64px; align-items: center; gap: 20px; border-bottom: 1px solid rgba(191, 209, 231, 0.80); padding: 0 24px; background: rgba(244, 248, 255, 0.78); color: #0B1F3A; backdrop-filter: blur(16px); font-family: Manrope, ui-sans-serif, sans-serif, system-ui; } .ds-brand { display: inline-flex; align-items: center; gap: 10px; color: #0B1F3A; font-size: 17px; font-weight: 600; letter-spacing: -0.025em; text-decoration: none; } .ds-brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 10px; background: #175CD3; color: #FFFFFF; box-shadow: 0 8px 22px rgba(23, 92, 211, 0.22); font-size: 14px; } .ds-nav-links { display: flex; margin-left: auto; gap: 4px; } .ds-nav-item { display: inline-flex; min-height: 40px; align-items: center; border-radius: 8px; padding: 10px 12px; color: #0B3975; font-size: 14px; font-weight: 500; text-decoration: none; transition: background 200ms, color 200ms; } .ds-nav-item:hover { background: rgba(255, 255, 255, 0.75); } .ds-brand:focus-visible, .ds-nav-item:focus-visible { outline: 2px solid #175CD3; outline-offset: 2px; } .ds-nav-item:active { background: #EAF2FF; }"
+    },
+    {
+      "name": "Operational Navigation Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "A denser side-rail item for authenticated operations and audit workflows.",
+      "html": "<a class=\"ds-ops-nav-item\" href=\"#reviews\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path d=\"M4 5h16v14H4zM8 9h8M8 13h5\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.8\"/></svg>审核任务</a>",
+      "css": ".ds-ops-nav-item { display: flex; min-height: 44px; align-items: center; gap: 12px; border-radius: 12px; padding: 10px 12px; background: transparent; color: #334A67; font-family: Manrope, ui-sans-serif, sans-serif, system-ui; font-size: 14px; font-weight: 500; text-decoration: none; transition: background 200ms, color 200ms; } .ds-ops-nav-item svg { width: 17px; height: 17px; color: #60748D; transition: color 200ms; } .ds-ops-nav-item:hover { background: #DDEBFF; color: #0B3975; } .ds-ops-nav-item:hover svg { color: #175CD3; } .ds-ops-nav-item:focus-visible { outline: 2px solid #175CD3; outline-offset: 2px; } .ds-ops-nav-item:active { background: #C9DCF4; }"
+    },
+    {
+      "name": "Active Evidence Stage",
+      "kind": "custom",
+      "refersTo": "stage-active",
+      "description": "The current step in the understand, retrieve, organize, validate evidence rail.",
+      "html": "<div class=\"ds-stage-active\"><span class=\"ds-stage-icon\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path d=\"M5 12h14M12 5v14\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"2\"/></svg></span><div><strong>整理证据与限制</strong><p>区分结论、适用范围与不确定性</p></div></div>",
+      "css": ".ds-stage-active { display: flex; gap: 12px; border-radius: 16px; padding: 16px; background: #175CD3; color: #FFFFFF; box-shadow: 0 14px 38px rgba(23, 92, 211, 0.20); font-family: Manrope, ui-sans-serif, sans-serif, system-ui; transition: background 500ms, color 500ms, box-shadow 500ms; } .ds-stage-icon { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: rgba(255, 255, 255, 0.16); } .ds-stage-icon svg { width: 16px; height: 16px; } .ds-stage-active strong { display: block; font-size: 14px; font-weight: 600; } .ds-stage-active p { margin: 4px 0 0; color: #DDEBFF; font-size: 12px; line-height: 1.65; } .ds-stage-active:hover { background: #134EAE; } .ds-stage-active:focus-within { outline: 2px solid #175CD3; outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-stage-active { transition-duration: 0.01ms; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Verifiable Blue Evidence Desk",
+    "overview": "Evidex is a calm, precise evidence workspace: a question or knowledge object is placed on the desk first, then conclusions, applicability limits, and sources unfold in a clear sequence. The visual world is blue-led and service-like rather than clinical-theatrical. It earns trust through legible hierarchy, visible provenance, and measured density instead of decorative authority.\n\nPublic surfaces breathe, using mist-blue fields, generous whitespace, and restrained translucent panels. Operational surfaces carry more information but keep the same navy typography, blue actions, fine borders, rounded geometry, and status language. Motion guides attention along real stages and never substitutes for a readable static state.",
+    "keyCharacteristics": [
+      "Question-first composition with evidence and provenance revealed progressively.",
+      "Mist-blue and white fields anchored by navy text and a single decisive blue action color.",
+      "Restrained glass materials, fine blue-grey borders, and soft ambient depth.",
+      "Spacious public reading surfaces paired with denser, auditable operational workspaces.",
+      "Chinese-first hierarchy with original-source language preserved where required."
+    ],
+    "rules": [
+      {
+        "name": "The One Decisive Blue Rule",
+        "body": "Saturated blue belongs to actions, focus, progress, and traceable links; large decorative areas stay pale or navy so the primary action remains unmistakable.",
+        "section": "colors"
+      },
+      {
+        "name": "The Meaning Beyond Color Rule",
+        "body": "Success, warning, error, review, and scope states always include a label, icon, or explanatory copy; hue never carries the message alone.",
+        "section": "colors"
+      },
+      {
+        "name": "The Calm Authority Rule",
+        "body": "Use weight and spacing before adding color: headings stay semibold, body copy stays regular, and all-caps is limited to short English overlines.",
+        "section": "typography"
+      },
+      {
+        "name": "The Evidence Reading Rule",
+        "body": "Keep explanatory prose near `65–68ch` and preserve comfortable leading; dense operational data may tighten, but clinical and source context must never become cramped.",
+        "section": "typography"
+      },
+      {
+        "name": "The Density Follows Responsibility Rule",
+        "body": "Public reading gets generous whitespace; authenticated operations may become denser, but they retain the same hierarchy, hit areas, state labels, and recovery affordances.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Until Meaningful Rule",
+        "body": "Use borders and tonal change for routine structure; reserve shadows for a primary work surface, current process state, or branded focal element.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Readable Glass Rule",
+        "body": "Translucency may soften a surface, but never lowers text contrast, hides boundaries, or becomes the only cue that layers differ.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Nested Radius Rule",
+        "body": "Inner controls are always equal to or tighter than their containing surface: `8–10px` inside `12–16px` panels.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do lead public tasks with the question, knowledge object, or user goal before exposing evidence detail.",
+      "Do keep primary actions, focus, progress, and source links in the single Evidence Blue family.",
+      "Do use labels, icons, and explanatory copy alongside every semantic state.",
+      "Do preserve `44–48px` interactive targets and visible keyboard focus across public and operational surfaces.",
+      "Do use translucent material selectively with an opaque fallback and readable contrast.",
+      "Do preserve source language and provenance while keeping surrounding interface hierarchy Chinese-first."
+    ],
+    "donts": [
+      "Don't turn Evidex into a generic admin grid on public surfaces or a collection of unrelated cards.",
+      "Don't introduce competing saturated accent colors for ordinary actions.",
+      "Don't use shadow on every container; routine structure belongs to borders, spacing, and tonal layers.",
+      "Don't use color alone to communicate review, publication, error, risk, or completion.",
+      "Don't make glass blur, animation, or hover the only way to understand hierarchy or state.",
+      "Don't present medical authority through dramatic imagery, black-heavy contrast, or ornamental clinical motifs."
+    ]
+  }
+}

@@ -19,6 +19,19 @@ WORKDIR /app
 COPY . .
 RUN pnpm build
 
+# Long-running queue worker. Build this target from the same source revision as
+# the web image so both processes use identical migrations and domain code.
+FROM deps AS worker
+WORKDIR /app
+
+COPY . .
+
+ENV NODE_ENV=production
+
+USER node
+
+CMD ["pnpm", "exec", "tsx", "scripts/evidex-worker.ts"]
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app

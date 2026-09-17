@@ -47,7 +47,7 @@
         {
           "title": "Access",
           "children": [
-            { "title": "Current demo", "url": "/zh/evidence" },
+            { "title": "Ask Evidex", "url": "/zh/ask" },
             { "title": "Integration", "url": "/#integration" },
             { "title": "Request a demo", "url": "/#contact" }
           ]

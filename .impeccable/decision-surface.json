@@ -1,0 +1,93 @@
+{
+  "title": "选择 Evidex 的应用骨架",
+  "question": "三种方案都沿用现有蓝色、克制毛玻璃与中文界面，只改变用户进入知识、问答和溯源任务的方式。请选择一个作为完整前端的统一结构。",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "证据脉络工作台",
+      "kicker": "THE ROLL",
+      "thesis": "把实体、结论与出处放在同一条可追踪的工作脉络中，页面切换时仍保留上下文。",
+      "palette": ["#F4F8FF", "#FFFFFF", "#175CD3", "#0B1F3A", "#7FA7DA"],
+      "materials": ["雾面蓝白底", "半透明导航带", "细线关系轨道"],
+      "viewport": "左侧是紧凑的实体与任务导航，中间是当前知识或问答主画布，右侧是可收合的出处与状态轨道；移动端按任务顺序折叠成一条纵向脉络。",
+      "risk": "信息密度最高，需要用清晰的层级和收合机制避免第一次使用时显得复杂。",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "全局导航", "x": 0, "y": 0, "w": 12, "h": 1 },
+          {
+            "label": "实体与任务",
+            "x": 0,
+            "y": 1,
+            "w": 2,
+            "h": 9,
+            "accent": true
+          },
+          { "label": "主证据画布", "x": 2, "y": 1, "w": 7, "h": 9 },
+          { "label": "出处与状态", "x": 9, "y": 1, "w": 3, "h": 9 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/evidence-thread-workbench.webp"
+    },
+    {
+      "id": "question-first",
+      "label": "问题先行的证据台",
+      "thesis": "先让用户用自然语言提出问题，再把答案拆成可验证的结论、适用范围与来源。",
+      "palette": ["#F4F8FF", "#EAF2FF", "#175CD3", "#0B3975", "#FFFFFF"],
+      "materials": ["聚焦式提问台", "纵向验证步骤", "引用抽屉"],
+      "viewport": "首屏上半部是宽幅提问区，下半部同步展开理解、检索、整理与校验四阶段；知识目录作为辅助入口，内部运营沿用同一阶段式结构。",
+      "risk": "问答入口很强，但纯浏览用户需要多一步才能看见完整实体目录。",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "全局导航", "x": 0, "y": 0, "w": 12, "h": 1 },
+          {
+            "label": "问题输入",
+            "x": 1,
+            "y": 1,
+            "w": 10,
+            "h": 3,
+            "accent": true
+          },
+          { "label": "验证阶段", "x": 1, "y": 4, "w": 3, "h": 5 },
+          { "label": "回答与证据", "x": 4, "y": 4, "w": 7, "h": 5 },
+          { "label": "辅助入口", "x": 1, "y": 9, "w": 10, "h": 1 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/question-first-evidence-desk.webp"
+    },
+    {
+      "id": "catalog-hub",
+      "label": "证据目录中枢",
+      "thesis": "用一个强搜索入口和四类知识目录承接所有公开探索，再逐层下钻到证据与来源。",
+      "palette": ["#F4F8FF", "#FFFFFF", "#175CD3", "#0B1F3A", "#D8E8FF"],
+      "materials": ["宽幅搜索栏", "分区目录", "可信度信息带"],
+      "viewport": "首屏以全局搜索为中心，疾病、基因、变异和药物四个入口在下方形成清晰目录，最新发布与收录范围固定为可信度信息带。",
+      "risk": "最容易理解，但若层级与动效不够有辨识度，会更接近常见的知识库首页。",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "全局导航", "x": 0, "y": 0, "w": 12, "h": 1 },
+          {
+            "label": "全局搜索",
+            "x": 1,
+            "y": 1,
+            "w": 10,
+            "h": 3,
+            "accent": true
+          },
+          { "label": "四类目录", "x": 1, "y": 4, "w": 10, "h": 4 },
+          { "label": "可信度信息带", "x": 0, "y": 8, "w": 12, "h": 2 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/catalog-hub.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": true },
+  "canon": false,
+  "steer": true
+}

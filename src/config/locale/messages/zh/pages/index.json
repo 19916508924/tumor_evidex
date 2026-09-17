@@ -50,7 +50,7 @@
         "title": "看见更多患者细节，用全面证据匹配药物与临床试验",
         "description": "Evidex 利用 AI 拆解疾病、分期、亚型、治疗线次、既往治疗和基因变异等临床线索，并将论文、指南、监管批准、公共数据库与会议摘要整合为统一的循证知识库，让每项匹配都有据可查。",
         "access_line": "支持在线查询，也可通过 API 接入现有报告解读流程。",
-        "primary_action": { "label": "体验当前版本", "href": "/zh/evidence" },
+        "primary_action": { "label": "进入证据问答", "href": "/zh/ask" },
         "secondary_action": { "label": "查看结果示例", "href": "/#evidence" },
         "barrier": "无需上传完整病历或患者身份信息，可从已开放的癌种和变异开始。",
         "status": "当前已开放治疗证据查询。多维患者匹配、临床试验和更多证据来源属于产品方向。"
@@ -178,7 +178,7 @@
             "内部案例讨论与培训",
             "接入前的结果质量验证"
           ],
-          "action": { "label": "体验当前版本", "href": "/zh/evidence" }
+          "action": { "label": "进入证据问答", "href": "/zh/ask" }
         },
         "api": {
           "title": "API 接入",
@@ -327,7 +327,7 @@
         "title": "用一个真实案例，验证 Evidex 能为解读流程带来什么",
         "description": "先体验证据查询与来源追溯，再评估多维患者信息、临床试验和系统接入如何进入报告流程。",
         "demo_status": "外部演示申请渠道正在配置中，本页面暂不收集联系信息。",
-        "primary_action": { "label": "体验当前版本", "href": "/zh/evidence" },
+        "primary_action": { "label": "进入证据问答", "href": "/zh/ask" },
         "secondary_action": {
           "label": "了解接入方式",
           "href": "/#integration"

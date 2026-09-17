@@ -1,0 +1,1 @@
+ALTER TABLE "candidate_document" ADD CONSTRAINT "candidate_document_duplicate_of_id_candidate_document_id_fk" FOREIGN KEY ("duplicate_of_id") REFERENCES "candidate_document"("id") ON DELETE no action ON UPDATE no action;

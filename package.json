@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:full": "node scripts/dev-full.mjs",
     "build": "next build",
     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start",
@@ -24,6 +25,7 @@
     "db:studio": "tsx scripts/with-env.ts drizzle-kit studio --config=src/core/db/config.ts",
     "evidex:import": "tsx scripts/with-env.ts --env=.env.local tsx scripts/evidex-import.ts",
     "evidex:smoke": "tsx scripts/with-env.ts --env=.env.local tsx scripts/evidex-smoke.ts",
+    "evidex:worker": "tsx scripts/with-env.ts --env=.env.local tsx scripts/evidex-worker.ts",
     "auth:generate": "tsx scripts/with-env.ts npx @better-auth/cli generate --config=src/core/auth/index.ts",
     "rbac:init": "tsx scripts/with-env.ts npx tsx scripts/init-rbac.ts",
     "rbac:assign": "tsx scripts/with-env.ts npx tsx scripts/assign-role.ts",

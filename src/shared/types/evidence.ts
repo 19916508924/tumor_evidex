@@ -40,7 +40,7 @@ export interface EvidenceQueryInput {
   disease: string;
   biomarkers: Array<{
     gene: string;
-    alterationType: 'SNV' | 'DEL';
+    alterationType: string;
     hgvsp: string;
   }>;
   jurisdiction: string;
@@ -48,10 +48,10 @@ export interface EvidenceQueryInput {
 }
 
 export interface NormalizedEvidenceQuery {
-  disease: 'NSCLC' | 'CRC';
-  gene: 'EGFR' | 'KRAS';
-  alterationType: 'SNV' | 'DEL';
-  hgvsp: 'p.L858R' | 'p.E746_A750del' | 'p.T790M' | 'p.G12C' | 'p.G12D';
+  disease: string;
+  gene: string;
+  alterationType: string;
+  hgvsp: string;
   canonicalVariantKey: string;
   jurisdiction: 'US';
   locale: 'zh-CN';
