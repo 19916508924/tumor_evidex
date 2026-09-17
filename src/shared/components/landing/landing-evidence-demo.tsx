@@ -188,7 +188,7 @@ export function LandingEvidenceDemo({
         </div>
         <IconShieldCheck
           aria-hidden
-          className="hidden shrink-0 text-[#175CD3] sm:block"
+          className="shrink-0 text-[#175CD3]"
           size={26}
           stroke={1.6}
         />

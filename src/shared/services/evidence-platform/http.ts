@@ -1,4 +1,8 @@
 import { getCurrentUserWithPermission, PERMISSIONS } from '@/core/rbac';
+import {
+  EVIDEX_DEMO_REVIEWER,
+  isEvidexDemoMode,
+} from '@/shared/lib/evidex-demo-mode';
 
 export class PlatformApiError extends Error {
   constructor(
@@ -44,10 +48,9 @@ export async function requireInternalActor(request?: Request) {
   const actor = await getCurrentUserWithPermission({
     code: PERMISSIONS.ADMIN_ACCESS,
   });
-  if (!actor) {
-    throw new PlatformApiError('AUTHENTICATION_REQUIRED', 401);
-  }
-  return actor;
+  if (actor) return actor;
+  if (isEvidexDemoMode()) return EVIDEX_DEMO_REVIEWER;
+  throw new PlatformApiError('AUTHENTICATION_REQUIRED', 401);
 }
 
 export function assertTrustedMutationOrigin(request: Request) {

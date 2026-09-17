@@ -45,6 +45,28 @@ describe('evidence eligibility target attribution', () => {
     });
   });
 
+  it('treats the common protein shorthand as equivalent to an HGVS p. term', async () => {
+    const result = await screenEvidenceEligibility({
+      source: source(
+        'Erlotinib for EGFR exon 21 (L858R) NSCLC',
+        'The cohort included metastatic NSCLC with an EGFR mutation.'
+      ),
+      association: {
+        ...association,
+        eligibilityTerms: {
+          ...association.eligibilityTerms,
+          variants: ['p.L858R'],
+        },
+      },
+    });
+
+    expect(result.decision).toMatchObject({
+      decision: 'INCLUDE',
+      code: 'EXACT_VARIANT_TARGET_FOUND',
+      matchedTerms: { variants: ['p.L858R'] },
+    });
+  });
+
   it('never binds a different variant to the preselected association', async () => {
     const result = await screenEvidenceEligibility({
       source: source(
@@ -75,6 +97,27 @@ describe('evidence eligibility target attribution', () => {
       decision: 'NEEDS_HUMAN',
       code: 'TARGET_VARIANT_NOT_FOUND',
       ruleVersion: 'eligibility-v2',
+    });
+  });
+
+  it('uses an allowed fetched full text when the abstract omits the exact variant', async () => {
+    const result = await screenEvidenceEligibility({
+      source: {
+        ...source(
+          'Afatinib in EGFR-mutant NSCLC',
+          'Patients with EGFR-mutant NSCLC were enrolled.'
+        ),
+        sourceScope: 'PMC_FULL_TEXT' as const,
+        fullText:
+          'The prespecified subgroup included patients with EGFR L858R NSCLC.',
+      },
+      association,
+    });
+
+    expect(result.decision).toMatchObject({
+      decision: 'INCLUDE',
+      code: 'EXACT_VARIANT_TARGET_FOUND',
+      matchedTerms: { variants: ['L858R'] },
     });
   });
 });

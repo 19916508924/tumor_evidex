@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
-import { getCurrentUserWithPermission, PERMISSIONS } from '@/core/rbac';
-import { assertTrustedMutationOrigin } from '@/shared/services/evidence-platform/http';
+import {
+  requireInternalActor,
+  respondToError,
+} from '@/shared/services/evidence-platform/http';
 import {
   decideReviewTask,
   ReviewDecisionError,
@@ -36,22 +38,11 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  let actor;
   try {
-    assertTrustedMutationOrigin(request);
-  } catch {
-    return Response.json(
-      { code: -1, message: 'UNTRUSTED_ORIGIN' },
-      { status: 403 }
-    );
-  }
-  const actor = await getCurrentUserWithPermission({
-    code: PERMISSIONS.ADMIN_ACCESS,
-  });
-  if (!actor) {
-    return Response.json(
-      { code: -1, message: 'AUTHENTICATION_REQUIRED' },
-      { status: 401 }
-    );
+    actor = await requireInternalActor(request);
+  } catch (error) {
+    return respondToError(error, 'REVIEW_DECISION_FAILED');
   }
   let input;
   try {

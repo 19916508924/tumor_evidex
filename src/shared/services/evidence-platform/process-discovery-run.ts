@@ -1,4 +1,12 @@
-import type { CivicSourceAdapter } from './civic-source-adapter';
+import {
+  civicRelationshipProposals,
+  findExistingCivicAssociation,
+  sourceConfirmsCivicTherapies,
+} from './civic-evidence-relations';
+import type {
+  CivicCandidateProvenance,
+  CivicSourceAdapter,
+} from './civic-source-adapter';
 import type { DiscoveryRunRepository } from './discovery-run';
 import {
   extractEvidenceDraftWithTrace,
@@ -8,7 +16,9 @@ import type { PubmedSourceAdapter } from './pubmed-source-adapter';
 import { screenEvidenceEligibility } from './screen-evidence-eligibility';
 import { hashArtifact, SkillExecutionError } from './skill-runtime';
 import {
+  submitPubmedAssociationCandidate,
   submitPubmedCandidate,
+  type AssociationReviewContext,
   type CandidateSourceInput,
   type UpstreamWorkflowRepository,
 } from './upstream-workflow';
@@ -107,6 +117,41 @@ export async function processPersistentDiscoveryRun(_input: {
         try {
           const fetchedSource = await _input.pubmed.fetchDocument(pmid);
           source = fetchedSource;
+          if (discoverySourceType === 'CIVIC') {
+            stage = 'resolve_civic_associations';
+            const civicResult = await processCivicCandidate({
+              source: fetchedSource,
+              provenance: civicProvenance,
+              strategyAssociationId: query.associationId,
+              upstreamRepository: _input.upstreamRepository,
+              extractionGenerator: _input.extractionGenerator,
+              workflowVersion: _input.workflowVersion,
+              agentVersion: _input.agentVersion,
+            });
+            terminalPersistAttempted = civicResult.terminalPersistAttempted;
+            if (civicResult.candidateId) {
+              await _input.repository.attachCandidateToDiscoveryStrategy(
+                civicResult.candidateId,
+                query.strategyId
+              );
+            }
+            const progress =
+              await _input.repository.recordDiscoveryDocumentOutcome({
+                runId: _input.runId,
+                externalId: pmid,
+                outcome: civicResult.outcome,
+                candidateDocumentId: civicResult.candidateId,
+                ...(civicResult.errorCode
+                  ? {
+                      errorCode: civicResult.errorCode,
+                      errorSummary: civicResult.errorSummary,
+                    }
+                  : {}),
+              });
+            counts = progress.counts;
+            processedDocumentCount = progress.processedDocumentCount;
+            continue;
+          }
           stage = 'deduplicate_source_document';
           const duplicate = await _input.upstreamRepository.findDuplicate({
             sourceType: 'PUBMED',
@@ -136,51 +181,6 @@ export async function processPersistentDiscoveryRun(_input: {
             );
           if (!association) {
             throw new Error('Configured association is unavailable');
-          }
-          if (
-            discoverySourceType === 'CIVIC' &&
-            !matchesCivicAssociation(
-              civicProvenance,
-              association.therapyNames ?? []
-            )
-          ) {
-            if (!_input.upstreamRepository.createCandidateOutcome) {
-              throw new Error('Candidate outcome repository is not configured');
-            }
-            stage = 'verify_civic_association';
-            terminalPersistAttempted = true;
-            const terminal =
-              await _input.upstreamRepository.createCandidateOutcome({
-                source: fetchedSource,
-                associationId: association.id,
-                workflowVersion: _input.workflowVersion,
-                status: 'NEEDS_HUMAN',
-                reason: {
-                  code: 'CIVIC_THERAPY_ASSOCIATION_REVIEW_REQUIRED',
-                  message:
-                    'CIViC molecular profile or therapy does not exactly match the configured association.',
-                  stage,
-                  ruleVersion: 'civic-pilot-v1',
-                  retryable: true,
-                },
-              });
-            await _input.repository.attachCandidateToDiscoveryStrategy(
-              terminal.candidateId,
-              query.strategyId
-            );
-            const progress =
-              await _input.repository.recordDiscoveryDocumentOutcome({
-                runId: _input.runId,
-                externalId: pmid,
-                outcome: 'FAILED',
-                candidateDocumentId: terminal.candidateId,
-                errorCode: 'CIVIC_THERAPY_ASSOCIATION_REVIEW_REQUIRED',
-                errorSummary:
-                  'CIViC candidate requires association-level human review.',
-              });
-            counts = progress.counts;
-            processedDocumentCount = progress.processedDocumentCount;
-            continue;
           }
           stage = 'screen_evidence_eligibility';
           const eligibility = await screenEvidenceEligibility({
@@ -389,23 +389,274 @@ function errorCode(error: unknown) {
   return 'CANDIDATE_PROCESSING_FAILED';
 }
 
-function matchesCivicAssociation(
-  provenance:
-    | Awaited<
-        ReturnType<CivicSourceAdapter['searchPage']>
-      >['provenanceById'][string]
-    | undefined,
-  therapyNames: string[]
-) {
-  if (!provenance || therapyNames.length === 0) return false;
-  const expected = therapyNames.map(normalizeTherapyName);
-  return provenance.evidenceItems.some((item) => {
-    if (item.applicability !== 'EXACT') return false;
-    const observed = item.therapies.map(normalizeTherapyName);
-    return expected.every((therapy) => observed.includes(therapy));
+async function processCivicCandidate(input: {
+  source: CandidateSourceInput;
+  provenance: CivicCandidateProvenance | undefined;
+  strategyAssociationId: string;
+  upstreamRepository: UpstreamWorkflowRepository;
+  extractionGenerator: EvidenceExtractionGenerator;
+  workflowVersion: string;
+  agentVersion: string;
+}): Promise<{
+  outcome: 'DUPLICATE' | 'EXCLUDED' | 'READY_FOR_REVIEW' | 'FAILED';
+  candidateId?: string;
+  errorCode?: string;
+  errorSummary?: string;
+  terminalPersistAttempted: boolean;
+}> {
+  const existing = await input.upstreamRepository.findDuplicate({
+    sourceType: 'PUBMED',
+    externalId: input.source.pmid,
+    doi: input.source.doi ?? null,
+    documentHash: input.source.documentHash,
   });
+  let candidateId = existing?.candidateId;
+  let terminalPersistAttempted = false;
+  const associations = await resolveCivicAssociationContexts(input);
+  const targetContext = associations[0];
+  if (!targetContext) {
+    const code = 'CIVIC_TARGET_CONTEXT_UNAVAILABLE';
+    const message =
+      'The configured disease and variant target cannot be resolved for source screening.';
+    if (input.upstreamRepository.createCandidateOutcome) {
+      terminalPersistAttempted = true;
+      const terminal = await input.upstreamRepository.createCandidateOutcome({
+        source: input.source,
+        associationId: input.strategyAssociationId,
+        workflowVersion: input.workflowVersion,
+        status: 'NEEDS_HUMAN',
+        reason: {
+          code,
+          message,
+          stage: 'resolve_civic_target',
+          ruleVersion: 'civic-pilot-v3',
+          retryable: true,
+        },
+      });
+      candidateId = terminal.candidateId;
+    } else if (!candidateId) {
+      throw new Error('Candidate outcome repository is not configured');
+    }
+    return {
+      outcome: 'FAILED',
+      candidateId,
+      errorCode: code,
+      errorSummary: message,
+      terminalPersistAttempted,
+    };
+  }
+
+  const eligibility = await screenEvidenceEligibility({
+    source: input.source,
+    association: targetContext,
+  });
+  if (eligibility.decision.decision !== 'INCLUDE') {
+    const status =
+      eligibility.decision.decision === 'EXCLUDE' ? 'EXCLUDED' : 'NEEDS_HUMAN';
+    if (input.upstreamRepository.createCandidateOutcome) {
+      terminalPersistAttempted = true;
+      const terminal = await input.upstreamRepository.createCandidateOutcome({
+        source: input.source,
+        associationId: targetContext.id,
+        workflowVersion: input.workflowVersion,
+        status,
+        reason: {
+          code: eligibility.decision.code,
+          message: eligibility.decision.reason,
+          stage: 'screen_evidence_eligibility',
+          ruleVersion: 'eligibility-v2',
+          retryable: status === 'NEEDS_HUMAN',
+        },
+        skillTraces: [eligibility.trace],
+      });
+      candidateId = terminal.candidateId;
+    } else if (!candidateId) {
+      throw new Error('Candidate outcome repository is not configured');
+    }
+    return {
+      outcome: status === 'EXCLUDED' ? 'EXCLUDED' : 'FAILED',
+      candidateId,
+      ...(status === 'NEEDS_HUMAN'
+        ? {
+            errorCode: eligibility.decision.code,
+            errorSummary: eligibility.decision.reason,
+          }
+        : {}),
+      terminalPersistAttempted,
+    };
+  }
+
+  const proposals = civicRelationshipProposals(input.provenance).filter(
+    (proposal) =>
+      sourceConfirmsCivicTherapies(
+        input.source,
+        proposal.therapies,
+        associations
+      )
+  );
+  if (proposals.length === 0) {
+    const code = 'CIVIC_RELATION_NOT_CONFIRMED_IN_SOURCE';
+    const message =
+      'The accessible source confirms the target but does not mention every therapy in a CIViC relationship.';
+    if (input.upstreamRepository.createCandidateOutcome) {
+      terminalPersistAttempted = true;
+      const terminal = await input.upstreamRepository.createCandidateOutcome({
+        source: input.source,
+        associationId: targetContext.id,
+        workflowVersion: input.workflowVersion,
+        status: 'NEEDS_HUMAN',
+        reason: {
+          code,
+          message,
+          stage: 'verify_civic_relationship',
+          ruleVersion: 'civic-pilot-v3',
+          retryable: true,
+        },
+        skillTraces: [eligibility.trace],
+      });
+      candidateId = terminal.candidateId;
+    } else if (!candidateId) {
+      throw new Error('Candidate outcome repository is not configured');
+    }
+    return {
+      outcome: 'FAILED',
+      candidateId,
+      errorCode: code,
+      errorSummary: message,
+      terminalPersistAttempted,
+    };
+  }
+
+  let createdCount = 0;
+  let duplicateCount = 0;
+  const unresolved: Array<{
+    status: 'EXCLUDED' | 'NEEDS_HUMAN';
+    code: string;
+    message: string;
+    association: AssociationReviewContext;
+  }> = [];
+  for (const proposal of proposals) {
+    const association = input.upstreamRepository
+      .ensureCivicAssociationReviewContext
+      ? await input.upstreamRepository.ensureCivicAssociationReviewContext({
+          diseaseId: input.provenance!.query.diseaseId,
+          variantId: input.provenance!.query.variantId,
+          therapies: proposal.therapies,
+          direction: proposal.direction,
+          variantApplicability: proposal.variantApplicability,
+          sourcePmid: input.source.pmid,
+        })
+      : findExistingCivicAssociation(proposal.therapies, associations);
+    if (!association) {
+      unresolved.push({
+        status: 'NEEDS_HUMAN',
+        code: 'CIVIC_ASSOCIATION_STAGING_FAILED',
+        message: 'The source-confirmed CIViC relationship could not be staged.',
+        association: targetContext,
+      });
+      continue;
+    }
+    if (candidateId && input.upstreamRepository.findCandidateAssociationDraft) {
+      const associationDraft =
+        await input.upstreamRepository.findCandidateAssociationDraft(
+          candidateId,
+          association.id
+        );
+      if (associationDraft) {
+        duplicateCount += 1;
+        continue;
+      }
+    }
+    const extraction = await extractEvidenceDraftWithTrace({
+      source: input.source,
+      association,
+      generator: input.extractionGenerator,
+    });
+    const created = await submitPubmedAssociationCandidate({
+      source: input.source,
+      draft: extraction.draft,
+      repository: input.upstreamRepository,
+      workflowVersion: input.workflowVersion,
+      agentVersion: input.agentVersion,
+      skillVersions: [eligibility.trace, ...extraction.traces].map(
+        (trace) => `${trace.skillId}@${trace.skillVersion}`
+      ),
+      skillTraces: [eligibility.trace, ...extraction.traces],
+    });
+    candidateId = created.candidateId;
+    if (created.duplicate) duplicateCount += 1;
+    else createdCount += 1;
+  }
+  if (createdCount > 0) {
+    return {
+      outcome: 'READY_FOR_REVIEW',
+      candidateId,
+      terminalPersistAttempted,
+    };
+  }
+  if (duplicateCount > 0) {
+    return {
+      outcome: 'DUPLICATE',
+      candidateId,
+      terminalPersistAttempted,
+    };
+  }
+
+  const firstUnresolved = unresolved[0];
+  if (!firstUnresolved) {
+    throw new Error('CIViC candidate did not resolve to a processing outcome');
+  }
+  if (input.upstreamRepository.createCandidateOutcome) {
+    terminalPersistAttempted = true;
+    const terminal = await input.upstreamRepository.createCandidateOutcome({
+      source: input.source,
+      associationId: firstUnresolved.association.id,
+      workflowVersion: input.workflowVersion,
+      status: firstUnresolved.status,
+      reason: {
+        code: firstUnresolved.code,
+        message: firstUnresolved.message,
+        stage: 'screen_evidence_eligibility',
+        ruleVersion: 'eligibility-v2',
+        retryable: firstUnresolved.status === 'NEEDS_HUMAN',
+      },
+    });
+    candidateId = terminal.candidateId;
+  } else if (!candidateId) {
+    throw new Error('Candidate outcome repository is not configured');
+  }
+  return {
+    outcome: firstUnresolved.status === 'EXCLUDED' ? 'EXCLUDED' : 'FAILED',
+    candidateId,
+    ...(firstUnresolved.status === 'NEEDS_HUMAN'
+      ? {
+          errorCode: firstUnresolved.code,
+          errorSummary: firstUnresolved.message,
+        }
+      : {}),
+    terminalPersistAttempted,
+  };
 }
 
-function normalizeTherapyName(value: string) {
-  return value.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+async function resolveCivicAssociationContexts(input: {
+  provenance: CivicCandidateProvenance | undefined;
+  strategyAssociationId: string;
+  upstreamRepository: UpstreamWorkflowRepository;
+}) {
+  if (
+    input.provenance &&
+    input.upstreamRepository.listAssociationReviewContexts
+  ) {
+    const contexts =
+      await input.upstreamRepository.listAssociationReviewContexts({
+        diseaseId: input.provenance.query.diseaseId,
+        variantId: input.provenance.query.variantId,
+      });
+    if (contexts.length > 0) return contexts;
+  }
+  const association =
+    await input.upstreamRepository.getAssociationReviewContext(
+      input.strategyAssociationId
+    );
+  return association ? [association] : [];
 }

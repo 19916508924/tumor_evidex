@@ -42,13 +42,45 @@ describe('Evidex complete frontend route surface', () => {
     await Promise.all(routes.map((route) => access(resolve(root, route))));
   });
 
-  it('protects the entire operations route group with the existing admin permission', async () => {
+  it('keeps an explicit escape hatch for restoring operations authentication', async () => {
     const source = await readFile(
       resolve(root, 'src/app/[locale]/(ops)/ops/layout.tsx'),
       'utf8'
     );
 
     expect(source).toContain('requireAdminAccess');
+    expect(source).toContain('isEvidexDemoMode');
     expect(source).toContain("redirectUrl: '/no-permission'");
+  });
+
+  it('does not inject a demo flag into the clean production browser runtime', async () => {
+    const source = await readFile(
+      resolve(root, 'scripts/test-app.mjs'),
+      'utf8'
+    );
+
+    expect(source).not.toContain('EVIDEX_DEMO_MODE');
+  });
+
+  it('ships a desktop-only operations shell without drawer controls', async () => {
+    const source = await readFile(
+      resolve(root, 'src/shared/components/evidence-platform/ops-shell.tsx'),
+      'utf8'
+    );
+
+    expect(source).not.toMatch(/打开运营导航|关闭运营导航|关闭导航遮罩/);
+    expect(source).not.toMatch(/lg:hidden|translate-x-full/);
+  });
+
+  it('does not tell demo users to sign in when operations data fails', async () => {
+    const source = await readFile(
+      resolve(
+        root,
+        'src/shared/components/evidence-platform/ops-workspace.tsx'
+      ),
+      'utf8'
+    );
+
+    expect(source).not.toMatch(/登录状态|登录|注册|退出登录|用户中心/);
   });
 });

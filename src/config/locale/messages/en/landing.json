@@ -12,7 +12,8 @@
         { "title": "How it works", "url": "/#workflow" },
         { "title": "Evidence base", "url": "/#evidence" },
         { "title": "Integration", "url": "/#integration" },
-        { "title": "FAQ", "url": "/#faq" }
+        { "title": "FAQ", "url": "/#faq" },
+        { "title": "Evidence review", "url": "/en/ops/reviews" }
       ]
     },
     "buttons": [
@@ -21,9 +22,6 @@
     "show_sign": false,
     "show_theme": false,
     "show_locale": true,
-    "menu_open_label": "Open navigation",
-    "menu_close_label": "Close navigation",
-    "mobile_nav_label": "Mobile navigation",
     "desktop_nav_label": "Primary navigation",
     "language_label": "Change language"
   },

@@ -957,18 +957,45 @@ describe('Agent platform HTTP routes', () => {
     expect(platform.pubmed.fetchDocument).not.toHaveBeenCalled();
   });
 
-  it('blocks unauthenticated candidate writes before calling PubMed', async () => {
+  it('blocks unauthenticated candidate writes when demo mode is explicitly disabled', async () => {
+    const previousDemoMode = process.env.EVIDEX_DEMO_MODE;
+    process.env.EVIDEX_DEMO_MODE = '0';
     getCurrentUserWithPermission.mockResolvedValue(null);
-    const response = await (
-      submitCandidateRoute as (request: Request) => Promise<Response>
-    )(
-      request('http://localhost/api/internal/v1/candidates', {
-        pmid: '12345678',
-        associationId: 'assoc-1',
-      })
-    );
-    expect(response.status).toBe(401);
-    expect(platform.pubmed.fetchDocument).not.toHaveBeenCalled();
+    try {
+      const response = await (
+        submitCandidateRoute as (request: Request) => Promise<Response>
+      )(
+        request('http://localhost/api/internal/v1/candidates', {
+          pmid: '12345678',
+          associationId: 'assoc-1',
+        })
+      );
+      expect(response.status).toBe(401);
+      expect(platform.pubmed.fetchDocument).not.toHaveBeenCalled();
+    } finally {
+      if (previousDemoMode === undefined) delete process.env.EVIDEX_DEMO_MODE;
+      else process.env.EVIDEX_DEMO_MODE = previousDemoMode;
+    }
+  });
+
+  it('lets the fixed default demo operator submit a manual candidate without a session', async () => {
+    const previousDemoMode = process.env.EVIDEX_DEMO_MODE;
+    delete process.env.EVIDEX_DEMO_MODE;
+    getCurrentUserWithPermission.mockResolvedValue(null);
+    try {
+      const response = await submitCandidateRoute(
+        request(
+          'http://localhost/api/internal/v1/candidates',
+          { pmid: '12345678', associationId: 'assoc-1' },
+          { origin: 'http://localhost' }
+        )
+      );
+      expect(response.status).toBe(201);
+      expect(platform.pubmed.fetchDocument).toHaveBeenCalledWith('12345678');
+    } finally {
+      if (previousDemoMode === undefined) delete process.env.EVIDEX_DEMO_MODE;
+      else process.env.EVIDEX_DEMO_MODE = previousDemoMode;
+    }
   });
 
   it('fetches PubMed server-side and creates only a review draft', async () => {
@@ -1117,6 +1144,220 @@ describe('Agent platform HTTP routes', () => {
     ).toHaveBeenCalledWith(
       expect.objectContaining({ actorId: 'server-session-user' })
     );
+  });
+
+  it('lets the anonymous default demo operator use Ops while preserving actor audit and origin checks', async () => {
+    const previousDemoMode = process.env.EVIDEX_DEMO_MODE;
+    delete process.env.EVIDEX_DEMO_MODE;
+    getCurrentUserWithPermission.mockResolvedValue(null);
+    platform.reviewRepository.saveNonPublishDecision
+      .mockResolvedValueOnce({
+        reviewTaskId: 'review-1',
+        decision: 'REQUEST_CHANGES',
+        status: 'REQUESTED_CHANGES',
+        releaseId: null,
+        releaseVersion: null,
+        idempotent: false,
+      })
+      .mockResolvedValueOnce({
+        reviewTaskId: 'review-1',
+        decision: 'REJECT',
+        status: 'REJECTED',
+        releaseId: null,
+        releaseVersion: null,
+        idempotent: false,
+      });
+    try {
+      const dashboard = await dashboardRoute(
+        request('http://localhost/api/internal/v1/ops/dashboard?range=7d')
+      );
+      expect(dashboard.status).toBe(200);
+
+      const candidates = await listCandidatesRoute(
+        request('http://localhost/api/internal/v1/candidates')
+      );
+      expect(candidates.status).toBe(200);
+
+      const worker = await getWorkerHealthRoute(
+        request('http://localhost/api/internal/v1/worker/health')
+      );
+      expect(worker.status).toBe(200);
+
+      const agentDraft = await createAgentVersionRoute(
+        request(
+          'http://localhost/api/internal/v1/agents/answer-agent/versions',
+          { sourceVersionId: 'answer-agent@1.0.0', version: '1.1.0' },
+          { origin: 'http://localhost' }
+        ),
+        { params: Promise.resolve({ id: 'answer-agent' }) }
+      );
+      expect(agentDraft.status).toBe(201);
+      expect(
+        platform.operationsRepository.createDefinitionDraft
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ actorId: 'demo-reviewer' })
+      );
+
+      const preview = await previewDiscoveryRunRoute(
+        request(
+          'http://localhost/api/internal/v1/discovery-runs/preview',
+          {
+            scope: {
+              mode: 'SCOPED',
+              diseaseIds: ['disease-nsclc'],
+              geneIds: ['gene-egfr'],
+              variantIds: [],
+            },
+            documentLimit: 50,
+          },
+          { origin: 'http://localhost' }
+        )
+      );
+      expect(preview.status).toBe(200);
+      const previewBody = await preview.json();
+      const createdRun = await createDiscoveryRunRoute(
+        request(
+          'http://localhost/api/internal/v1/discovery-runs',
+          {
+            previewToken: previewBody.data.previewToken,
+            idempotencyKey: 'demo-discovery-run',
+          },
+          { origin: 'http://localhost' }
+        )
+      );
+      expect(createdRun.status).toBe(202);
+      expect(
+        platform.discoveryRepository.createManualDiscoveryRun
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ actorId: 'demo-reviewer' })
+      );
+
+      const list = await listReviewTasksRoute(
+        request('http://localhost/api/internal/v1/review-tasks')
+      );
+      expect(list.status).toBe(200);
+
+      const detail = await getReviewRoute(request('http://localhost'), {
+        params: Promise.resolve({ id: 'review-1' }),
+      });
+      expect(detail.status).toBe(200);
+
+      const savedDraft = await updateReviewDraftRoute(
+        request(
+          'http://localhost/api/internal/v1/review-tasks/review-1/draft',
+          {
+            expectedDraftVersion: 1,
+            draft,
+            reason: 'Demo reviewer checked the source.',
+          },
+          { origin: 'http://localhost' },
+          'PATCH'
+        ),
+        { params: Promise.resolve({ id: 'review-1' }) }
+      );
+      expect(savedDraft.status).toBe(200);
+      expect(
+        platform.operationsRepository.updateReviewDraft
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ actorId: 'demo-reviewer' })
+      );
+
+      const requestedChanges = await decideReviewRoute(
+        request(
+          'http://localhost/api/internal/v1/review-tasks/review-1/decision',
+          {
+            decision: 'REQUEST_CHANGES',
+            expectedDraftVersion: 1,
+            comment: '请补充研究人群范围。',
+            requestedFields: ['claims.populationSummary'],
+            idempotencyKey: 'review-1:1:demo-request-changes',
+          },
+          { origin: 'http://localhost' }
+        ),
+        { params: Promise.resolve({ id: 'review-1' }) }
+      );
+      expect(requestedChanges.status).toBe(200);
+      expect(
+        platform.reviewRepository.saveNonPublishDecision
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ actorId: 'demo-reviewer' })
+      );
+
+      const rejected = await decideReviewRoute(
+        request(
+          'http://localhost/api/internal/v1/review-tasks/review-1/decision',
+          {
+            decision: 'REJECT',
+            expectedDraftVersion: 1,
+            comment: '证据范围不足，不纳入当前知识。',
+            idempotencyKey: 'review-1:1:demo-reject',
+          },
+          { origin: 'http://localhost' }
+        ),
+        { params: Promise.resolve({ id: 'review-1' }) }
+      );
+      expect(rejected.status).toBe(200);
+
+      const approved = await decideReviewRoute(
+        request(
+          'http://localhost/api/internal/v1/review-tasks/review-1/decision',
+          {
+            decision: 'APPROVE_AND_PUBLISH',
+            expectedDraftVersion: 1,
+            comment: '已核对来源、等级和发布范围。',
+            idempotencyKey: 'review-1:1:demo-approve',
+          },
+          { origin: 'http://localhost' }
+        ),
+        { params: Promise.resolve({ id: 'review-1' }) }
+      );
+      expect(approved.status).toBe(200);
+      expect(
+        platform.reviewRepository.publishApprovedReview
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ actorId: 'demo-reviewer' })
+      );
+
+      const crossOrigin = await decideReviewRoute(
+        request(
+          'http://localhost/api/internal/v1/review-tasks/review-1/decision',
+          {
+            decision: 'REQUEST_CHANGES',
+            expectedDraftVersion: 1,
+            comment: 'Malicious request.',
+            requestedFields: ['claims.conclusion'],
+            idempotencyKey: 'review-1:1:cross-origin',
+          },
+          { origin: 'https://attacker.example' }
+        ),
+        { params: Promise.resolve({ id: 'review-1' }) }
+      );
+      expect(crossOrigin.status).toBe(403);
+    } finally {
+      if (previousDemoMode === undefined) delete process.env.EVIDEX_DEMO_MODE;
+      else process.env.EVIDEX_DEMO_MODE = previousDemoMode;
+    }
+  });
+
+  it('keeps anonymous review access closed when demo mode is disabled', async () => {
+    const previousDemoMode = process.env.EVIDEX_DEMO_MODE;
+    process.env.EVIDEX_DEMO_MODE = '0';
+    getCurrentUserWithPermission.mockResolvedValue(null);
+
+    try {
+      const list = await listReviewTasksRoute(
+        request('http://localhost/api/internal/v1/review-tasks')
+      );
+      expect(list.status).toBe(401);
+
+      const detail = await getReviewRoute(request('http://localhost'), {
+        params: Promise.resolve({ id: 'review-1' }),
+      });
+      expect(detail.status).toBe(401);
+    } finally {
+      if (previousDemoMode === undefined) delete process.env.EVIDEX_DEMO_MODE;
+      else process.env.EVIDEX_DEMO_MODE = previousDemoMode;
+    }
   });
 
   it('rejects an approval with a blank reviewer comment at the API boundary', async () => {

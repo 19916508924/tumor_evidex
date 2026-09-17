@@ -12,7 +12,8 @@
         { "title": "工作方式", "url": "/#workflow" },
         { "title": "证据体系", "url": "/#evidence" },
         { "title": "接入方式", "url": "/#integration" },
-        { "title": "常见问题", "url": "/#faq" }
+        { "title": "常见问题", "url": "/#faq" },
+        { "title": "证据审核", "url": "/zh/ops/reviews" }
       ]
     },
     "buttons": [
@@ -21,9 +22,6 @@
     "show_sign": false,
     "show_theme": false,
     "show_locale": true,
-    "menu_open_label": "打开导航",
-    "menu_close_label": "关闭导航",
-    "mobile_nav_label": "移动导航",
     "desktop_nav_label": "主要导航",
     "language_label": "切换语言"
   },

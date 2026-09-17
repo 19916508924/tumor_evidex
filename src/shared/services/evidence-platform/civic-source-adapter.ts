@@ -379,10 +379,12 @@ function parseConnection(payload: unknown) {
     !connection.pageInfo ||
     typeof connection.pageInfo.hasNextPage !== 'boolean' ||
     !Array.isArray(connection.nodes) ||
-    (connection.pageInfo.hasNextPage &&
+    (connection.pageInfo.endCursor !== null &&
       (typeof connection.pageInfo.endCursor !== 'string' ||
         !connection.pageInfo.endCursor)) ||
-    (!connection.pageInfo.hasNextPage && connection.pageInfo.endCursor !== null)
+    (connection.pageInfo.hasNextPage &&
+      (typeof connection.pageInfo.endCursor !== 'string' ||
+        !connection.pageInfo.endCursor))
   ) {
     throw invalidResponse('CIViC evidence-item payload is invalid');
   }

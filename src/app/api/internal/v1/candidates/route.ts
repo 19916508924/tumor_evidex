@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
-import { getCurrentUserWithPermission, PERMISSIONS } from '@/core/rbac';
 import { extractEvidenceDraftWithTrace } from '@/shared/services/evidence-platform/extract-evidence-draft';
-import { assertTrustedMutationOrigin } from '@/shared/services/evidence-platform/http';
+import {
+  requireInternalActor,
+  respondToError,
+} from '@/shared/services/evidence-platform/http';
 import { getEvidencePlatformRuntime } from '@/shared/services/evidence-platform/runtime';
 import { screenEvidenceEligibility } from '@/shared/services/evidence-platform/screen-evidence-eligibility';
 import { submitPubmedCandidate } from '@/shared/services/evidence-platform/upstream-workflow';
@@ -28,21 +30,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    assertTrustedMutationOrigin(request);
-  } catch {
-    return Response.json(
-      { code: -1, message: 'UNTRUSTED_ORIGIN' },
-      { status: 403 }
-    );
-  }
-  const actor = await getCurrentUserWithPermission({
-    code: PERMISSIONS.ADMIN_ACCESS,
-  });
-  if (!actor) {
-    return Response.json(
-      { code: -1, message: 'AUTHENTICATION_REQUIRED' },
-      { status: 401 }
-    );
+    await requireInternalActor(request);
+  } catch (error) {
+    return respondToError(error, 'CANDIDATE_PROCESSING_FAILED');
   }
   let parsed;
   try {

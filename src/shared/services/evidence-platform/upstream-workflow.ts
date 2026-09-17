@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
+import type {
+  AssociationDirection,
+  VariantApplicability,
+} from '@/shared/types/evidence';
+
 import type { SkillExecutionTrace } from './skill-runtime';
 
 export interface CandidateSourceInput {
@@ -84,7 +89,10 @@ export interface AssociationReviewContext {
   id: string;
   approvedLevel: EvidenceDraftInput['proposedLevel'];
   gradingRationale: string;
+  direction?: AssociationDirection;
+  variantApplicability?: VariantApplicability;
   therapyNames?: string[];
+  therapyMatchTerms?: string[][];
   entityIds?: {
     diseaseId: string;
     geneId: string;
@@ -120,6 +128,36 @@ export interface UpstreamWorkflowRepository {
     draft: EvidenceDraftInput;
     ids: {
       candidateId: string;
+      workflowRunId: string;
+      draftId: string;
+      reviewTaskId: string;
+    };
+    workflowVersion: string;
+    agentVersion: string;
+    skillVersions: string[];
+    skillTraces?: SkillExecutionTrace<unknown>[];
+  }): Promise<CandidateBundle>;
+  listAssociationReviewContexts?(target: {
+    diseaseId: string;
+    variantId: string;
+  }): Promise<AssociationReviewContext[]>;
+  ensureCivicAssociationReviewContext?(input: {
+    diseaseId: string;
+    variantId: string;
+    therapies: string[];
+    direction: AssociationDirection;
+    variantApplicability: VariantApplicability;
+    sourcePmid: string;
+  }): Promise<AssociationReviewContext | null>;
+  findCandidateAssociationDraft?(
+    candidateId: string,
+    associationId: string
+  ): Promise<CandidateBundle | null>;
+  createCandidateAssociationBundle?(input: {
+    candidateId: string;
+    source: CandidateSourceInput & { doi: string | null };
+    draft: EvidenceDraftInput;
+    ids: {
       workflowRunId: string;
       draftId: string;
       reviewTaskId: string;
@@ -205,6 +243,80 @@ export async function submitPubmedCandidate(_input: {
     skillVersions: _input.skillVersions.map((value) =>
       nonEmpty(value, 'skillVersion')
     ),
+    skillTraces: _input.skillTraces,
+  });
+}
+
+export async function submitPubmedAssociationCandidate(_input: {
+  source: CandidateSourceInput;
+  draft: EvidenceDraftInput;
+  repository: UpstreamWorkflowRepository;
+  workflowVersion: string;
+  agentVersion: string;
+  skillVersions: string[];
+  skillTraces?: SkillExecutionTrace<unknown>[];
+  createId?: () => string;
+}): Promise<CandidateBundle> {
+  const source = candidateSourceSchema.parse(_input.source);
+  const draft = parseEvidenceDraftInput(_input.draft);
+  const normalizedSource = {
+    ...source,
+    doi: normalizeDoi(source.doi),
+  };
+  const workflowVersion = nonEmpty(_input.workflowVersion, 'workflowVersion');
+  const agentVersion = nonEmpty(_input.agentVersion, 'agentVersion');
+  const skillVersions = _input.skillVersions.map((value) =>
+    nonEmpty(value, 'skillVersion')
+  );
+  const existing = await _input.repository.findDuplicate({
+    sourceType: 'PUBMED',
+    externalId: normalizedSource.pmid,
+    doi: normalizedSource.doi,
+    documentHash: normalizedSource.documentHash,
+  });
+  if (!existing) {
+    const createId = _input.createId ?? randomUUID;
+    return _input.repository.createCandidateBundle({
+      source: normalizedSource,
+      draft,
+      ids: {
+        candidateId: createId(),
+        workflowRunId: createId(),
+        draftId: createId(),
+        reviewTaskId: createId(),
+      },
+      workflowVersion,
+      agentVersion,
+      skillVersions,
+      skillTraces: _input.skillTraces,
+    });
+  }
+  if (
+    !_input.repository.findCandidateAssociationDraft ||
+    !_input.repository.createCandidateAssociationBundle
+  ) {
+    throw new Error('Association-aware candidate repository is not configured');
+  }
+  const associationDraft =
+    await _input.repository.findCandidateAssociationDraft(
+      existing.candidateId,
+      draft.associationId
+    );
+  if (associationDraft) return { ...associationDraft, duplicate: true };
+
+  const createId = _input.createId ?? randomUUID;
+  return _input.repository.createCandidateAssociationBundle({
+    candidateId: existing.candidateId,
+    source: normalizedSource,
+    draft,
+    ids: {
+      workflowRunId: createId(),
+      draftId: createId(),
+      reviewTaskId: createId(),
+    },
+    workflowVersion,
+    agentVersion,
+    skillVersions,
     skillTraces: _input.skillTraces,
   });
 }

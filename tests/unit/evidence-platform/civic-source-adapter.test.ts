@@ -189,6 +189,38 @@ describe('CIViC pilot source adapter', () => {
     ).toBe('Nw');
   });
 
+  it('accepts a terminal GraphQL page that retains a non-null end cursor', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      response({
+        data: {
+          evidenceItems: {
+            totalCount: 1,
+            pageInfo: { hasNextPage: false, endCursor: 'MQ' },
+            nodes: [evidenceItem(19, '77777777')],
+          },
+        },
+      })
+    );
+    const adapter = createCivicSourceAdapter({ fetch, maxAttempts: 1 });
+    const query = buildCivicPilotQuery({
+      diseaseId: 'disease_nsclc',
+      variantId: 'variant_egfr_l858r',
+    })!;
+
+    await expect(
+      adapter.searchPage({
+        query,
+        from: '2026-01-01',
+        to: '2026-09-16',
+        pageSize: 50,
+        cursor: null,
+      })
+    ).resolves.toMatchObject({
+      ids: ['77777777'],
+      nextCursor: null,
+    });
+  });
+
   it('retries rate limits, rejects tampered cursors and fails closed on malformed payloads', async () => {
     const sleep = vi.fn().mockResolvedValue(undefined);
     const fetch = vi

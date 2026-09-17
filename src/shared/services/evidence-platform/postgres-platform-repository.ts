@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { and, asc, desc, eq, inArray, or } from 'drizzle-orm';
 
 import {
@@ -92,8 +92,9 @@ function normalizeItem(item: KnowledgeCatalogItem) {
 export function createPostgresUpstreamWorkflowRepository(
   database: Database
 ): UpstreamWorkflowRepository {
-  async function getAssociationReviewContext(
-    associationId: string
+  async function loadAssociationReviewContext(
+    associationId: string,
+    approvedOnly: boolean
   ): Promise<AssociationReviewContext | null> {
     const rows = await database
       .select({
@@ -102,8 +103,11 @@ export function createPostgresUpstreamWorkflowRepository(
         geneId: variant.geneId,
         variantId: therapeuticAssociation.variantId,
         approvedLevel: therapeuticAssociation.approvedLevel,
+        proposedLevel: therapeuticAssociation.proposedLevel,
         gradingRationale: therapeuticAssociation.gradingRationale,
         reviewStatus: therapeuticAssociation.reviewStatus,
+        direction: therapeuticAssociation.direction,
+        variantApplicability: therapeuticAssociation.variantApplicability,
         diseaseCanonicalName: disease.canonicalName,
         diseaseDisplayNameZh: disease.displayNameZh,
         diseaseDisplayNameEn: disease.displayNameEn,
@@ -123,21 +127,52 @@ export function createPostgresUpstreamWorkflowRepository(
       .where(eq(therapeuticAssociation.id, associationId))
       .limit(1);
     const row = rows[0];
-    if (!row || row.reviewStatus !== 'APPROVED' || !row.approvedLevel) {
+    if (
+      !row ||
+      row.reviewStatus === 'REJECTED' ||
+      (approvedOnly && (row.reviewStatus !== 'APPROVED' || !row.approvedLevel))
+    ) {
       return null;
     }
     const therapyRows = await database
-      .select({ genericName: drug.genericName })
+      .select({
+        genericName: drug.genericName,
+        displayNameZh: drug.displayNameZh,
+        displayNameEn: drug.displayNameEn,
+        brandNames: drug.brandNames,
+        aliases: drug.aliases,
+      })
       .from(therapeuticAssociationDrug)
       .innerJoin(drug, eq(therapeuticAssociationDrug.drugId, drug.id))
       .where(eq(therapeuticAssociationDrug.associationId, row.id))
       .orderBy(asc(therapeuticAssociationDrug.sortOrder));
     return {
       id: row.id,
-      approvedLevel: row.approvedLevel,
+      approvedLevel: row.approvedLevel ?? row.proposedLevel,
       gradingRationale: row.gradingRationale,
+      direction: row.direction,
+      variantApplicability: row.variantApplicability,
       therapyNames: therapyRows.map(
         (therapy: { genericName: string }) => therapy.genericName
+      ),
+      therapyMatchTerms: therapyRows.map(
+        (therapy: {
+          genericName: string;
+          displayNameZh: string;
+          displayNameEn: string;
+          brandNames: unknown;
+          aliases: unknown;
+        }) =>
+          uniqueBy(
+            [
+              therapy.genericName,
+              therapy.displayNameZh,
+              therapy.displayNameEn,
+              ...asStringArray(therapy.brandNames),
+              ...asStringArray(therapy.aliases),
+            ].filter(Boolean),
+            (value) => value
+          )
       ),
       entityIds: {
         diseaseId: row.diseaseId,
@@ -173,6 +208,242 @@ export function createPostgresUpstreamWorkflowRepository(
         ),
       },
     };
+  }
+
+  async function getAssociationReviewContext(
+    associationId: string
+  ): Promise<AssociationReviewContext | null> {
+    return loadAssociationReviewContext(associationId, true);
+  }
+
+  async function listAssociationReviewContexts(target: {
+    diseaseId: string;
+    variantId: string;
+  }) {
+    const rows = await database
+      .select({ id: therapeuticAssociation.id })
+      .from(therapeuticAssociation)
+      .where(
+        and(
+          eq(therapeuticAssociation.diseaseId, target.diseaseId),
+          eq(therapeuticAssociation.variantId, target.variantId),
+          eq(therapeuticAssociation.reviewStatus, 'APPROVED')
+        )
+      )
+      .orderBy(asc(therapeuticAssociation.id));
+    const contexts = await Promise.all(
+      rows.map((row: { id: string }) => getAssociationReviewContext(row.id))
+    );
+    return contexts.filter(
+      (context): context is AssociationReviewContext => context !== null
+    );
+  }
+
+  async function ensureCivicAssociationReviewContext(
+    input: Parameters<
+      NonNullable<
+        UpstreamWorkflowRepository['ensureCivicAssociationReviewContext']
+      >
+    >[0]
+  ): Promise<AssociationReviewContext | null> {
+    const therapyNames = uniqueBy(
+      input.therapies
+        .map((therapy) => therapy.normalize('NFKC').trim())
+        .filter(Boolean),
+      normalizeCivicName
+    );
+    if (therapyNames.length === 0) return null;
+
+    const associationId = await database.transaction(
+      async (transaction: Database) => {
+        const knownDrugs = await transaction
+          .select({
+            id: drug.id,
+            genericName: drug.genericName,
+            displayNameZh: drug.displayNameZh,
+            displayNameEn: drug.displayNameEn,
+            brandNames: drug.brandNames,
+            aliases: drug.aliases,
+          })
+          .from(drug);
+        const resolvedDrugs: Array<{ id: string }> = [];
+        for (const therapyName of therapyNames) {
+          const normalizedName = normalizeCivicName(therapyName);
+          let resolved = knownDrugs.find((candidate: any) =>
+            [
+              candidate.genericName,
+              candidate.displayNameZh,
+              candidate.displayNameEn,
+              ...asStringArray(candidate.brandNames),
+              ...asStringArray(candidate.aliases),
+            ].some((term) => normalizeCivicName(term) === normalizedName)
+          );
+          if (!resolved) {
+            const baseId = `drug_${identifierSlug(therapyName) || 'civic'}`;
+            const idCollision = knownDrugs.find(
+              (candidate: any) => candidate.id === baseId
+            );
+            const drugId = idCollision
+              ? `${baseId}_${shortHash(normalizedName)}`
+              : baseId;
+            await transaction
+              .insert(drug)
+              .values({
+                id: drugId,
+                genericName: normalizedName,
+                displayNameZh: therapyName,
+                displayNameEn: therapyName,
+                brandNames: [],
+                aliases: [],
+                externalIds: { civicName: therapyName },
+                status: 'ACTIVE',
+              })
+              .onConflictDoNothing();
+            const insertedRows = await transaction
+              .select({
+                id: drug.id,
+                genericName: drug.genericName,
+                displayNameZh: drug.displayNameZh,
+                displayNameEn: drug.displayNameEn,
+                brandNames: drug.brandNames,
+                aliases: drug.aliases,
+              })
+              .from(drug)
+              .where(eq(drug.genericName, normalizedName))
+              .limit(1);
+            resolved = insertedRows[0];
+            if (resolved) knownDrugs.push(resolved);
+          }
+          if (!resolved) {
+            throw new Error(`Unable to stage CIViC therapy ${therapyName}`);
+          }
+          resolvedDrugs.push({ id: resolved.id });
+        }
+
+        const drugIds = [...new Set(resolvedDrugs.map(({ id }) => id))].sort();
+        const associationRows = await transaction
+          .select({
+            id: therapeuticAssociation.id,
+            reviewStatus: therapeuticAssociation.reviewStatus,
+          })
+          .from(therapeuticAssociation)
+          .where(
+            and(
+              eq(therapeuticAssociation.diseaseId, input.diseaseId),
+              eq(therapeuticAssociation.variantId, input.variantId),
+              eq(therapeuticAssociation.direction, input.direction)
+            )
+          );
+        if (associationRows.length > 0) {
+          const associationDrugRows = await transaction
+            .select({
+              associationId: therapeuticAssociationDrug.associationId,
+              drugId: therapeuticAssociationDrug.drugId,
+            })
+            .from(therapeuticAssociationDrug)
+            .where(
+              inArray(
+                therapeuticAssociationDrug.associationId,
+                associationRows.map(({ id }: { id: string }) => id)
+              )
+            );
+          const drugsByAssociation = new Map<string, string[]>();
+          for (const row of associationDrugRows) {
+            const current = drugsByAssociation.get(row.associationId) ?? [];
+            current.push(row.drugId);
+            drugsByAssociation.set(row.associationId, current);
+          }
+          const existing = associationRows.find(
+            (association: { id: string; reviewStatus: string }) =>
+              sameStringSet(
+                drugsByAssociation.get(association.id) ?? [],
+                drugIds
+              )
+          );
+          if (existing) {
+            return existing.reviewStatus === 'REJECTED' ? null : existing.id;
+          }
+        }
+
+        const orderedDrugs = drugIds.map((drugId, index) => ({
+          drugId,
+          role: index === 0 ? 'PRIMARY' : 'COMBINATION_COMPONENT',
+          sortOrder: index,
+        }));
+        const therapyKey = orderedDrugs
+          .map(({ drugId, role }) => `${drugId}:${role}`)
+          .join('|');
+        const identityParts = [
+          input.diseaseId,
+          input.variantId,
+          ...drugIds,
+          input.direction,
+        ];
+        const baseAssociationId = `assoc_${identityParts
+          .map(identifierSlug)
+          .filter(Boolean)
+          .join('_')}`;
+        const idRows = await transaction
+          .select({
+            id: therapeuticAssociation.id,
+            therapyKey: therapeuticAssociation.therapyKey,
+          })
+          .from(therapeuticAssociation)
+          .where(eq(therapeuticAssociation.id, baseAssociationId))
+          .limit(1);
+        const stagedAssociationId =
+          idRows[0] && idRows[0].therapyKey !== therapyKey
+            ? `${baseAssociationId}_${shortHash(identityParts.join('|'))}`
+            : baseAssociationId;
+        await transaction
+          .insert(therapeuticAssociation)
+          .values({
+            id: stagedAssociationId,
+            diseaseId: input.diseaseId,
+            variantId: input.variantId,
+            therapyKey,
+            direction: input.direction,
+            variantApplicability: input.variantApplicability,
+            proposedLevel: 'UNRATED',
+            approvedLevel: null,
+            gradingRuleVersion: 'evidex-therapeutic-v1',
+            gradingRationale: `Staged from source-confirmed CIViC metadata for PubMed PMID ${input.sourcePmid}; evidence review is required.`,
+            reviewStatus: 'DRAFT',
+            reviewedBy: null,
+            reviewedAt: null,
+          })
+          .onConflictDoNothing();
+        const stagedRows = await transaction
+          .select({ id: therapeuticAssociation.id })
+          .from(therapeuticAssociation)
+          .where(
+            and(
+              eq(therapeuticAssociation.diseaseId, input.diseaseId),
+              eq(therapeuticAssociation.variantId, input.variantId),
+              eq(therapeuticAssociation.therapyKey, therapyKey),
+              eq(therapeuticAssociation.direction, input.direction)
+            )
+          )
+          .limit(1);
+        const resolvedAssociationId = stagedRows[0]?.id;
+        if (!resolvedAssociationId) {
+          throw new Error('Unable to stage the CIViC therapeutic association');
+        }
+        await transaction
+          .insert(therapeuticAssociationDrug)
+          .values(
+            orderedDrugs.map((associationDrug) => ({
+              associationId: resolvedAssociationId,
+              ...associationDrug,
+            }))
+          )
+          .onConflictDoNothing();
+        return resolvedAssociationId;
+      }
+    );
+    return associationId
+      ? loadAssociationReviewContext(associationId, false)
+      : null;
   }
 
   async function findDuplicate(source: {
@@ -212,6 +483,45 @@ export function createPostgresUpstreamWorkflowRepository(
       .orderBy(candidateDocument.createdAt, evidenceDraft.draftVersion)
       .limit(1);
     if (rows.length === 0) return null;
+    return {
+      candidateId: rows[0].candidateId,
+      workflowRunId: rows[0].workflowRunId,
+      draftId: rows[0].draftId,
+      draftVersion: rows[0].draftVersion,
+      reviewTaskId: rows[0].reviewTaskId,
+      status: rows[0].status as CandidateBundle['status'],
+      duplicate: false,
+    };
+  }
+
+  async function findCandidateAssociationDraft(
+    candidateId: string,
+    associationId: string
+  ): Promise<CandidateBundle | null> {
+    const rows = await database
+      .select({
+        candidateId: candidateDocument.id,
+        workflowRunId: evidenceDraft.workflowRunId,
+        draftId: evidenceDraft.id,
+        draftVersion: evidenceDraft.draftVersion,
+        reviewTaskId: reviewTask.id,
+        status: candidateDocument.status,
+      })
+      .from(candidateDocument)
+      .innerJoin(
+        evidenceDraft,
+        eq(evidenceDraft.candidateDocumentId, candidateDocument.id)
+      )
+      .leftJoin(reviewTask, eq(reviewTask.evidenceDraftId, evidenceDraft.id))
+      .where(
+        and(
+          eq(candidateDocument.id, candidateId),
+          eq(evidenceDraft.associationId, associationId)
+        )
+      )
+      .orderBy(desc(evidenceDraft.draftVersion))
+      .limit(1);
+    if (!rows[0]) return null;
     return {
       candidateId: rows[0].candidateId,
       workflowRunId: rows[0].workflowRunId,
@@ -589,6 +899,245 @@ export function createPostgresUpstreamWorkflowRepository(
     }
   }
 
+  async function createCandidateAssociationBundle(
+    input: Parameters<
+      NonNullable<
+        UpstreamWorkflowRepository['createCandidateAssociationBundle']
+      >
+    >[0]
+  ): Promise<CandidateBundle> {
+    const timestamp = new Date();
+    const inputHash = hashArtifact(input.source);
+    const outputHash = hashArtifact(input.draft);
+    const traces = input.skillTraces ?? [];
+    const traceArtifacts = traces.map((trace, index) => ({
+      id: `${input.ids.workflowRunId}:trace:${index + 1}`,
+      workflowRunId: input.ids.workflowRunId,
+      artifactType: traceArtifactType(trace.skillId),
+      schemaVersion: '1',
+      createdByType: 'SKILL' as const,
+      createdById: `${trace.skillId}@${trace.skillVersion}`,
+      inputArtifactIds: [
+        index === 0
+          ? `${input.ids.workflowRunId}:source`
+          : `${input.ids.workflowRunId}:trace:${index}`,
+      ],
+      content: trace.output,
+      contentHash: trace.outputHash,
+      sensitivity: 'INTERNAL' as const,
+      publicPolicy: 'INTERNAL_ONLY' as const,
+    }));
+    try {
+      return await database.transaction(async (transaction: Database) => {
+        const candidateRows = await transaction
+          .select({ id: candidateDocument.id })
+          .from(candidateDocument)
+          .where(eq(candidateDocument.id, input.candidateId))
+          .for('update')
+          .limit(1);
+        if (!candidateRows[0]) {
+          throw new Error('Candidate document is unavailable');
+        }
+        const existingRows = await transaction
+          .select({
+            candidateId: candidateDocument.id,
+            workflowRunId: evidenceDraft.workflowRunId,
+            draftId: evidenceDraft.id,
+            draftVersion: evidenceDraft.draftVersion,
+            reviewTaskId: reviewTask.id,
+            status: candidateDocument.status,
+          })
+          .from(candidateDocument)
+          .innerJoin(
+            evidenceDraft,
+            eq(evidenceDraft.candidateDocumentId, candidateDocument.id)
+          )
+          .leftJoin(
+            reviewTask,
+            eq(reviewTask.evidenceDraftId, evidenceDraft.id)
+          )
+          .where(
+            and(
+              eq(candidateDocument.id, input.candidateId),
+              eq(evidenceDraft.associationId, input.draft.associationId)
+            )
+          )
+          .orderBy(desc(evidenceDraft.draftVersion))
+          .limit(1);
+        if (existingRows[0]) {
+          return {
+            candidateId: existingRows[0].candidateId,
+            workflowRunId: existingRows[0].workflowRunId,
+            draftId: existingRows[0].draftId,
+            draftVersion: existingRows[0].draftVersion,
+            reviewTaskId: existingRows[0].reviewTaskId,
+            status: existingRows[0].status as CandidateBundle['status'],
+            duplicate: true,
+          };
+        }
+        const latestDraftRows = await transaction
+          .select({ draftVersion: evidenceDraft.draftVersion })
+          .from(evidenceDraft)
+          .where(eq(evidenceDraft.candidateDocumentId, input.candidateId))
+          .orderBy(desc(evidenceDraft.draftVersion))
+          .limit(1);
+        const draftVersion = (latestDraftRows[0]?.draftVersion ?? 0) + 1;
+
+        await transaction.insert(workflowRun).values({
+          id: input.ids.workflowRunId,
+          workflowVersion: input.workflowVersion,
+          kind: 'UPSTREAM',
+          idempotencyKey: `${input.workflowVersion}:PUBMED:${input.source.pmid}:ASSOCIATION:${input.draft.associationId}`,
+          status: 'NEEDS_HUMAN',
+          currentStep: 'human_review',
+          inputHash,
+          outputHash,
+          startedAt: timestamp,
+          completedAt: null,
+        });
+        await transaction.insert(evidenceDraft).values({
+          id: input.ids.draftId,
+          candidateDocumentId: input.candidateId,
+          workflowRunId: input.ids.workflowRunId,
+          associationId: input.draft.associationId,
+          draftVersion,
+          status: 'READY_FOR_REVIEW',
+          payload: input.draft,
+          fieldProvenance: input.draft.fieldProvenance,
+          agentVersion: input.agentVersion,
+          skillVersions: input.skillVersions,
+          proposedLevel: input.draft.proposedLevel,
+          gradingRationale: input.draft.gradingRationale,
+          qaIssues: input.draft.qaIssues,
+        });
+        await transaction.insert(reviewTask).values({
+          id: input.ids.reviewTaskId,
+          candidateDocumentId: input.candidateId,
+          evidenceDraftId: input.ids.draftId,
+          draftVersion,
+          status: 'READY_FOR_REVIEW',
+          lockVersion: 1,
+        });
+        await transaction.insert(workflowArtifact).values([
+          {
+            id: `${input.ids.workflowRunId}:source`,
+            workflowRunId: input.ids.workflowRunId,
+            artifactType: 'CandidateDocument',
+            schemaVersion: '1',
+            createdByType: 'SYSTEM',
+            createdById: 'pubmed-source-adapter',
+            inputArtifactIds: [],
+            content: input.source,
+            contentHash: inputHash,
+            sensitivity: 'INTERNAL',
+            publicPolicy: 'SUMMARY_ONLY',
+          },
+          ...traceArtifacts,
+          {
+            id: `${input.ids.workflowRunId}:draft`,
+            workflowRunId: input.ids.workflowRunId,
+            artifactType: 'ExtractedEvidenceDraft',
+            schemaVersion: '1',
+            createdByType: 'AGENT',
+            createdById: input.agentVersion,
+            inputArtifactIds: [`${input.ids.workflowRunId}:source`],
+            content: input.draft,
+            contentHash: outputHash,
+            sensitivity: 'INTERNAL',
+            publicPolicy: 'INTERNAL_ONLY',
+          },
+          {
+            id: `${input.ids.workflowRunId}:grade`,
+            workflowRunId: input.ids.workflowRunId,
+            artifactType: 'GradingProposal',
+            schemaVersion: '1',
+            createdByType: 'SKILL',
+            createdById: 'propose_evidence_level@1.0.0',
+            inputArtifactIds: [`${input.ids.workflowRunId}:draft`],
+            content: {
+              proposedLevel: input.draft.proposedLevel,
+              gradingRationale: input.draft.gradingRationale,
+            },
+            contentHash: hashArtifact({
+              proposedLevel: input.draft.proposedLevel,
+              gradingRationale: input.draft.gradingRationale,
+            }),
+            sensitivity: 'INTERNAL',
+            publicPolicy: 'INTERNAL_ONLY',
+          },
+          {
+            id: `${input.ids.workflowRunId}:qa`,
+            workflowRunId: input.ids.workflowRunId,
+            artifactType: 'IngestionQAReport',
+            schemaVersion: '1',
+            createdByType: 'SKILL',
+            createdById: 'validate_draft_completeness@1.0.0',
+            inputArtifactIds: [`${input.ids.workflowRunId}:draft`],
+            content: { issues: input.draft.qaIssues },
+            contentHash: hashArtifact({ issues: input.draft.qaIssues }),
+            sensitivity: 'INTERNAL',
+            publicPolicy: 'INTERNAL_ONLY',
+          },
+        ]);
+        await transaction.insert(workflowStepRun).values(
+          traces.length
+            ? traces.map((trace) => ({
+                id: `${input.ids.workflowRunId}:${trace.skillId}:${trace.attempt}`,
+                workflowRunId: input.ids.workflowRunId,
+                stepKey: trace.skillId,
+                attempt: trace.attempt,
+                status: 'SUCCEEDED' as const,
+                skillVersionId: `${trace.skillId}@${trace.skillVersion}`,
+                agentVersionId: `${trace.agentId}@${trace.agentVersion}`,
+                inputHash: trace.inputHash,
+                outputHash: trace.outputHash,
+                startedAt: timestamp,
+                completedAt: new Date(timestamp.getTime() + trace.durationMs),
+              }))
+            : [
+                {
+                  id: `${input.ids.workflowRunId}:validate:1`,
+                  workflowRunId: input.ids.workflowRunId,
+                  stepKey: 'validate_draft_completeness',
+                  attempt: 1,
+                  status: 'SUCCEEDED' as const,
+                  inputHash: outputHash,
+                  outputHash,
+                  startedAt: timestamp,
+                  completedAt: timestamp,
+                },
+              ]
+        );
+        await transaction
+          .update(candidateDocument)
+          .set({
+            status: 'READY_FOR_REVIEW',
+            activeWorkflowRunId: input.ids.workflowRunId,
+            exclusionReason: null,
+          })
+          .where(eq(candidateDocument.id, input.candidateId));
+        return {
+          candidateId: input.candidateId,
+          workflowRunId: input.ids.workflowRunId,
+          draftId: input.ids.draftId,
+          draftVersion,
+          reviewTaskId: input.ids.reviewTaskId,
+          status: 'READY_FOR_REVIEW' as const,
+          duplicate: false,
+        };
+      });
+    } catch (error) {
+      if ((error as { code?: string })?.code === '23505') {
+        const duplicate = await findCandidateAssociationDraft(
+          input.candidateId,
+          input.draft.associationId
+        );
+        if (duplicate) return { ...duplicate, duplicate: true };
+      }
+      throw error;
+    }
+  }
+
   async function getCandidateRetryContext(candidateId: string) {
     const rows = await database
       .select({
@@ -819,8 +1368,12 @@ export function createPostgresUpstreamWorkflowRepository(
 
   return {
     getAssociationReviewContext,
+    listAssociationReviewContexts,
+    ensureCivicAssociationReviewContext,
     findDuplicate,
+    findCandidateAssociationDraft,
     createCandidateBundle,
+    createCandidateAssociationBundle,
     createCandidateOutcome,
     getCandidateRetryContext,
     saveCandidateRetry,
@@ -1332,6 +1885,17 @@ export function createPostgresReviewPublishRepository(
             }))
           )
         );
+        await transaction
+          .update(therapeuticAssociation)
+          .set({
+            proposedLevel: draft.proposedLevel,
+            approvedLevel: draft.proposedLevel,
+            gradingRationale: draft.gradingRationale,
+            reviewStatus: 'APPROVED',
+            reviewedBy: input.actorId,
+            reviewedAt: publishedAt,
+          })
+          .where(eq(therapeuticAssociation.id, draft.associationId));
 
         const [associationRows, approvalRows, claimRows] = await Promise.all([
           transaction
@@ -3061,6 +3625,31 @@ export function createPostgresQuestionRunRepository(
 
 function uniqueBy<T>(items: T[], key: (item: T) => string) {
   return [...new Map(items.map((item) => [key(item), item])).values()];
+}
+
+function normalizeCivicName(value: string) {
+  return value.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function identifierSlug(value: string) {
+  return value
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function shortHash(value: string) {
+  return createHash('sha256').update(value).digest('hex').slice(0, 8);
+}
+
+function sameStringSet(left: string[], right: string[]) {
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return (
+    sortedLeft.length === sortedRight.length &&
+    sortedLeft.every((value, index) => value === sortedRight[index])
+  );
 }
 
 function traceArtifactType(skillId: string) {

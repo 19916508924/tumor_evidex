@@ -247,25 +247,132 @@ test('landing page enters the complete Chinese evidence product', async ({
   );
 });
 
-test('landing page API example copies and the mobile navigation returns focus', async ({
+test('desktop demo opens review from public navigation and requests changes anonymously', async ({
   context,
   page,
 }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await context.clearCookies();
+  expect(await context.cookies()).toEqual([]);
+  let task = reviewTaskFixture();
+  let submittedDecision: Record<string, unknown> | null = null;
+
+  await page.route('**/api/internal/v1/review-tasks**', async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+
+    if (
+      request.method() === 'POST' &&
+      url.pathname.endsWith('/review-e2e/decision')
+    ) {
+      submittedDecision = request.postDataJSON() as Record<string, unknown>;
+      task = { ...task, status: 'REQUESTED_CHANGES' };
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(
+          envelope({
+            reviewTaskId: 'review-e2e',
+            decision: 'REQUEST_CHANGES',
+            status: 'REQUESTED_CHANGES',
+            releaseId: null,
+            releaseVersion: null,
+            idempotent: false,
+          })
+        ),
+      });
+      return;
+    }
+
+    if (url.pathname.endsWith('/review-e2e')) {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(envelope(task)),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify(
+        envelope({
+          items: [
+            {
+              id: 'review-e2e',
+              status: 'READY_FOR_REVIEW',
+              title: 'Original English Literature Title',
+              pmid: '12345678',
+              proposedLevel: '3A',
+              hasBlockingIssues: false,
+              risk: 'LOW',
+              waitingHours: 3,
+              disease: { id: 'disease-nsclc', name: '非小细胞肺癌' },
+              gene: { id: 'gene-egfr', symbol: 'EGFR' },
+              variant: { id: 'variant-l858r', hgvsp: 'p.L858R' },
+              assignedTo: null,
+              createdAt: '2026-09-16T00:00:00.000Z',
+            },
+          ],
+          pagination: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+        })
+      ),
+    });
+  });
+
+  const opsResponse = await page.goto('/zh/ops');
+  expect(opsResponse?.status()).toBe(200);
+  await expect(page).toHaveURL(/\/zh\/ops$/);
+  await expect(
+    page.getByRole('heading', { name: '证据运营总览' })
+  ).toBeVisible();
+
+  await page.goto('/zh/knowledge');
+  await page.getByRole('link', { name: '证据审核', exact: true }).click();
+
+  await expect(page).toHaveURL(/\/zh\/ops\/reviews$/);
+  await expect(
+    page.getByRole('heading', { name: '待审核证据', exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText('Original English Literature Title')
+  ).toBeVisible();
+  await page.getByRole('link', { name: '开始审核' }).click();
+
+  await expect(page).toHaveURL(/\/zh\/ops\/reviews\/review-e2e$/);
+  await expect(
+    page.getByRole('heading', { name: '医学审核工作台' })
+  ).toBeVisible();
+  await page.getByRole('button', { name: '退回修改' }).click();
+  await page.getByLabel('结论', { exact: true }).check();
+  await page.getByRole('button', { name: '确认退回' }).click();
+
+  await expect(page.getByRole('status')).toContainText('已退回修改');
+  expect(submittedDecision).toMatchObject({
+    decision: 'REQUEST_CHANGES',
+    expectedDraftVersion: 1,
+    requestedFields: ['claims.conclusion'],
+  });
+});
+
+test('landing page API example copies and keeps one desktop navigation row', async ({
+  context,
+  page,
+}) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
     origin: 'http://localhost:3100',
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Copy API request' }).click();
   await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible();
-
-  await page.setViewportSize({ width: 375, height: 812 });
-  const menuButton = page.getByRole('button', { name: 'Open navigation' });
-  await menuButton.click();
   await expect(
-    page.getByRole('navigation', { name: 'Mobile navigation' })
+    page.getByRole('navigation', { name: 'Primary navigation' })
   ).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(menuButton).toBeFocused();
+  await expect(
+    page.getByRole('link', { name: 'Evidence review', exact: true })
+  ).toHaveAttribute('href', '/en/ops/reviews');
+  await expect(
+    page.getByRole('button', { name: 'Open navigation' })
+  ).toHaveCount(0);
 });
 
 test('landing page remains visible when reduced motion is requested', async ({
@@ -322,10 +429,10 @@ test('anonymous API access returns the documented error envelope', async ({
   });
 });
 
-test('knowledge search opens a complete entity detail on a 375px viewport', async ({
+test('knowledge search opens a complete entity detail on the minimum desktop viewport', async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 375, height: 812 });
+  await page.setViewportSize({ width: 1024, height: 768 });
   await page.route('**/api/v1/knowledge/**', async (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.endsWith('/variants/variant_l858r')) {

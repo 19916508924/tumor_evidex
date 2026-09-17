@@ -22,7 +22,7 @@ describe('Evidex landing content contract', () => {
     ['zh', landingZh, commonZh],
   ])(
     'removes scaffold branding and unrelated navigation in %s',
-    (_, landing, common) => {
+    (locale, landing, common) => {
       expect(landing.header.brand.title).toBe('Evidex');
       expect(landing.header.show_sign).toBe(false);
       expect(landing.header.show_theme).toBe(false);
@@ -33,7 +33,11 @@ describe('Evidex landing content contract', () => {
         '/#evidence',
         '/#integration',
         '/#faq',
+        `/${locale}/ops/reviews`,
       ]);
+      expect(landing.header).not.toHaveProperty('menu_open_label');
+      expect(landing.header).not.toHaveProperty('menu_close_label');
+      expect(landing.header).not.toHaveProperty('mobile_nav_label');
       expect(landing.header.buttons).toEqual([
         expect.objectContaining({ url: '/#contact' }),
       ]);

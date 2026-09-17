@@ -13,6 +13,7 @@ import {
   type CandidateSourceInput,
   type EvidenceDraftInput,
 } from './upstream-workflow';
+import { equivalentProteinVariantTerms } from './variant-term-matching';
 
 const extractedClaimSchema = z.object({
   claimType: z.enum(['EFFICACY', 'RESISTANCE', 'SAFETY_CONTEXT', 'OTHER']),
@@ -91,6 +92,16 @@ const extractionInputSchema = z.object({
     id: z.string().trim().min(1),
     approvedLevel: z.string().trim().min(1),
     gradingRationale: z.string().trim().min(1),
+    direction: z.enum(['SENSITIVITY', 'RESISTANCE', 'EXPLORATORY']).optional(),
+    variantApplicability: z
+      .enum([
+        'EXACT',
+        'EXPLICIT_GROUP_INCLUDES_EXACT',
+        'GENE_ONLY',
+        'ANALOGOUS_VARIANT',
+        'UNKNOWN',
+      ])
+      .optional(),
     therapyNames: z.array(z.string().trim().min(1)).optional(),
   }),
 });
@@ -222,7 +233,7 @@ export async function extractEvidenceDraftWithTrace(_input: {
         targetMentions: {
           diseases: literalMatches(sourceText, targetTerms.diseases),
           genes: literalMatches(sourceText, targetTerms.genes),
-          variants: literalMatches(sourceText, targetTerms.variants),
+          variants: literalVariantMatches(sourceText, targetTerms.variants),
         },
       }),
     },
@@ -358,6 +369,7 @@ export async function extractEvidenceDraftWithTrace(_input: {
     fieldProvenance,
     qaIssues: [
       ...output.qaIssues,
+      ...associationDirectionIssues(_input.association.direction, output),
       ...(missingProvenance.length
         ? [
             {
@@ -438,6 +450,18 @@ function literalMatches(text: string, terms: string[]) {
         normalizedTerm.length > 1 && normalizedText.includes(normalizedTerm)
       );
     })
+  );
+}
+
+function literalVariantMatches(text: string, terms: string[]) {
+  const normalizedText = normalizeEvidenceText(text);
+  return unique(
+    terms.filter((term) =>
+      equivalentProteinVariantTerms(normalizeEvidenceText(term)).some(
+        (candidate) =>
+          candidate.length > 1 && normalizedText.includes(candidate)
+      )
+    )
   );
 }
 
@@ -601,4 +625,23 @@ function proposeEvidenceLevel(
     proposedLevel: level[maturity],
     gradingRationale: `${level[maturity]} proposed from the new document's ${maturity} evidence maturity; final level requires human review.`,
   };
+}
+
+function associationDirectionIssues(
+  direction: AssociationReviewContext['direction'],
+  output: z.infer<typeof evidenceExtractionOutputSchema>
+) {
+  if (!direction || direction === 'EXPLORATORY') return [];
+  const requiredClaimType =
+    direction === 'SENSITIVITY' ? 'EFFICACY' : 'RESISTANCE';
+  if (output.claims.some((claim) => claim.claimType === requiredClaimType)) {
+    return [];
+  }
+  return [
+    {
+      code: 'ASSOCIATION_DIRECTION_MISMATCH',
+      severity: 'BLOCKING' as const,
+      message: `The extracted claims do not confirm the ${direction.toLowerCase()} direction of the reviewed association.`,
+    },
+  ];
 }

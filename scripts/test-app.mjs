@@ -43,7 +43,6 @@ Object.assign(env, {
   PORT: '3100',
   AUTH_SECRET: 'evidex-test-only-secret-do-not-use-in-production',
   AUTH_URL: 'http://localhost:3100',
-  EVIDEX_E2E_MODE: '1',
   NEXT_PUBLIC_APP_URL: 'http://localhost:3100',
   NEXT_PUBLIC_DEFAULT_LOCALE: 'en',
   NEXT_PUBLIC_LOCALE_DETECT_ENABLED: 'false',

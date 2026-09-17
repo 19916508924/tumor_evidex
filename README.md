@@ -259,6 +259,10 @@ pnpm evidex:smoke
 
 > **结论：审核页面和“先审核、后发布”的核心门禁已经实现；2026-09-17 的发布等级快照、统一 Release 选择和批准说明门禁整改也已完成。不要重新开发已经存在的审核队列。**
 
+当前对外形态是单用户面试演示网站，桌面浏览器最小宽度为 1024px。Landing、Knowledge、Ask 与 Evidence 的公开导航均直接提供“证据审核”入口；不再维护汉堡菜单、移动抽屉、遮罩、焦点陷阱或小屏重复导航。
+
+Evidex 默认就是单用户面试 Demo，不需要额外环境变量或登录：未登录用户可以直接使用完整 Ops 运营中心及其读取、运行控制、版本管理和审核写入接口；所有需要操作者的记录统一使用固定且可审计的 `demo-reviewer` 身份，真实登录会话始终优先。只有服务端显式设置 `EVIDEX_DEMO_MODE=0` 时，Ops 页面与内部接口才恢复 `admin.access` 门禁。演示身份不会跳过同源检查、输入 Schema、草稿版本冲突、幂等、质量门、状态机或发布事务；默认开放形态只能连接隔离演示数据库。
+
 当前真实链路为：
 
 ```text
@@ -274,7 +278,7 @@ Discovery / 单篇 PMID
 已核实的安全边界：
 
 - Candidate、Draft 和 Review Task 与正式 `source_document`、`evidence_claim`、`knowledge_release_claim` 分开保存；生成草稿本身不会进入公开知识。
-- `APPROVE_AND_PUBLISH` 需要登录管理员权限、最新草稿版本、非空批准说明、幂等键且不得存在 BLOCKING QA；正式知识、Release 成员关系、最终等级快照和审核状态在一个数据库事务内写入。
+- `APPROVE_AND_PUBLISH` 使用真实管理员会话或默认演示形态下的固定审核人，并要求最新草稿版本、非空批准说明、幂等键且不得存在 BLOCKING QA；正式知识、Release 成员关系、最终等级快照和审核状态在一个数据库事务内写入。
 - Knowledge、异步自然语言 Ask 与兼容结构化问答默认锁定最新 `PUBLISHED` Release，并同时过滤 `review_status=APPROVED` 和 release 成员关系；旧 Release 不会看到后来批准的 Claim，也不会被新等级污染。
 - 当前所谓 RAG 是**版本化结构化检索 + Evidence Pack + 受约束生成**，不是 embedding / 向量数据库。医学实体和关系优先使用确定性检索；向量召回只作为后续可评估的补充能力。
 
@@ -330,11 +334,11 @@ Evidence Ops 点击“发起知识更新”
 | P1     | 已有 Skill 定义、Schema 校验和执行原语                                        | 生产 Workflow 必须真实调用 Skill Runtime 并强制 allowlist、Schema、超时、最大重试、预算和失败 Trace，不能只记录版本字符串            |
 | P1     | 已有抽取、草稿与发布纵向链路                                                  | 不再要求预选单一 Association；收录、实体/关系、规范化、分级和 QA 分节点产出 Artifact；等级不得复制已有结论，字段必须定位到句子或段落 |
 | P2     | 已有 Workflow Run/Step/Artifact 页面                                          | 保存所有真实节点轨迹；等待人工审核时使用 `NEEDS_HUMAN` 等非终态，不能提前标记 `SUCCEEDED`                                            |
-| P2     | 已有 Knowledge 四类目录、搜索、详情和引用                                     | 保持同一发布版本隔离；补数据库冷启动/跨区性能优化、缓存、移动端与键盘可访问性和真实交互 E2E                                          |
+| P2     | 已有 Knowledge 四类目录、搜索、详情和引用                                     | 保持同一发布版本隔离；补数据库冷启动/跨区性能优化、缓存、桌面键盘可访问性和真实交互 E2E                                              |
 | P2     | 已有异步 Ask、Evidence Pack、引用校验和反馈                                   | 去除只覆盖少数实体的硬编码解析；改为已发布目录驱动，并把问题理解、检索规划、证据分析、回答生成和引用 QA 变成可追踪 Agent/Skill       |
 | P2     | Agent、Skill、Workflow 页面目前以查看为主                                     | 提供受控的 Draft 复制、允许 Skill/Tool、节点顺序、条件分支、重试、评估、激活和回滚；不允许浏览器执行任意代码                         |
 | P2     | 已有基础内部鉴权、同源保护和进程内限流                                        | 将公开接口限流迁移到 Redis/数据库等共享存储；定义 p50/p95 延迟预算并优先同区部署应用和数据库                                         |
-| P2     | Knowledge、Ask、Ops 功能集中在大型客户端组件                                  | 按表单、查询、列表、详情和运行状态拆分；增加导航当前态、移动抽屉焦点锁定、Escape/焦点返回、至少 44px 热区和统一设计令牌              |
+| P2     | Knowledge、Ask、Ops 功能集中在大型客户端组件                                  | 按表单、查询、列表、详情和运行状态拆分；增加导航当前态、键盘焦点可见性、至少 44px 交互热区和统一设计令牌                             |
 | P2     | 审计时 40 个测试文件、286 个测试通过；隔离生产构建与 8 条 Playwright E2E 通过 | 将三大前端主组件和 PostgreSQL Repository 纳入覆盖与真实数据库/交互测试；本次审计未重跑数据库测试，不能据此宣称数据库验收完成         |
 | P2     | 核心平台文件当前存在未提交或未跟踪状态                                        | 交付前将代码、迁移、测试和文档全部纳入版本控制，并通过 `git status --short` 复核                                                     |
 
@@ -402,7 +406,7 @@ const created = await fetch('/api/internal/v1/discovery-runs', {
   → 新 Claim 仅属于新 release
 ```
 
-抽取和问答均使用服务端固定的 Evolink `gpt-5.6-terra`。抽取模型只能生成待审草稿，不能调用发布能力；正式发布必须来自已登录且具有 `admin.access` 权限的审核人。生产抽取链路已通过 Skill Runtime 强制执行输入/输出 Schema、Agent allowlist、超时、最大重试和不可变 Trace。新文献的 `proposedLevel` 由文献自身的方向与成熟度独立产生，不复制历史 Association 等级；等待人工审核的 Workflow 状态为 `NEEDS_HUMAN`。
+抽取和问答均使用服务端固定的 Evolink `gpt-5.6-terra`。抽取模型只能生成待审草稿，不能调用发布能力；正式发布的操作者来自优先使用的真实管理员会话，或默认演示形态下的固定 `demo-reviewer`。生产抽取链路已通过 Skill Runtime 强制执行输入/输出 Schema、Agent allowlist、超时、最大重试和不可变 Trace。新文献的 `proposedLevel` 由文献自身的方向与成熟度独立产生，不复制历史 Association 等级；等待人工审核的 Workflow 状态为 `NEEDS_HUMAN`。
 
 新拉取的 PubMed 摘要默认允许服务端模型处理，但公开展示策略为 `LINK_ONLY`；知识接口返回题录和 PubMed 链接，不直接公开整段摘要。审核页面可以创建新的不可变草稿版本并记录编辑人和原因；只有完成来源许可复核后才能显式调整公开摘录策略。
 
@@ -541,7 +545,7 @@ await fetch(`/api/v1/evidence-questions/${questionRunId}/feedback`, {
 
 #### 内部 Evidence Ops 接口
 
-内部接口要求服务端登录会话和 `admin.access` 权限；所有写接口还检查同源 `Origin`。前端不要传审核人 ID，服务端只采用登录会话身份。
+当前单用户 Demo 默认允许匿名使用完整 Ops；匿名请求解析为固定 `demo-reviewer`，运行、版本与审核审计继续记录该身份，已有真实管理员会话优先。所有写接口仍检查同源 `Origin`，前端不要传操作者 ID，服务端只采用受信任的身份解析结果。未来需要恢复账号门禁时，可在服务端显式设置 `EVIDEX_DEMO_MODE=0`，此时内部接口重新要求登录会话和 `admin.access`。默认开放形态只允许连接隔离演示数据库，不得用于生产或共享数据环境。
 
 登录、注册、退出和会话由模板已有的 Better Auth `GET|POST /api/auth/*` 处理；仓库内前端优先复用 [`src/core/auth/client.ts`](./src/core/auth/client.ts) 的 `useSession`、`signIn`、`signUp` 和 `signOut`。Ops 用户还需通过 `pnpm rbac:assign` 获得管理员角色。
 
@@ -813,13 +817,15 @@ EVIDEX_INGESTION_WORKFLOW_VERSION="single-pubmed-v3"
 EVIDEX_EXTRACTION_AGENT_VERSION="extraction-agent@1.0.0"
 EVIDEX_QUESTION_MIN_INTERVAL_MS="1000"
 EVIDEX_FEEDBACK_MIN_INTERVAL_MS="1000"
+# Evidex 默认免登录；仅需恢复管理员鉴权时取消下一行注释。
+# EVIDEX_DEMO_MODE="0"
 EVIDEX_NCBI_EMAIL=""
 EVIDEX_NCBI_API_KEY=""
 EVIDEX_CIVIC_API_KEY=""
 EVIDEX_CIVIC_BASE_URL="https://civicdb.org/api/graphql"
 ```
 
-真实值已经放在本地、被 Git 忽略的 `.env.local` 中；README 和前端代码只保留占位符。浏览器只调用 Evidex API，不能直接连接 Neon 或 Evolink。内部 Ops 接口已接入登录权限和同源写保护；公开问答与反馈有请求大小和频率限制。当前仍没有企业配额、SDK 和公开 API SLA，不应宣传为生产级开放企业 API。
+真实密钥放在本地、被 Git 忽略的 `.env.local` 中；README 和前端代码只保留占位符。浏览器只调用 Evidex API，不能直接连接 Neon 或 Evolink。当前 Ops 默认免登录并始终保留同源写入保护，必须连接专用演示数据库；不需要在 `.env.local` 中设置 `EVIDEX_DEMO_MODE`。公开问答与反馈有请求大小和频率限制。当前仍没有企业配额、SDK 和公开 API SLA，不应宣传为生产级开放企业 API。
 
 接入新版 Agent/Skill 平台的现有 Neon 数据库需要执行一次增量迁移，但不需要重复导入 V0 知识包；迁移会为历史发布版本回填 Claim 成员关系：
 

@@ -5,12 +5,14 @@ import type {
   AssociationReviewContext,
   CandidateSourceInput,
 } from './upstream-workflow';
+import { equivalentProteinVariantTerms } from './variant-term-matching';
 
 const inputSchema = z.object({
   source: z.object({
     pmid: z.string().min(1),
     title: z.string().min(1),
     abstract: z.string().min(1),
+    fullText: z.string().min(1).nullable().optional(),
   }),
   target: z.object({
     associationId: z.string().min(1),
@@ -83,7 +85,7 @@ export async function screenEvidenceEligibility(input: {
 }
 
 function decide(
-  source: { title: string; abstract: string },
+  source: { title: string; abstract: string; fullText?: string | null },
   target: {
     diseases: string[];
     genes: string[];
@@ -99,11 +101,13 @@ function decide(
       matchedTerms: { diseases: [], genes: [], variants: [] },
     };
   }
-  const text = normalize(`${source.title} ${source.abstract}`);
+  const text = normalize(
+    `${source.title} ${source.abstract}${source.fullText ? ` ${source.fullText}` : ''}`
+  );
   const matchedTerms = {
     diseases: matches(text, target.diseases),
     genes: matches(text, target.genes),
-    variants: matches(text, target.variants),
+    variants: matchesVariants(text, target.variants),
   };
   if (!matchedTerms.diseases.length || !matchedTerms.genes.length) {
     return {
@@ -145,6 +149,18 @@ function matches(text: string, terms: string[]) {
     const normalized = normalize(term);
     return normalized.length > 1 && text.includes(normalized);
   });
+}
+
+function matchesVariants(text: string, terms: string[]) {
+  return terms.filter((term) =>
+    variantMatchForms(term).some(
+      (candidate) => candidate.length > 1 && text.includes(candidate)
+    )
+  );
+}
+
+function variantMatchForms(value: string) {
+  return equivalentProteinVariantTerms(normalize(value));
 }
 
 function normalize(value: string) {

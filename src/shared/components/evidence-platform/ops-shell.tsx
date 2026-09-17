@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from 'react';
+import { useSyncExternalStore, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -20,10 +14,8 @@ import {
   Gauge,
   GitBranch,
   Layers3,
-  Menu,
   ShieldCheck,
   Sparkles,
-  X,
 } from 'lucide-react';
 
 const opsNav = [
@@ -51,10 +43,6 @@ export function OpsShell({
   children: ReactNode;
   locale: string;
 }) {
-  const [open, setOpen] = useState(false);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const asideRef = useRef<HTMLElement>(null);
-  const returnFocusRef = useRef(false);
   const pathname = usePathname();
   const hydrated = useSyncExternalStore(
     subscribeHydration,
@@ -62,82 +50,19 @@ export function OpsShell({
     serverHydrated
   );
 
-  function closeMobileNavigation(returnFocus = true) {
-    if (returnFocus) returnFocusRef.current = true;
-    setOpen(false);
-  }
-
-  useEffect(() => {
-    if (!open && returnFocusRef.current) {
-      returnFocusRef.current = false;
-      menuButtonRef.current?.focus();
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const aside = asideRef.current;
-    const focusable = () =>
-      Array.from(
-        aside?.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        ) ?? []
-      );
-    focusable()[0]?.focus();
-    function keydown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeMobileNavigation();
-        return;
-      }
-      if (event.key !== 'Tab') return;
-      const items = focusable();
-      if (!items.length) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener('keydown', keydown);
-    return () => document.removeEventListener('keydown', keydown);
-  }, [open]);
-
   return (
-    <div className="min-h-dvh bg-accent/45 text-foreground selection:bg-primary/20 selection:text-foreground">
+    <div className="min-h-dvh min-w-[64rem] bg-accent/45 text-foreground selection:bg-primary/20 selection:text-foreground">
       <a
         href="#ops-content"
         className="fixed top-2 left-2 z-[90] -translate-y-24 rounded-xl bg-foreground px-4 py-3 text-sm font-semibold text-background focus:translate-y-0"
       >
         跳到主要内容
       </a>
-      <header className="sticky top-0 z-50 flex min-h-16 items-center border-b border-border bg-background/82 px-4 backdrop-blur-xl lg:hidden">
-        <button
-          ref={menuButtonRef}
-          type="button"
-          onClick={() => setOpen(true)}
-          className="grid size-11 place-items-center rounded-lg text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label="打开运营导航"
-          aria-expanded={open}
-        >
-          <Menu aria-hidden size={20} />
-        </button>
-        <Link href={`/${locale}/ops`} className="ml-3 font-semibold">
-          Evidex 运营中心
-        </Link>
-      </header>
       <aside
-        ref={asideRef}
         aria-label="运营中心侧栏"
-        className={`fixed inset-y-0 left-0 z-[70] w-[17rem] border-r border-border bg-background/94 p-4 backdrop-blur-xl transition-transform lg:translate-x-0 ${
-          open ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className="fixed inset-y-0 left-0 z-[70] w-[17rem] border-r border-border bg-background/94 p-4 backdrop-blur-xl"
       >
-        <div className="flex min-h-12 items-center justify-between">
+        <div className="flex min-h-12 items-center">
           <Link
             href={`/${locale}/ops`}
             className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -149,14 +74,6 @@ export function OpsShell({
               Evidex 运营中心
             </span>
           </Link>
-          <button
-            type="button"
-            onClick={() => closeMobileNavigation()}
-            className="grid size-11 place-items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
-            aria-label="关闭运营导航"
-          >
-            <X aria-hidden size={18} />
-          </button>
         </div>
         <nav aria-label="运营导航" className="mt-7 grid gap-1 overflow-y-auto pb-24">
           {opsNav.map((item) => {
@@ -173,7 +90,6 @@ export function OpsShell({
                 key={item.href}
                 href={localizedHref}
                 aria-current={active ? 'page' : undefined}
-                onClick={() => closeMobileNavigation(false)}
                 className={`group flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring ${
                   active
                     ? 'bg-primary/12 text-foreground'
@@ -203,15 +119,7 @@ export function OpsShell({
           </Link>
         </div>
       </aside>
-      {open ? (
-        <button
-          type="button"
-          aria-label="关闭导航遮罩"
-          onClick={() => closeMobileNavigation()}
-          className="fixed inset-0 z-[60] bg-foreground/30 lg:hidden"
-        />
-      ) : null}
-      <main id="ops-content" className="min-h-dvh lg:pl-[17rem]">
+      <main id="ops-content" className="min-h-dvh pl-[17rem]">
         {children}
       </main>
     </div>

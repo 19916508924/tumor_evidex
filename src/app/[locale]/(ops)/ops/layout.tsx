@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { requireAdminAccess } from '@/core/rbac/permission';
 import { OpsShell } from '@/shared/components/evidence-platform/ops-shell';
-import { isIsolatedE2ETestRuntime } from '@/shared/lib/e2e-test-mode';
+import { isEvidexDemoMode } from '@/shared/lib/evidex-demo-mode';
 
 export default async function OpsLayout({
   children,
@@ -12,7 +12,7 @@ export default async function OpsLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!isIsolatedE2ETestRuntime()) {
+  if (!isEvidexDemoMode()) {
     await requireAdminAccess({ redirectUrl: '/no-permission', locale });
   }
   return <OpsShell locale={locale}>{children}</OpsShell>;

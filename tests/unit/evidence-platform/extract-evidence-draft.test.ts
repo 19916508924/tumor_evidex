@@ -133,6 +133,10 @@ describe('fixed PubMed evidence extraction workflow', () => {
       source,
       association: {
         ...targetContext,
+        eligibilityTerms: {
+          ...targetContext.eligibilityTerms,
+          variants: ['p.L858R'],
+        },
         id: 'assoc-1',
         approvedLevel: '1',
         gradingRationale: 'Historical association grade.',
@@ -206,13 +210,59 @@ describe('fixed PubMed evidence extraction workflow', () => {
         variants: [
           {
             catalogId: 'variant-egfr-l858r',
-            matchedTerm: 'L858R',
+            matchedTerm: 'p.L858R',
             basis: 'SOURCE_LITERAL',
           },
         ],
       },
       unresolved: [],
     });
+  });
+
+  it('blocks a resistance-only draft for a sensitivity association', async () => {
+    const generator = {
+      generate: vi.fn().mockResolvedValue({
+        claims: [
+          {
+            claimType: 'RESISTANCE',
+            evidenceMaturity: 'PRECLINICAL',
+            studyType: 'cell-line study',
+            studyName: null,
+            populationSummary: 'EGFR L858R NSCLC models',
+            sampleSize: null,
+            diseaseStage: null,
+            treatmentLine: null,
+            priorTherapy: null,
+            intervention: 'erlotinib',
+            comparator: null,
+            endpoint: 'drug response',
+            effectValue: null,
+            conclusion: 'Resistance was observed.',
+            limitations: 'Preclinical evidence only.',
+          },
+        ],
+        qaIssues: [],
+      }),
+    };
+
+    await expect(
+      extractEvidenceDraft({
+        source,
+        association: {
+          ...targetContext,
+          id: 'assoc-egfr-l858r-erlotinib-sensitivity',
+          direction: 'SENSITIVITY',
+          approvedLevel: '3A',
+          gradingRationale: 'Sensitivity association pending new evidence.',
+        },
+        generator,
+      })
+    ).rejects.toThrow('Draft contains a BLOCKING QA issue');
+    expect(generator.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        association: expect.objectContaining({ direction: 'SENSITIVITY' }),
+      })
+    );
   });
 
   it('rejects empty, malformed, and blocking model output before persistence', async () => {

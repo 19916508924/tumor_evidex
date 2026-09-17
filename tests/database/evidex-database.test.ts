@@ -23,7 +23,10 @@ import {
   submitEvidenceQuestion,
 } from '@/shared/services/evidence-platform/question-workflow';
 import { decideReviewTask } from '@/shared/services/evidence-platform/review-publish';
-import { submitPubmedCandidate } from '@/shared/services/evidence-platform/upstream-workflow';
+import {
+  submitPubmedAssociationCandidate,
+  submitPubmedCandidate,
+} from '@/shared/services/evidence-platform/upstream-workflow';
 import { createPostgresEvidenceRepository } from '@/shared/services/evidence/postgres-evidence-repository';
 
 const migrationsFolder = 'src/config/db/migrations';
@@ -473,6 +476,240 @@ describe('Evidex PostgreSQL migration', () => {
     });
   });
 
+  it('adds association-specific drafts to one PubMed candidate idempotently', async () => {
+    await client!.begin(async (transaction) => {
+      await transaction`
+        insert into gene (id, symbol, name, aliases, status)
+        values ('gene_egfr', 'EGFR', 'epidermal growth factor receptor', '[]', 'ACTIVE')
+        on conflict (id) do nothing
+      `;
+      await transaction`
+        insert into disease (
+          id, canonical_name, display_name_zh, display_name_en, lineage, aliases, status
+        ) values (
+          'disease_nsclc', 'NSCLC', '非小细胞肺癌',
+          'Non-small cell lung cancer', 'SOLID', '[]', 'ACTIVE'
+        ) on conflict (id) do nothing
+      `;
+      await transaction`
+        insert into variant (
+          id, gene_id, alteration_type, hgvsp, canonical_key, aliases, status
+        ) values (
+          'variant_l858r', 'gene_egfr', 'SNV', 'p.L858R',
+          'EGFR|SNV|p.L858R', '[]', 'ACTIVE'
+        ) on conflict (id) do nothing
+      `;
+      await transaction`
+        insert into drug (
+          id, generic_name, display_name_zh, display_name_en,
+          brand_names, aliases, external_ids, status
+        ) values
+          ('drug_match', 'osimertinib', '奥希替尼', 'osimertinib', '[]', '[]', '{}', 'ACTIVE'),
+          ('drug_no_fda', 'unapprovedtinib', '未批准替尼', 'unapprovedtinib', '[]', '[]', '{}', 'ACTIVE')
+        on conflict (id) do nothing
+      `;
+      await transaction`
+        insert into therapeutic_association (
+          id, disease_id, variant_id, therapy_key, direction,
+          variant_applicability, proposed_level, approved_level,
+          grading_rule_version, grading_rationale, review_status,
+          reviewed_by, reviewed_at
+        ) values
+          ('assoc_direct', 'disease_nsclc', 'variant_l858r', 'drug_match:PRIMARY', 'SENSITIVITY', 'EXACT', '1', '1', 'evidex-therapeutic-v1', 'reviewed direct', 'APPROVED', 'reviewer', now()),
+          ('assoc_no_fda', 'disease_nsclc', 'variant_l858r', 'drug_no_fda:PRIMARY', 'SENSITIVITY', 'EXACT', '3A', '3A', 'evidex-therapeutic-v1', 'no approval', 'APPROVED', 'reviewer', now())
+        on conflict (id) do nothing
+      `;
+      await transaction`
+        insert into therapeutic_association_drug (
+          association_id, drug_id, role, sort_order
+        ) values
+          ('assoc_direct', 'drug_match', 'PRIMARY', 0),
+          ('assoc_no_fda', 'drug_no_fda', 'PRIMARY', 0)
+        on conflict (association_id, drug_id) do nothing
+      `;
+    });
+    const database = drizzle(client!);
+    const repository = createPostgresUpstreamWorkflowRepository(database);
+    const source = {
+      pmid: '77777771',
+      title: 'EGFR L858R NSCLC treatment cohort',
+      abstract:
+        'Patients with EGFR L858R NSCLC received targeted treatment and had a documented response.',
+      doi: '10.1000/multi-association',
+      documentHash: 'hash-multi-association-document',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/77777771/',
+    };
+    const draftFor = (associationId: string, intervention: string) => ({
+      associationId,
+      proposedLevel: '3A' as const,
+      gradingRationale: 'New source requires independent review.',
+      passages: [
+        {
+          id: `passage-${associationId}`,
+          text: source.abstract,
+          textHash: `hash-passage-${associationId}`,
+          section: 'Abstract',
+          paragraphIndex: 0,
+          displayPolicy: 'EXCERPT' as const,
+          modelUsePolicy: 'ALLOWED' as const,
+          supportRole: 'PRIMARY' as const,
+        },
+      ],
+      claims: [
+        {
+          id: `claim-${associationId}`,
+          claimType: 'EFFICACY' as const,
+          evidenceMaturity: 'LIMITED_CLINICAL' as const,
+          studyType: 'cohort',
+          studyName: null,
+          populationSummary: 'EGFR L858R NSCLC',
+          sampleSize: 20,
+          diseaseStage: null,
+          treatmentLine: null,
+          priorTherapy: null,
+          intervention,
+          comparator: null,
+          endpoint: 'response',
+          effectValue: null,
+          conclusion: 'A response was documented.',
+          limitations: 'Single cohort.',
+          passageIds: [`passage-${associationId}`],
+        },
+      ],
+      fieldProvenance: {
+        'claims.0.endpoint': [`passage-${associationId}`],
+      },
+      qaIssues: [],
+    });
+    const firstIds = [
+      'candidate-multi-association',
+      'workflow-multi-association-1',
+      'draft-multi-association-1',
+      'review-multi-association-1',
+    ];
+    await submitPubmedCandidate({
+      source,
+      draft: draftFor('assoc_direct', 'osimertinib'),
+      repository,
+      workflowVersion: 'single-pubmed-v4-database',
+      agentVersion: 'extraction-agent@1.0.0',
+      skillVersions: [],
+      createId: () => firstIds.shift()!,
+    });
+
+    const context =
+      await repository.getAssociationReviewContext('assoc_direct');
+    expect(context).toMatchObject({
+      therapyNames: ['osimertinib'],
+      therapyMatchTerms: [expect.arrayContaining(['osimertinib'])],
+    });
+    await expect(
+      repository.listAssociationReviewContexts!({
+        diseaseId: 'disease_nsclc',
+        variantId: 'variant_l858r',
+      })
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'assoc_direct' }),
+        expect.objectContaining({ id: 'assoc_no_fda' }),
+      ])
+    );
+
+    const stagedCivicAssociation =
+      await repository.ensureCivicAssociationReviewContext!({
+        diseaseId: 'disease_nsclc',
+        variantId: 'variant_l858r',
+        therapies: ['Erlotinib'],
+        direction: 'SENSITIVITY',
+        variantApplicability: 'EXACT',
+        sourcePmid: '24868098',
+      });
+    expect(stagedCivicAssociation).toMatchObject({
+      approvedLevel: 'UNRATED',
+      direction: 'SENSITIVITY',
+      variantApplicability: 'EXACT',
+      therapyNames: ['erlotinib'],
+    });
+    await expect(
+      repository.ensureCivicAssociationReviewContext!({
+        diseaseId: 'disease_nsclc',
+        variantId: 'variant_l858r',
+        therapies: ['erlotinib'],
+        direction: 'SENSITIVITY',
+        variantApplicability: 'EXACT',
+        sourcePmid: '24868098',
+      })
+    ).resolves.toMatchObject({ id: stagedCivicAssociation!.id });
+    expect(
+      await client!`
+        select
+          d.generic_name,
+          a.review_status,
+          a.approved_level,
+          count(ad.drug_id)::int as drug_count
+        from therapeutic_association a
+        join therapeutic_association_drug ad on ad.association_id = a.id
+        join drug d on d.id = ad.drug_id
+        where a.id = ${stagedCivicAssociation!.id}
+        group by d.generic_name, a.review_status, a.approved_level
+      `
+    ).toEqual([
+      {
+        generic_name: 'erlotinib',
+        review_status: 'DRAFT',
+        approved_level: null,
+        drug_count: 1,
+      },
+    ]);
+
+    const secondIds = [
+      'workflow-multi-association-2',
+      'draft-multi-association-2',
+      'review-multi-association-2',
+    ];
+    const second = await submitPubmedAssociationCandidate({
+      source,
+      draft: draftFor('assoc_no_fda', 'unapprovedtinib'),
+      repository,
+      workflowVersion: 'single-pubmed-v4-database',
+      agentVersion: 'extraction-agent@1.0.0',
+      skillVersions: [],
+      createId: () => secondIds.shift()!,
+    });
+    expect(second).toMatchObject({
+      candidateId: 'candidate-multi-association',
+      draftId: 'draft-multi-association-2',
+      draftVersion: 2,
+      duplicate: false,
+    });
+    await expect(
+      submitPubmedAssociationCandidate({
+        source,
+        draft: draftFor('assoc_no_fda', 'unapprovedtinib'),
+        repository,
+        workflowVersion: 'single-pubmed-v4-database',
+        agentVersion: 'extraction-agent@1.0.0',
+        skillVersions: [],
+      })
+    ).resolves.toMatchObject({
+      candidateId: 'candidate-multi-association',
+      draftId: 'draft-multi-association-2',
+      draftVersion: 2,
+      duplicate: true,
+    });
+    expect(
+      await client!`
+        select association_id, draft_version
+        from evidence_draft
+        where candidate_document_id = 'candidate-multi-association'
+        order by draft_version
+      `
+    ).toEqual([
+      { association_id: 'assoc_direct', draft_version: 1 },
+      { association_id: 'assoc_no_fda', draft_version: 2 },
+    ]);
+  });
+
   it('persists a PubMed draft, publishes one idempotent patch release, and keeps the old release isolated', async () => {
     const database = drizzle(client!);
     const upstreamRepository =
@@ -777,6 +1014,20 @@ describe('Evidex PostgreSQL migration', () => {
         where version = 'v0.3.1'
       `
     ).toEqual([{ count: 1 }]);
+    expect(
+      await client!`
+        select proposed_level, approved_level, review_status, reviewed_by
+        from therapeutic_association
+        where id = 'assoc_direct'
+      `
+    ).toEqual([
+      {
+        proposed_level: '3A',
+        approved_level: '3A',
+        review_status: 'APPROVED',
+        reviewed_by: 'reviewer-session-user',
+      },
+    ]);
 
     const query = {
       disease: 'NSCLC',

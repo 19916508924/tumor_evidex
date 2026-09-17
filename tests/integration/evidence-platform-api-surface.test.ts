@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -58,4 +58,23 @@ describe('complete frontend API surface', () => {
       );
     });
   }
+
+  it('keeps every internal route free of a route-local session dependency', () => {
+    const internalRoot = resolve('src/app/api/internal/v1');
+    const internalRoutes = readdirSync(internalRoot, {
+      recursive: true,
+      withFileTypes: true,
+    }).filter((entry) => entry.isFile() && entry.name === 'route.ts');
+
+    expect(internalRoutes.length).toBeGreaterThan(0);
+    for (const entry of internalRoutes) {
+      const source = readFileSync(
+        resolve(entry.parentPath, entry.name),
+        'utf8'
+      );
+      expect(source).not.toMatch(
+        /@\/core\/rbac|getCurrentUserWithPermission|PERMISSIONS\.ADMIN_ACCESS/
+      );
+    }
+  });
 });

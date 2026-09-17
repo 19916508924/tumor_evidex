@@ -803,7 +803,7 @@ function OpsError({ retry }: { retry: () => void }) {
         <CircleAlert aria-hidden className="mt-0.5 shrink-0" size={20} />
         <div>
           <p className="font-semibold">数据暂时无法加载</p>
-          <p className="mt-1 text-sm">请检查登录状态或稍后重试。</p>
+          <p className="mt-1 text-sm">请刷新页面或稍后重试。</p>
           <button
             type="button"
             onClick={retry}

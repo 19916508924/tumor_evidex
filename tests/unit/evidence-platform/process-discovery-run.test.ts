@@ -743,7 +743,303 @@ describe('persistent Discovery Run processor', () => {
     );
   });
 
-  it('fails closed to human review when a CIViC therapy does not match the strategy association', async () => {
+  it('fans one CIViC PMID out to every exact existing treatment association even when the source candidate already exists', async () => {
+    const store = repository();
+    const plan = await store.beginDiscoveryRun('run-1');
+    store.beginDiscoveryRun = vi.fn().mockResolvedValue({
+      ...plan,
+      run: { ...plan!.run, source: 'CIVIC' },
+    });
+    const associations = [
+      {
+        id: 'association-gefitinib',
+        approvedLevel: '1',
+        gradingRationale: 'Reviewed gefitinib association.',
+        therapyNames: ['gefitinib'],
+        therapyMatchTerms: [['gefitinib', 'ZD1839']],
+        eligibilityTerms: {
+          diseases: ['NSCLC'],
+          genes: ['EGFR'],
+          variants: ['L858R'],
+        },
+      },
+      {
+        id: 'association-osimertinib',
+        approvedLevel: '1',
+        gradingRationale: 'Reviewed osimertinib association.',
+        therapyNames: ['osimertinib'],
+        therapyMatchTerms: [['osimertinib', 'AZD9291']],
+        eligibilityTerms: {
+          diseases: ['NSCLC'],
+          genes: ['EGFR'],
+          variants: ['L858R'],
+        },
+      },
+    ];
+    const upstream = {
+      getAssociationReviewContext: vi.fn(),
+      listAssociationReviewContexts: vi.fn().mockResolvedValue(associations),
+      findDuplicate: vi.fn().mockResolvedValue({
+        candidateId: 'candidate-existing',
+        workflowRunId: 'workflow-existing',
+        draftId: null,
+        draftVersion: null,
+        reviewTaskId: null,
+        status: 'NEEDS_HUMAN',
+        duplicate: false,
+      }),
+      findCandidateAssociationDraft: vi.fn().mockResolvedValue(null),
+      createCandidateBundle: vi.fn(),
+      createCandidateAssociationBundle: vi
+        .fn()
+        .mockImplementation(async ({ candidateId, draft, ids }) => ({
+          candidateId,
+          ...ids,
+          draftVersion: 1,
+          status: 'READY_FOR_REVIEW',
+          duplicate: false,
+          associationId: draft.associationId,
+        })),
+      createCandidateOutcome: vi.fn(),
+    };
+    const generator = {
+      generate: vi.fn().mockImplementation(async ({ association }) => ({
+        claims: [
+          {
+            claimType: 'EFFICACY',
+            evidenceMaturity: 'LIMITED_CLINICAL',
+            studyType: 'cohort',
+            studyName: null,
+            populationSummary: 'EGFR L858R NSCLC',
+            sampleSize: 20,
+            diseaseStage: null,
+            treatmentLine: null,
+            priorTherapy: null,
+            intervention: association.therapyNames[0],
+            comparator: null,
+            endpoint: 'response',
+            effectValue: null,
+            conclusion: `${association.therapyNames[0]} response was observed.`,
+            limitations: 'Small cohort.',
+          },
+        ],
+        qaIssues: [],
+      })),
+    };
+
+    const result = await processPersistentDiscoveryRun({
+      runId: 'run-1',
+      repository: store,
+      upstreamRepository: upstream,
+      pubmed: {
+        previewSearch: vi.fn(),
+        searchIncremental: vi.fn(),
+        searchPage: vi.fn(),
+        fetchDocument: vi.fn().mockResolvedValue({
+          pmid: '18509184',
+          title: 'Gefitinib and osimertinib in EGFR L858R NSCLC',
+          abstract:
+            'Patients with EGFR L858R NSCLC received gefitinib or osimertinib. Response was observed in a small cohort.',
+          doi: null,
+          documentHash: 'multi-association-hash',
+          url: 'https://pubmed.ncbi.nlm.nih.gov/18509184/',
+        }),
+      },
+      civic: {
+        previewSearch: vi.fn(),
+        searchPage: vi.fn().mockResolvedValue({
+          ids: ['18509184'],
+          total: 2,
+          nextCursor: null,
+          provenanceById: {
+            '18509184': {
+              source: 'CIVIC',
+              retrievedAt: '2026-09-17T00:00:00.000Z',
+              query: {
+                version: 1,
+                diseaseId: 'disease_nsclc',
+                variantId: 'variant_egfr_l858r',
+                geneSymbol: 'EGFR',
+                profileName: 'L858R',
+                diseaseName: 'Lung Non-small Cell Carcinoma',
+              },
+              evidenceItems: [
+                {
+                  eid: 1,
+                  name: 'Gefitinib evidence',
+                  molecularProfile: 'EGFR L858R',
+                  disease: 'Lung Non-small Cell Carcinoma',
+                  diseaseDoid: '3908',
+                  therapies: ['Gefitinib'],
+                  evidenceLevel: 'B',
+                  evidenceDirection: 'SUPPORTS',
+                  significance: 'SENSITIVITYRESPONSE',
+                  citation: null,
+                  publicationYear: 2008,
+                  applicability: 'EXACT',
+                },
+                {
+                  eid: 2,
+                  name: 'Osimertinib evidence',
+                  molecularProfile: 'EGFR L858R',
+                  disease: 'Lung Non-small Cell Carcinoma',
+                  diseaseDoid: '3908',
+                  therapies: ['AZD9291'],
+                  evidenceLevel: 'B',
+                  evidenceDirection: 'SUPPORTS',
+                  significance: 'SENSITIVITYRESPONSE',
+                  citation: null,
+                  publicationYear: 2014,
+                  applicability: 'EXACT',
+                },
+              ],
+            },
+          },
+        }),
+      },
+      extractionGenerator: generator,
+      workflowVersion: 'single-pubmed-v4',
+      agentVersion: 'extraction-agent@2.0.0',
+    });
+
+    expect(upstream.listAssociationReviewContexts).toHaveBeenCalledWith({
+      diseaseId: 'disease_nsclc',
+      variantId: 'variant_egfr_l858r',
+    });
+    expect(generator.generate).toHaveBeenCalledTimes(2);
+    expect(upstream.createCandidateAssociationBundle).toHaveBeenCalledTimes(2);
+    expect(
+      upstream.createCandidateAssociationBundle.mock.calls.map(
+        ([input]) => input.draft.associationId
+      )
+    ).toEqual(['association-gefitinib', 'association-osimertinib']);
+    expect(store.recordDiscoveryDocumentOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalId: '18509184',
+        outcome: 'READY_FOR_REVIEW',
+        candidateDocumentId: 'candidate-existing',
+      })
+    );
+    expect(result).toMatchObject({
+      status: 'SUCCEEDED',
+      counts: { readyForReview: 1, failed: 0 },
+    });
+  });
+
+  it('skips model extraction when the exact CIViC association draft already exists', async () => {
+    const store = repository();
+    const plan = await store.beginDiscoveryRun('run-1');
+    store.beginDiscoveryRun = vi.fn().mockResolvedValue({
+      ...plan,
+      run: { ...plan!.run, source: 'CIVIC' },
+    });
+    const existing = {
+      candidateId: 'candidate-existing',
+      workflowRunId: 'workflow-existing',
+      draftId: 'draft-existing',
+      draftVersion: 1,
+      reviewTaskId: 'review-existing',
+      status: 'READY_FOR_REVIEW' as const,
+      duplicate: false,
+    };
+    const generator = { generate: vi.fn() };
+    const upstream = {
+      getAssociationReviewContext: vi.fn(),
+      listAssociationReviewContexts: vi.fn().mockResolvedValue([
+        {
+          id: 'association-gefitinib',
+          approvedLevel: '1',
+          gradingRationale: 'Reviewed association.',
+          therapyNames: ['gefitinib'],
+          therapyMatchTerms: [['gefitinib', 'ZD1839']],
+          eligibilityTerms: {
+            diseases: ['NSCLC'],
+            genes: ['EGFR'],
+            variants: ['L858R'],
+          },
+        },
+      ]),
+      findDuplicate: vi.fn().mockResolvedValue(existing),
+      findCandidateAssociationDraft: vi.fn().mockResolvedValue(existing),
+      createCandidateBundle: vi.fn(),
+      createCandidateAssociationBundle: vi.fn(),
+    };
+
+    const result = await processPersistentDiscoveryRun({
+      runId: 'run-1',
+      repository: store,
+      upstreamRepository: upstream,
+      pubmed: {
+        previewSearch: vi.fn(),
+        searchIncremental: vi.fn(),
+        searchPage: vi.fn(),
+        fetchDocument: vi.fn().mockResolvedValue({
+          pmid: '18509184',
+          title: 'Gefitinib in EGFR L858R NSCLC',
+          abstract: 'Patients with EGFR L858R NSCLC received gefitinib.',
+          doi: null,
+          documentHash: 'existing-association-hash',
+          url: 'https://pubmed.ncbi.nlm.nih.gov/18509184/',
+        }),
+      },
+      civic: {
+        previewSearch: vi.fn(),
+        searchPage: vi.fn().mockResolvedValue({
+          ids: ['18509184'],
+          total: 1,
+          nextCursor: null,
+          provenanceById: {
+            '18509184': {
+              source: 'CIVIC',
+              retrievedAt: '2026-09-17T00:00:00.000Z',
+              query: {
+                version: 1,
+                diseaseId: 'disease_nsclc',
+                variantId: 'variant_egfr_l858r',
+                geneSymbol: 'EGFR',
+                profileName: 'L858R',
+                diseaseName: 'Lung Non-small Cell Carcinoma',
+              },
+              evidenceItems: [
+                {
+                  eid: 1,
+                  name: 'Gefitinib evidence',
+                  molecularProfile: 'EGFR L858R',
+                  disease: 'Lung Non-small Cell Carcinoma',
+                  diseaseDoid: '3908',
+                  therapies: ['ZD1839'],
+                  evidenceLevel: 'B',
+                  evidenceDirection: 'SUPPORTS',
+                  significance: 'SENSITIVITYRESPONSE',
+                  citation: null,
+                  publicationYear: 2008,
+                  applicability: 'EXACT',
+                },
+              ],
+            },
+          },
+        }),
+      },
+      extractionGenerator: generator,
+      workflowVersion: 'single-pubmed-v4',
+      agentVersion: 'extraction-agent@2.0.0',
+    });
+
+    expect(generator.generate).not.toHaveBeenCalled();
+    expect(upstream.createCandidateAssociationBundle).not.toHaveBeenCalled();
+    expect(store.recordDiscoveryDocumentOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({
+        outcome: 'DUPLICATE',
+        candidateDocumentId: 'candidate-existing',
+      })
+    );
+    expect(result).toMatchObject({
+      status: 'SUCCEEDED',
+      counts: { duplicate: 1, failed: 0 },
+    });
+  });
+
+  it('keeps an exact CIViC therapy match in human review when source text lacks the exact variant', async () => {
     const store = repository();
     const plan = await store.beginDiscoveryRun('run-1');
     store.beginDiscoveryRun = vi.fn().mockResolvedValue({
@@ -757,23 +1053,184 @@ describe('persistent Discovery Run processor', () => {
       status: 'NEEDS_HUMAN',
     });
 
+    const result = await processPersistentDiscoveryRun({
+      runId: 'run-1',
+      repository: store,
+      upstreamRepository: {
+        getAssociationReviewContext: vi.fn(),
+        listAssociationReviewContexts: vi.fn().mockResolvedValue([
+          {
+            id: 'association-afatinib',
+            approvedLevel: '1',
+            gradingRationale: 'Reviewed association.',
+            therapyNames: ['afatinib'],
+            therapyMatchTerms: [['afatinib']],
+            eligibilityTerms: {
+              diseases: ['NSCLC'],
+              genes: ['EGFR'],
+              variants: ['L858R'],
+            },
+          },
+        ]),
+        findDuplicate: vi.fn().mockResolvedValue(null),
+        findCandidateAssociationDraft: vi.fn(),
+        createCandidateBundle: vi.fn(),
+        createCandidateAssociationBundle: vi.fn(),
+        createCandidateOutcome,
+      },
+      pubmed: {
+        previewSearch: vi.fn(),
+        searchIncremental: vi.fn(),
+        searchPage: vi.fn(),
+        fetchDocument: vi.fn().mockResolvedValue({
+          pmid: '18408761',
+          title: 'Afatinib in EGFR-mutant NSCLC',
+          abstract: 'Patients with EGFR-mutant NSCLC received afatinib.',
+          doi: null,
+          documentHash: 'missing-exact-variant-hash',
+          url: 'https://pubmed.ncbi.nlm.nih.gov/18408761/',
+        }),
+      },
+      civic: {
+        previewSearch: vi.fn(),
+        searchPage: vi.fn().mockResolvedValue({
+          ids: ['18408761'],
+          total: 1,
+          nextCursor: null,
+          provenanceById: {
+            '18408761': {
+              source: 'CIVIC',
+              retrievedAt: '2026-09-17T00:00:00.000Z',
+              query: {
+                version: 1,
+                diseaseId: 'disease_nsclc',
+                variantId: 'variant_egfr_l858r',
+                geneSymbol: 'EGFR',
+                profileName: 'L858R',
+                diseaseName: 'Lung Non-small Cell Carcinoma',
+              },
+              evidenceItems: [
+                {
+                  eid: 1,
+                  name: 'Afatinib evidence',
+                  molecularProfile: 'EGFR L858R',
+                  disease: 'Lung Non-small Cell Carcinoma',
+                  diseaseDoid: '3908',
+                  therapies: ['Afatinib'],
+                  evidenceLevel: 'B',
+                  evidenceDirection: 'SUPPORTS',
+                  significance: 'SENSITIVITYRESPONSE',
+                  citation: null,
+                  publicationYear: 2008,
+                  applicability: 'EXACT',
+                },
+              ],
+            },
+          },
+        }),
+      },
+      extractionGenerator: generator,
+      workflowVersion: 'single-pubmed-v4',
+      agentVersion: 'extraction-agent@2.0.0',
+    });
+
+    expect(generator.generate).not.toHaveBeenCalled();
+    expect(createCandidateOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({
+        associationId: 'association-afatinib',
+        status: 'NEEDS_HUMAN',
+        reason: expect.objectContaining({
+          code: 'TARGET_VARIANT_NOT_FOUND',
+          stage: 'screen_evidence_eligibility',
+        }),
+      })
+    );
+    expect(result).toMatchObject({
+      status: 'FAILED',
+      counts: { readyForReview: 0, failed: 1 },
+    });
+  });
+
+  it('stages a missing group-level CIViC therapy entity and association when the source confirms the relation', async () => {
+    const store = repository();
+    const plan = await store.beginDiscoveryRun('run-1');
+    store.beginDiscoveryRun = vi.fn().mockResolvedValue({
+      ...plan,
+      run: { ...plan!.run, source: 'CIVIC' },
+    });
+    const generator = {
+      generate: vi.fn().mockResolvedValue({
+        claims: [
+          {
+            claimType: 'EFFICACY',
+            evidenceMaturity: 'LIMITED_CLINICAL',
+            studyType: 'cohort',
+            studyName: null,
+            populationSummary: 'EGFR L858R NSCLC',
+            sampleSize: 12,
+            diseaseStage: null,
+            treatmentLine: null,
+            priorTherapy: null,
+            intervention: 'erlotinib',
+            comparator: null,
+            endpoint: 'response',
+            effectValue: null,
+            conclusion: 'A response was observed.',
+            limitations: 'Small cohort.',
+          },
+        ],
+        qaIssues: [],
+      }),
+    };
+    const createCandidateOutcome = vi.fn().mockResolvedValue({
+      candidateId: 'candidate-needs-human',
+      workflowRunId: 'workflow-needs-human',
+      status: 'NEEDS_HUMAN',
+    });
+    const ensureCivicAssociationReviewContext = vi.fn().mockResolvedValue({
+      id: 'association-erlotinib',
+      approvedLevel: 'UNRATED',
+      gradingRationale: 'Staged from source-confirmed CIViC metadata.',
+      therapyNames: ['erlotinib'],
+      therapyMatchTerms: [['erlotinib']],
+      eligibilityTerms: {
+        diseases: ['NSCLC'],
+        genes: ['EGFR'],
+        variants: ['L858R'],
+      },
+    });
+    const createCandidateBundle = vi.fn().mockResolvedValue({
+      candidateId: 'candidate-erlotinib',
+      workflowRunId: 'workflow-erlotinib',
+      draftId: 'draft-erlotinib',
+      draftVersion: 1,
+      reviewTaskId: 'review-erlotinib',
+      status: 'READY_FOR_REVIEW',
+      duplicate: false,
+    });
+
     await processPersistentDiscoveryRun({
       runId: 'run-1',
       repository: store,
       upstreamRepository: {
-        getAssociationReviewContext: vi.fn().mockResolvedValue({
-          id: 'association-osimertinib',
-          approvedLevel: '1',
-          gradingRationale: 'Reviewed association.',
-          therapyNames: ['osimertinib'],
-          eligibilityTerms: {
-            diseases: ['NSCLC'],
-            genes: ['EGFR'],
-            variants: ['L858R'],
+        getAssociationReviewContext: vi.fn(),
+        listAssociationReviewContexts: vi.fn().mockResolvedValue([
+          {
+            id: 'association-osimertinib',
+            approvedLevel: '1',
+            gradingRationale: 'Reviewed association.',
+            therapyNames: ['osimertinib'],
+            eligibilityTerms: {
+              diseases: ['NSCLC'],
+              genes: ['EGFR'],
+              variants: ['L858R'],
+            },
           },
-        }),
+        ]),
+        ensureCivicAssociationReviewContext,
         findDuplicate: vi.fn().mockResolvedValue(null),
-        createCandidateBundle: vi.fn(),
+        findCandidateAssociationDraft: vi.fn().mockResolvedValue(null),
+        createCandidateBundle,
         createCandidateOutcome,
       },
       pubmed: {
@@ -820,7 +1277,7 @@ describe('persistent Discovery Run processor', () => {
                   significance: 'SENSITIVITYRESPONSE',
                   citation: 'Khozin et al., 2014',
                   publicationYear: 2014,
-                  applicability: 'EXACT',
+                  applicability: 'GROUP_INCLUDES_EXACT',
                 },
               ],
             },
@@ -832,16 +1289,139 @@ describe('persistent Discovery Run processor', () => {
       agentVersion: 'extraction-agent@2.0.0',
     });
 
-    expect(generator.generate).not.toHaveBeenCalled();
-    expect(createCandidateOutcome).toHaveBeenCalledWith(
+    expect(ensureCivicAssociationReviewContext).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: 'NEEDS_HUMAN',
-        associationId: 'association-osimertinib',
-        reason: expect.objectContaining({
-          code: 'CIVIC_THERAPY_ASSOCIATION_REVIEW_REQUIRED',
-          stage: 'verify_civic_association',
-        }),
+        diseaseId: 'disease_nsclc',
+        variantId: 'variant_egfr_l858r',
+        therapies: ['Erlotinib'],
+        direction: 'SENSITIVITY',
+        variantApplicability: 'EXPLICIT_GROUP_INCLUDES_EXACT',
+        sourcePmid: '24868098',
       })
     );
+    expect(generator.generate).toHaveBeenCalledTimes(1);
+    expect(createCandidateBundle).toHaveBeenCalledTimes(1);
+    expect(createCandidateOutcome).not.toHaveBeenCalled();
+  });
+
+  it('keeps CIViC candidates auditable when the target, source relation, or staged association cannot be resolved', async () => {
+    const store = repository();
+    const plan = await store.beginDiscoveryRun('run-1');
+    store.beginDiscoveryRun = vi.fn().mockResolvedValue({
+      ...plan,
+      run: { ...plan!.run, source: 'CIVIC' },
+    });
+    const targetContext = {
+      id: 'association-osimertinib',
+      approvedLevel: '1',
+      gradingRationale: 'Reviewed association.',
+      therapyNames: ['osimertinib'],
+      eligibilityTerms: {
+        diseases: ['NSCLC'],
+        genes: ['EGFR'],
+        variants: ['L858R'],
+      },
+    };
+    const createCandidateOutcome = vi
+      .fn()
+      .mockImplementation(async ({ source, status }) => ({
+        candidateId: `candidate-${source.pmid}`,
+        workflowRunId: `workflow-${source.pmid}`,
+        status,
+      }));
+    const ensureCivicAssociationReviewContext = vi.fn().mockResolvedValue(null);
+    const itemFor = (eid: number) => ({
+      eid,
+      name: `EID${eid}`,
+      molecularProfile: 'EGFR L858R',
+      disease: 'Lung Non-small Cell Carcinoma',
+      diseaseDoid: '3908',
+      therapies: ['Erlotinib'],
+      evidenceLevel: 'B',
+      evidenceDirection: 'SUPPORTS',
+      significance: 'SENSITIVITYRESPONSE',
+      citation: null,
+      publicationYear: 2020,
+      applicability: 'EXACT' as const,
+    });
+    const provenanceFor = (eid: number) => ({
+      source: 'CIVIC' as const,
+      retrievedAt: '2026-09-17T00:00:00.000Z',
+      query: {
+        version: 1 as const,
+        diseaseId: 'disease_nsclc',
+        variantId: 'variant_egfr_l858r',
+        geneSymbol: 'EGFR',
+        profileName: 'L858R',
+        diseaseName: 'Lung Non-small Cell Carcinoma',
+      },
+      evidenceItems: [itemFor(eid)],
+    });
+
+    const result = await processPersistentDiscoveryRun({
+      runId: 'run-1',
+      repository: store,
+      upstreamRepository: {
+        getAssociationReviewContext: vi.fn().mockResolvedValue(null),
+        listAssociationReviewContexts: vi
+          .fn()
+          .mockResolvedValueOnce([])
+          .mockResolvedValue([targetContext]),
+        ensureCivicAssociationReviewContext,
+        findDuplicate: vi.fn().mockResolvedValue(null),
+        findCandidateAssociationDraft: vi.fn().mockResolvedValue(null),
+        createCandidateBundle: vi.fn(),
+        createCandidateAssociationBundle: vi.fn(),
+        createCandidateOutcome,
+      },
+      pubmed: {
+        previewSearch: vi.fn(),
+        searchIncremental: vi.fn(),
+        searchPage: vi.fn(),
+        fetchDocument: vi.fn().mockImplementation(async (pmid: string) => ({
+          pmid,
+          title:
+            pmid === '30000002'
+              ? 'EGFR L858R NSCLC cohort'
+              : 'Erlotinib in EGFR L858R NSCLC',
+          abstract:
+            pmid === '30000002'
+              ? 'Patients with EGFR L858R NSCLC received targeted therapy.'
+              : 'Patients with EGFR L858R NSCLC received erlotinib.',
+          doi: null,
+          documentHash: `hash-${pmid}`,
+          url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+        })),
+      },
+      civic: {
+        previewSearch: vi.fn(),
+        searchPage: vi.fn().mockResolvedValue({
+          ids: ['30000001', '30000002', '30000003'],
+          total: 3,
+          nextCursor: null,
+          provenanceById: {
+            '30000001': provenanceFor(1),
+            '30000002': provenanceFor(2),
+            '30000003': provenanceFor(3),
+          },
+        }),
+      },
+      extractionGenerator: { generate: vi.fn() },
+      workflowVersion: 'single-pubmed-v4',
+      agentVersion: 'extraction-agent@2.0.0',
+    });
+
+    expect(
+      createCandidateOutcome.mock.calls.map(([input]) => input.reason.code)
+    ).toEqual([
+      'CIVIC_TARGET_CONTEXT_UNAVAILABLE',
+      'CIVIC_RELATION_NOT_CONFIRMED_IN_SOURCE',
+      'CIVIC_ASSOCIATION_STAGING_FAILED',
+    ]);
+    expect(ensureCivicAssociationReviewContext).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject({
+      status: 'FAILED',
+      counts: { readyForReview: 0, failed: 3 },
+    });
   });
 });

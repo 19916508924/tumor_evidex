@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  submitPubmedAssociationCandidate,
   submitPubmedCandidate,
   type CandidateBundle,
   type CandidateSourceInput,
@@ -142,6 +143,146 @@ describe('single PubMed candidate workflow', () => {
       })
     ).resolves.toEqual({ ...existing, duplicate: true });
     expect(store.createCandidateBundle).not.toHaveBeenCalled();
+  });
+
+  it('adds a new association draft to an existing PMID without duplicating the source candidate', async () => {
+    const existing: CandidateBundle = {
+      candidateId: 'candidate-master',
+      workflowRunId: 'workflow-old',
+      draftId: null,
+      draftVersion: null,
+      reviewTaskId: null,
+      status: 'NEEDS_HUMAN',
+      duplicate: false,
+    };
+    const store = {
+      ...repository(existing),
+      findCandidateAssociationDraft: vi.fn().mockResolvedValue(null),
+      createCandidateAssociationBundle: vi
+        .fn()
+        .mockImplementation(async ({ candidateId, ids }) => ({
+          candidateId,
+          ...ids,
+          draftVersion: 1,
+          status: 'READY_FOR_REVIEW',
+          duplicate: false,
+        })),
+    };
+    const ids = ['workflow-new', 'draft-new', 'review-new'];
+
+    const result = await submitPubmedAssociationCandidate({
+      source,
+      draft,
+      repository: store,
+      workflowVersion: 'single-pubmed-v4',
+      agentVersion: 'extraction-agent@1.0.0',
+      skillVersions: ['extract_evidence_claims@1.0.0'],
+      createId: () => ids.shift()!,
+    });
+
+    expect(store.findCandidateAssociationDraft).toHaveBeenCalledWith(
+      'candidate-master',
+      'assoc-egfr-l858r-osimertinib'
+    );
+    expect(store.createCandidateBundle).not.toHaveBeenCalled();
+    expect(store.createCandidateAssociationBundle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        candidateId: 'candidate-master',
+        ids: {
+          workflowRunId: 'workflow-new',
+          draftId: 'draft-new',
+          reviewTaskId: 'review-new',
+        },
+      })
+    );
+    expect(result).toMatchObject({
+      candidateId: 'candidate-master',
+      status: 'READY_FOR_REVIEW',
+      duplicate: false,
+    });
+  });
+
+  it('creates the first source bundle when an association-aware submission is new', async () => {
+    const store = repository();
+    const ids = ['candidate-new', 'workflow-new', 'draft-new', 'review-new'];
+
+    await expect(
+      submitPubmedAssociationCandidate({
+        source,
+        draft,
+        repository: store,
+        workflowVersion: 'single-pubmed-v4',
+        agentVersion: 'extraction-agent@1.0.0',
+        skillVersions: [],
+        createId: () => ids.shift()!,
+      })
+    ).resolves.toMatchObject({
+      candidateId: 'candidate-new',
+      draftVersion: 1,
+      duplicate: false,
+    });
+    expect(store.createCandidateBundle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ids: {
+          candidateId: 'candidate-new',
+          workflowRunId: 'workflow-new',
+          draftId: 'draft-new',
+          reviewTaskId: 'review-new',
+        },
+      })
+    );
+  });
+
+  it('fails closed when an existing source cannot persist association-specific drafts', async () => {
+    const store = repository({
+      candidateId: 'candidate-existing',
+      workflowRunId: null,
+      draftId: null,
+      draftVersion: null,
+      reviewTaskId: null,
+      status: 'NEEDS_HUMAN',
+      duplicate: false,
+    });
+
+    await expect(
+      submitPubmedAssociationCandidate({
+        source,
+        draft,
+        repository: store,
+        workflowVersion: 'single-pubmed-v4',
+        agentVersion: 'extraction-agent@1.0.0',
+        skillVersions: [],
+      })
+    ).rejects.toThrow(/association-aware candidate repository/i);
+  });
+
+  it('does not create another draft when the PMID and association are already staged', async () => {
+    const existing: CandidateBundle = {
+      candidateId: 'candidate-master',
+      workflowRunId: 'workflow-existing',
+      draftId: 'draft-existing',
+      draftVersion: 3,
+      reviewTaskId: 'review-existing',
+      status: 'READY_FOR_REVIEW',
+      duplicate: false,
+    };
+    const store = {
+      ...repository(existing),
+      findCandidateAssociationDraft: vi.fn().mockResolvedValue(existing),
+      createCandidateAssociationBundle: vi.fn(),
+    };
+
+    await expect(
+      submitPubmedAssociationCandidate({
+        source,
+        draft,
+        repository: store,
+        workflowVersion: 'single-pubmed-v4',
+        agentVersion: 'extraction-agent@1.0.0',
+        skillVersions: [],
+      })
+    ).resolves.toEqual({ ...existing, duplicate: true });
+    expect(store.createCandidateAssociationBundle).not.toHaveBeenCalled();
   });
 
   it('rejects unsafe or incomplete drafts before any database write', async () => {

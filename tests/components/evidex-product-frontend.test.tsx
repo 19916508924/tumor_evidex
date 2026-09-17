@@ -205,7 +205,14 @@ describe('Evidex public product frontend', () => {
       'href',
       '/zh/knowledge'
     );
+    expect(screen.getByRole('link', { name: '证据审核' })).toHaveAttribute(
+      'href',
+      '/zh/ops/reviews'
+    );
     expect(screen.getByText('页面内容')).toBeVisible();
+    expect(
+      screen.queryByRole('link', { name: /登录|注册|用户中心|退出登录/ })
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByText(/后端|接口|体验版|V0\.2|知识库版本/i)
     ).not.toBeInTheDocument();
@@ -1183,9 +1190,8 @@ describe('Evidex operations frontend', () => {
     ).toBeVisible();
   });
 
-  it('marks the current operations section and returns focus when closing mobile navigation', async () => {
+  it('keeps the desktop operations sidebar visible without mobile navigation controls', () => {
     window.history.replaceState({}, '', '/zh/ops/candidates');
-    const user = userEvent.setup();
 
     render(
       <OpsShell locale="zh">
@@ -1197,10 +1203,16 @@ describe('Evidex operations frontend', () => {
       'aria-current',
       'page'
     );
-    const trigger = screen.getByRole('button', { name: '打开运营导航' });
-    await user.click(trigger);
-    await user.keyboard('{Escape}');
-    expect(trigger).toHaveFocus();
+    expect(screen.getByLabelText('运营中心侧栏')).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: '打开运营导航' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: '关闭运营导航' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: '关闭导航遮罩' })
+    ).not.toBeInTheDocument();
   });
 
   it('renders a real operations collection without exposing raw JSON', async () => {
